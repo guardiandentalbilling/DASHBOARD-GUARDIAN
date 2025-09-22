@@ -1,0 +1,10 @@
+[build]
+  publish = "GuardianDashBaordAI/pages"
+  command = ""
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+# Add more settings as needed for your project
