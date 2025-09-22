@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard Overview</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-4 py-6">
+        <!-- Key Metrics Overview -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Total Employees</p>
+                        <p class="text-3xl font-bold text-gray-900" id="totalEmployees">--</p>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-users text-blue-600 text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <span class="text-green-600 text-sm font-medium" id="employeeGrowth">+0%</span>
+                    <span class="text-gray-500 text-sm">vs last month</span>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Present Today</p>
+                        <p class="text-3xl font-bold text-gray-900" id="presentToday">--</p>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-clock text-green-600 text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <span class="text-blue-600 text-sm font-medium" id="attendanceRate">0%</span>
+                    <span class="text-gray-500 text-sm">attendance rate</span>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Pending Loans</p>
+                        <p class="text-3xl font-bold text-gray-900" id="pendingLoans">--</p>
+                    </div>
+                    <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-file-invoice-dollar text-yellow-600 text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <span class="text-red-600 text-sm font-medium" id="loanAmount">$0</span>
+                    <span class="text-gray-500 text-sm">total amount</span>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Leave Requests</p>
+                        <p class="text-3xl font-bold text-gray-900" id="leaveRequests">--</p>
+                    </div>
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-calendar-check text-purple-600 text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <span class="text-orange-600 text-sm font-medium" id="leaveStatus">0 pending</span>
+                    <span class="text-gray-500 text-sm">review</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts and Analytics -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Attendance Trends (Last 7 Days)</h3>
+                <canvas id="attendanceChart" width="400" height="200"></canvas>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Department Distribution</h3>
+                <canvas id="departmentChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- Recent Activities -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Recent Check-ins</h3>
+                <div id="recentCheckins" class="space-y-3">
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-clock text-green-600 text-sm"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-gray-900">Loading...</p>
+                                <p class="text-xs text-gray-500">Loading recent check-ins...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">System Alerts</h3>
+                <div id="systemAlerts" class="space-y-3">
+                    <div class="flex items-center p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-exclamation-triangle text-yellow-600 text-sm"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-gray-900">System Status</p>
+                            <p class="text-xs text-gray-500">All systems operational</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="bg-white rounded-lg shadow-md p-6 mt-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <button onclick="navigateToPage('Add Employee')" class="flex flex-col items-center p-4 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
+                    <i class="fas fa-user-plus text-blue-600 text-2xl mb-2"></i>
+                    <span class="text-sm font-medium text-blue-900">Add Employee</span>
+                </button>
+                <button onclick="navigateToPage('Attendance Reports')" class="flex flex-col items-center p-4 bg-green-50 hover:bg-green-100 rounded-lg transition-colors">
+                    <i class="fas fa-chart-bar text-green-600 text-2xl mb-2"></i>
+                    <span class="text-sm font-medium text-green-900">Attendance Reports</span>
+                </button>
+                <button onclick="navigateToPage('Loan Requests')" class="flex flex-col items-center p-4 bg-yellow-50 hover:bg-yellow-100 rounded-lg transition-colors">
+                    <i class="fas fa-hand-holding-usd text-yellow-600 text-2xl mb-2"></i>
+                    <span class="text-sm font-medium text-yellow-900">Loan Requests</span>
+                </button>
+                <button onclick="navigateToPage('Reports')" class="flex flex-col items-center p-4 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors">
+                    <i class="fas fa-file-chart-pie text-purple-600 text-2xl mb-2"></i>
+                    <span class="text-sm font-medium text-purple-900">Full Reports</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global function to navigate to pages (will be called by parent window)
+        function navigateToPage(pageName) {
+            if (window.parent && window.parent.loadContent) {
+                window.parent.loadContent(pageName);
+            }
+        }
+
+        // Dashboard data loading and chart initialization
+        let attendanceChart, departmentChart;
+
+        const API_BASE_URL = 'http://localhost:5000/api';
+
+        async function loadDashboardData() {
+            try {
+                // Load employees data
+                const employeesResponse = await fetch(`${API_BASE_URL}/employees`);
+                const employees = await employeesResponse.json();
+                
+                // Load attendance data for today
+                const today = new Date().toISOString().split('T')[0];
+                const attendanceResponse = await fetch(`${API_BASE_URL}/attendance/date/${today}`);
+                const todayAttendance = await attendanceResponse.json();
+
+                // Load loan requests
+                const loansResponse = await fetch(`${API_BASE_URL}/loans`);
+                const loans = await loansResponse.json();
+
+                // Update metrics
+                updateMetrics(employees, todayAttendance, loans);
+                
+                // Load charts
+                await loadAttendanceChart();
+                await loadDepartmentChart(employees);
+                
+                // Load recent activities
+                await loadRecentCheckins();
+                
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+                showErrorState();
+            }
+        }
+
+        function updateMetrics(employees, attendance, loans) {
+            // Total employees
+            document.getElementById('totalEmployees').textContent = employees.length;
+            
+            // Present today
+            const presentCount = attendance.filter(a => a.status === 'present').length;
+            document.getElementById('presentToday').textContent = presentCount;
+            
+            // Attendance rate
+            const attendanceRate = employees.length > 0 ? Math.round((presentCount / employees.length) * 100) : 0;
+            document.getElementById('attendanceRate').textContent = `${attendanceRate}%`;
+            
+            // Pending loans
+            const pendingLoans = loans.filter(loan => loan.status === 'pending');
+            document.getElementById('pendingLoans').textContent = pendingLoans.length;
+            
+            // Total loan amount
+            const totalLoanAmount = pendingLoans.reduce((sum, loan) => sum + loan.amount, 0);
+            document.getElementById('loanAmount').textContent = `$${totalLoanAmount.toLocaleString()}`;
+        }
+
+        async function loadAttendanceChart() {
+            try {
+                const last7Days = [];
+                const attendanceData = [];
+                
+                for (let i = 6; i >= 0; i--) {
+                    const date = new Date();
+                    date.setDate(date.getDate() - i);
+                    const dateStr = date.toISOString().split('T')[0];
+                    last7Days.push(date.toLocaleDateString('en-US', { weekday: 'short' }));
+                    
+                    // Get attendance for this date
+                    try {
+                        const response = await fetch(`${API_BASE_URL}/attendance/date/${dateStr}`);
+                        const dayAttendance = await response.json();
+                        const presentCount = dayAttendance.filter(a => a.status === 'present').length;
+                        attendanceData.push(presentCount);
+                    } catch {
+                        attendanceData.push(0);
+                    }
+                }
+
+                const ctx = document.getElementById('attendanceChart').getContext('2d');
+                attendanceChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: last7Days,
+                        datasets: [{
+                            label: 'Present Employees',
+                            data: attendanceData,
+                            borderColor: 'rgb(59, 130, 246)',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading attendance chart:', error);
+            }
+        }
+
+        async function loadDepartmentChart(employees) {
+            const departments = {};
+            employees.forEach(emp => {
+                const dept = emp.department || 'Unassigned';
+                departments[dept] = (departments[dept] || 0) + 1;
+            });
+
+            const ctx = document.getElementById('departmentChart').getContext('2d');
+            departmentChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(departments),
+                    datasets: [{
+                        data: Object.values(departments),
+                        backgroundColor: [
+                            '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        async function loadRecentCheckins() {
+            try {
+                const today = new Date().toISOString().split('T')[0];
+                const response = await fetch(`${API_BASE_URL}/attendance/date/${today}`);
+                const attendance = await response.json();
+                
+                const recentCheckins = attendance
+                    .filter(a => a.checkInTime)
+                    .sort((a, b) => new Date(b.checkInTime) - new Date(a.checkInTime))
+                    .slice(0, 5);
+
+                const container = document.getElementById('recentCheckins');
+                if (recentCheckins.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-8 text-gray-500">
+                            <i class="fas fa-clock text-2xl mb-2"></i>
+                            <p>No check-ins today</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = recentCheckins.map(attendance => {
+                    const checkInTime = new Date(attendance.checkInTime).toLocaleTimeString('en-US', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                    
+                    return `
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-clock text-green-600 text-sm"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm font-medium text-gray-900">${attendance.employeeName || 'Employee'}</p>
+                                    <p class="text-xs text-gray-500">Checked in at ${checkInTime}</p>
+                                </div>
+                            </div>
+                            <span class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">
+                                ${attendance.status}
+                            </span>
+                        </div>
+                    `;
+                }).join('');
+                
+            } catch (error) {
+                console.error('Error loading recent check-ins:', error);
+                document.getElementById('recentCheckins').innerHTML = `
+                    <div class="text-center py-8 text-red-500">
+                        <i class="fas fa-exclamation-triangle text-2xl mb-2"></i>
+                        <p>Error loading check-ins</p>
+                    </div>
+                `;
+            }
+        }
+
+        function showErrorState() {
+            document.getElementById('totalEmployees').textContent = 'Error';
+            document.getElementById('presentToday').textContent = 'Error';
+            document.getElementById('pendingLoans').textContent = 'Error';
+            document.getElementById('leaveRequests').textContent = 'Error';
+        }
+
+        // Initialize dashboard when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDashboardData();
+            
+            // Refresh data every 5 minutes
+            setInterval(loadDashboardData, 300000);
+        });
+    </script>
+</body>
+</html>

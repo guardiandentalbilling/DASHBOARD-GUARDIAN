@@ -1,0 +1,1188 @@
+<style>
+    .container { max-width: 1400px; margin: auto; background: #f8fafc; padding: 2.5rem; border-radius: 16px; }
+    /* ... all other styles from the eligibility page ... */
+</style>
+<div id="form-container" class="container">
+    </div>
+
+<script>
+    // This script will run when the content is loaded
+    function initializeEligibilityScript() {
+        const { jsPDF } = window.jspdf;
+        // ... Paste the ENTIRE initializeEligibilityScript function here ...
+    }
+    initializeEligibilityScript(); // Call the function
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <script>
+            (function(){
+                const insideShell = !!document.getElementById('sidebar');
+                if(!insideShell){
+                    const target = '/index.html?page=eligibility';
+                    if(!location.search.includes('page=eligibility')){
+                        window.location.replace(target);
+                    }
+                }
+            })();
+        </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Benefits Verification Form</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand-blue': '#1A3464',
+                        'brand-orange': '#F46425',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Poppins', 'Inter', sans-serif;
+            -webkit-print-color-adjust: exact;
+        }
+        .container {
+            max-width: 1400px;
+            margin: auto;
+            background: #f8fafc;
+            padding: 2.5rem;
+            border-radius: 16px;
+        }
+        .section-box {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            margin-top: 1.5rem;
+        }
+        .section-title {
+            background-image: linear-gradient(to right, #1A3464, #F46425);
+            color: white;
+            padding: 10px 16px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .table-header {
+            background-image: linear-gradient(to right, #1A3464, #F46425);
+            color: white;
+            font-weight: 600;
+        }
+        input, select {
+            padding: 8px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 14px;
+            width: 100%;
+            box-sizing: border-box;
+            background-color: #f8fafc;
+            color: #1e293b;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #F46425;
+            box-shadow: 0 0 0 2px rgba(244, 100, 37, 0.4);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #e2e8f0;
+            padding: 8px;
+            text-align: left;
+            position: relative;
+        }
+        .form-grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.2rem; }
+        .form-grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.2rem; }
+        .form-grid-5 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.2rem; }
+        .form-grid-6 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; }
+
+        .field-group label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #475569;
+            display: block;
+            margin-bottom: 4px;
+        }
+        .suggestions-list {
+            position: absolute;
+            background-color: white;
+            border: 1px solid #d1d5db;
+            border-top: none;
+            z-index: 100;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            border-radius: 0 0 8px 8px;
+            left: 0;
+            top: 100%;
+        }
+        .suggestion-item { padding: 10px; cursor: pointer; font-size: 0.9rem;}
+        .suggestion-item:hover { background-color: #f1f5f9; }
+
+        .status-eligible { background-color: #dcfce7 !important; border-color: #4ade80; color: #166534; }
+        .status-partial { background-color: #fef9c3 !important; border-color: #facc15; color: #854d0e; }
+        .status-ineligible { background-color: #fee2e2 !important; border-color: #f87171; color: #991b1b; }
+        
+        .coverage-table td { padding: 4px 8px; }
+        .coverage-table input { font-size: 12px; padding: 4px; text-align: right; }
+        
+        .action-button {
+            transition: all 0.2s ease-in-out;
+        }
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+
+        @media print {
+            body { margin: 0; padding: 0; font-size: 9px; }
+            .container { box-shadow: none; border: none; width: 100%; max-width: 100%; padding: 5px; background: #fff; }
+            .no-print { display: none !important; }
+            input, select { border: 1px solid #ccc !important; font-size: 9px; padding: 3px; background-color: #fff !important; }
+            th, td { padding: 4px; }
+            .suggestions-list { display: none !important; }
+            .section-box { box-shadow: none; border: 1px solid #e2e8f0; margin-top: 1rem; }
+        }
+    </style>
+</head>
+<body class="bg-slate-100">
+
+    <div class="container">
+        <header class="flex flex-col sm:flex-row items-center justify-between mb-8 pb-4 border-b border-slate-200 bg-white p-6 rounded-t-lg">
+            <img src="https://guardiandentalbilling.com/wp-content/uploads/2025/02/Logo-250-x-150-px-1.png" alt="Guardian Dental Billing Logo" class="h-24" onerror="this.style.display='none'">
+            <div class="text-center sm:text-right mt-4 sm:mt-0 flex-grow">
+                <h1 class="text-4xl font-bold text-brand-blue uppercase tracking-wide text-center">Guardian Dental Billing</h1>
+                <h2 class="text-xl font-semibold text-brand-orange uppercase tracking-wider text-center mt-2">Benefits Verification Details</h2>
+            </div>
+        </header>
+        <p id="fileStatus" class="text-sm text-green-600 mb-4 font-medium h-5 text-center"></p>
+
+        <div class="section-box">
+            <h2 class="section-title">Practice & Provider Information</h2>
+            <div id="providerInfoSection" class="relative">
+                <div class="field-group relative mb-4">
+                    <label for="practiceName">Practice Name</label>
+                    <input type="text" id="practiceName" placeholder="Type to search for saved practices...">
+                </div>
+                <div class="form-grid-4 mb-4">
+                    <div class="field-group"><label for="practiceNPI">Practice NPI</label><input type="text" id="practiceNPI"></div>
+                    <div class="field-group"><label for="practiceTaxID">Practice Tax ID</label><input type="text" id="practiceTaxID"></div>
+                    <div class="field-group"><label for="practicePhone">Practice Phone Number</label><input type="text" id="practicePhone"></div>
+                    <div class="field-group"><label for="practiceFax">Practice Fax Number</label><input type="text" id="practiceFax"></div>
+                </div>
+                <div class="form-grid-3 mb-4">
+                     <div class="field-group relative"><label for="providerName">Provider Name</label><input type="text" id="providerName" placeholder="Type to search..."></div>
+                    <div class="field-group"><label for="providerGroupNPI">Provider NPI</label><input type="text" id="providerGroupNPI"></div>
+                    <div class="field-group"><label for="providerTaxID">Provider Tax ID</label><input type="text" id="providerTaxID"></div>
+                </div>
+                <div class="form-grid-4">
+                    <div class="field-group"><label for="streetAddress">Street Address</label><input type="text" id="streetAddress"></div>
+                    <div class="field-group"><label for="city">City</label><input type="text" id="city"></div>
+                    <div class="field-group"><label for="state">State</label><input type="text" id="state"></div>
+                    <div class="field-group"><label for="zipCode">Zip Code</label><input type="text" id="zipCode"></div>
+                </div>
+                <div id="providerSuggestions" class="suggestions-list hidden"></div>
+            </div>
+             <div class="flex justify-end mt-4 gap-2 no-print">
+                <button id="saveProviderBtn" class="px-4 py-2 bg-brand-blue text-white font-semibold rounded-lg shadow-md hover:bg-opacity-90 action-button">Save Info to Browser</button>
+            </div>
+        </div>
+        
+        <div class="section-box">
+            <h2 class="section-title">Patient Information</h2>
+            <div id="patientInfoSection" class="relative">
+                <div class="form-grid-6">
+                    <div class="field-group relative"><label for="patientFirstName">Patient First Name</label><input type="text" id="patientFirstName" class="patient-search-field"></div>
+                    <div class="field-group relative"><label for="patientLastName">Patient Last Name</label><input type="text" id="patientLastName" class="patient-search-field"></div>
+                    <div class="field-group relative"><label for="patientDOB">Patient DOB</label><input type="text" id="patientDOB" placeholder="YYYY-MM-DD" class="patient-search-field"></div>
+                    <div class="field-group relative"><label for="patientMemberID">Member ID</label><input type="text" id="patientMemberID" class="patient-search-field"></div>
+                    <div class="field-group"><label for="patientSSN">Social Security Number</label><input type="text" id="patientSSN"></div>
+                    <div class="field-group"><label for="patientDOS">Date of Service</label><input type="date" id="patientDOS"></div>
+                </div>
+                <div id="patientSuggestions" class="suggestions-list hidden"></div>
+            </div>
+        </div>
+
+        <div class="section-box">
+            <h2 class="section-title">Subscriber Information</h2>
+            <div class="form-grid-4">
+                <div class="field-group"><label for="subscriberName">Subscriber Name</label><input type="text" id="subscriberName"></div>
+                <div class="field-group"><label for="subscriberDOB">Subscriber DOB</label><input type="text" id="subscriberDOB" placeholder="YYYY-MM-DD"></div>
+                <div class="field-group"><label for="subscriberMemberID">Social / Member ID</label><input type="text" id="subscriberMemberID"></div>
+                <div class="field-group"><label for="relationship">Relationship</label>
+                    <select id="relationship">
+                        <option value="">Select...</option>
+                        <option value="Self">Self</option>
+                        <option value="Spouse">Spouse</option>
+                        <option value="Child">Child</option>
+                        <option value="Wife">Wife</option>
+                        <option value="Husband">Husband</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-box">
+            <h2 class="section-title">Insurance Verification</h2>
+            <div class="form-grid-4">
+                <div class="field-group"><label for="insuranceCo">Insurance Name</label><input type="text" id="insuranceCo"></div>
+                <div class="field-group"><label for="cob">COB</label>
+                    <select id="cob">
+                        <option value="">Select...</option>
+                        <option value="Primary">Primary</option>
+                        <option value="Secondary">Secondary</option>
+                        <option value="Tertiary">Tertiary</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="field-group"><label for="verificationStatus">Verification Status</label>
+                    <select id="verificationStatus">
+                        <option value="">Select...</option>
+                        <option value="Eligible">Eligible</option>
+                        <option value="Partially Verified">Partially Verified</option>
+                        <option value="Not Eligible">Not Eligible</option>
+                    </select>
+                </div>
+                <div class="field-group"></div>
+                <div class="field-group"><label for="indPlanMax">Individual Plan Max</label><input type="text" id="indPlanMax"></div>
+                <div class="field-group"><label for="indRemaining">Individual Remaining</label><input type="text" id="indRemaining"></div>
+                <div class="field-group"><label for="famPlanMax">Family Max</label><input type="text" id="famPlanMax"></div>
+                <div class="field-group"><label for="famRemaining">Family Remaining</label><input type="text" id="famRemaining"></div>
+                <div class="field-group"><label for="indDeductible">Individual Deductible</label><input type="text" id="indDeductible"></div>
+                <div class="field-group"><label for="indRemainingDeductible">Remaining Deductible</label><input type="text" id="indRemainingDeductible"></div>
+                <div class="field-group"><label for="famDeductible">Family Deductible</label><input type="text" id="famDeductible"></div>
+            </div>
+        </div>
+        
+        <div class="section-box">
+            <h2 class="section-title">Coverage Details</h2>
+            <div class="flex flex-col md:flex-row gap-8">
+                <div class="flex-1">
+                    <table class="coverage-table" id="coverageCategoryTable">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Individual</th>
+                                <th>Family</th>
+                                <th>Frequency</th>
+                                <th>Covered by Standard?</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Basic</td><td><input type="text" value="$0.00"></td><td><input type="text" value="$0.00"></td><td><input type="text" value="Annual"></td><td><input type="text" value="Yes"></td></tr>
+                            <tr><td>Preventive</td><td><input type="text" value="$0.00"></td><td><input type="text" value="$0.00"></td><td><input type="text" value="Annual"></td><td><input type="text" value="No"></td></tr>
+                            <tr><td>Ortho</td><td><input type="text" value="$0.00"></td><td><input type="text" value="$0.00"></td><td><input type="text" value="Annual"></td><td><input type="text" value="Yes"></td></tr>
+                            <tr><td>Major</td><td><input type="text" value="$0.00"></td><td><input type="text" value="$0.00"></td><td><input type="text" value="Annual"></td><td><input type="text" value="Yes"></td></tr>
+                            <tr class="bg-orange-100"><td>Standard</td><td><input type="text" value="$50.00"></td><td><input type="text" value="$150.00"></td><td><input type="text" value="Annual"></td><td><input type="text"></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="flex-1">
+                    <div id="coveragePercentageGrid" class="grid grid-cols-2 gap-x-8 gap-y-2 text-sm">
+                        <div class="flex justify-between items-center"><span>Diagnostic:</span><input class="w-20 text-right" type="text" value="100%"></div>
+                        <div class="flex justify-between items-center"><span>Preventive:</span><input class="w-20 text-right" type="text" value="100%"></div>
+                        <div class="flex justify-between items-center"><span>Restorative:</span><input class="w-20 text-right" type="text" value="80%"></div>
+                        <div class="flex justify-between items-center"><span>Crowns:</span><input class="w-20 text-right" type="text" value="80%"></div>
+                        <div class="flex justify-between items-center"><span>Endodontics:</span><input class="w-20 text-right" type="text" value="80%"></div>
+                        <div class="flex justify-between items-center"><span>Periodontics:</span><input class="w-20 text-right" type="text" value="80%"></div>
+                        <div class="flex justify-between items-center"><span>Prosthodontics, Removable:</span><input class="w-20 text-right" type="text" value="75%"></div>
+                        <div class="flex justify-between items-center"><span>Maxillofacial Prosthetics:</span><input class="w-20 text-right" type="text" value="65%"></div>
+                        <div class="flex justify-between items-center"><span>Implant Services:</span><input class="w-20 text-right" type="text" value="50%"></div>
+                        <div class="flex justify-between items-center"><span>Prosthodontics, Fixed:</span><input class="w-20 text-right" type="text" value="0%"></div>
+                        <div class="flex justify-between items-center"><span>Oral and Maxillofacial Surgery:</span><input class="w-20 text-right" type="text" value="0%"></div>
+                        <div class="flex justify-between items-center"><span>Orthodontics:</span><input class="w-20 text-right" type="text" value="0%"></div>
+                        <div class="flex justify-between items-center"><span>Adjunctive General Services:</span><input class="w-20 text-right" type="text" value="0%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-box">
+            <h2 class="section-title">Ortho Coverage</h2>
+            <div class="form-grid-5">
+                <div class="field-group"><label for="orthoCoverageYesNo">Ortho Coverage? (Yes/No)</label><input type="text" id="orthoCoverageYesNo"></div>
+                <div class="field-group"><label for="orthoMaxUsed">Max / Used</label><input type="text" id="orthoMaxUsed"></div>
+                <div class="field-group"><label for="orthoCoveragePerc">Coverage %</label><input type="text" id="orthoCoveragePerc"></div>
+                <div class="field-group"><label for="orthoAgeLimit">Age Limit</label><input type="text" id="orthoAgeLimit"></div>
+                <div class="field-group"><label for="orthoPaymentSchedule">Payment Schedule</label><input type="text" id="orthoPaymentSchedule"></div>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto section-box">
+            <h2 class="section-title">Procedure Coverage</h2>
+            <table id="proceduresTable">
+                <thead>
+                    <tr>
+                        <th class="table-header" style="width: 10%;">ADA Code</th>
+                        <th class="table-header" style="width: 40%;">Procedure Description</th>
+                        <th class="table-header" style="width: 10%;">Coverage %</th>
+                        <th class="table-header" style="width: 10%;">Frequency</th>
+                        <th class="table-header" style="width: 15%;">History (date)</th>
+                        <th class="table-header" style="width: 15%;">Additional Info</th>
+                        <th class="no-print" style="width: 5%;"></th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+             <button id="addProcedureBtn" class="mt-4 px-4 py-2 bg-green-500 text-white font-semibold rounded-lg shadow-md hover:bg-green-600 no-print action-button">+ Add Procedure</button>
+        </div>
+        
+        <div class="section-box">
+            <h2 class="section-title">Insurance Representative Details</h2>
+            <div class="form-grid-4">
+                <div class="field-group"><label for="repName">Representative Name</label><input type="text" id="repName"></div>
+                <div class="field-group"><label for="callRef">Call Reference Number</label><input type="text" id="callRef"></div>
+                <div class="field-group"><label for="verifiedBy">Verified By</label><input type="text" id="verifiedBy"></div>
+                <div class="field-group"><label for="repDate">Date</label><input type="date" id="repDate"></div>
+            </div>
+        </div>
+
+        <p id="verificationNote" class="text-sm text-slate-700 text-center mt-8 p-6 bg-gradient-to-r from-blue-50 to-orange-50 rounded-lg border-l-4 border-brand-orange">
+            <strong class="font-bold text-brand-blue">Guardian Dental Billing LLC</strong> confirms that this patient’s insurance benefits and eligibility have been successfully verified. For any questions or further assistance, please reach us at <a href="http://www.guardiandentalbilling.com" class="text-brand-blue font-semibold hover:underline" target="_blank">www.guardiandentalbilling.com</a>, <a href="mailto:guardiandentalbilling@gmail.com" class="text-brand-blue font-semibold hover:underline">guardiandentalbilling@gmail.com</a>, or call us at <strong class="text-brand-blue">+1 (732) 498-0786</strong>. At Guardian Dental Billing LLC, we are committed to accuracy, transparency, and making your insurance process hassle-free.
+        </p>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-wrap justify-center mt-8 gap-4 no-print">
+            <input type="file" id="csvFileInput" accept=".csv" class="hidden">
+            <button id="uploadCsvBtn" class="px-6 py-3 bg-teal-600 text-white font-bold rounded-full shadow-lg hover:bg-teal-700 action-button">Upload Patient CSV</button>
+            <button id="downloadDataBtn" class="px-6 py-3 bg-green-600 text-white font-bold rounded-full shadow-lg hover:bg-green-700 action-button">Download Form with Data</button>
+            <button id="printFormBtn" class="px-6 py-3 bg-brand-orange text-white font-bold rounded-full shadow-lg hover:bg-opacity-90 action-button">Print Form</button>
+            <button id="clearFormBtn" class="px-6 py-3 bg-red-500 text-white font-bold rounded-full shadow-lg hover:bg-red-600 action-button">Clear Form</button>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            let allProcedureData = [
+                { code: 'D0120', name: 'PERIODIC ORAL EVALUATION - ESTABLISHED PATIENT' },
+                { code: 'D0140', name: 'LIMITED ORAL EVALUATION-PROBLEM FOCUSED' },
+                { code: 'D0145', name: 'ORAL EVALUATION FOR A PATIENT UNDER THREE YEARS OF AGE AND COUNSELING WITH PRIMARY CAREGIVER' },
+                { code: 'D0150', name: 'COMPREHENSIVE ORAL EVALUATION-NEW OR ESTABLISHED PATIENT' },
+                { code: 'D0160', name: 'DETAILED AND EXTENSIVE ORAL EVAL-PROBLEM FOCUSED, BY REPORT' },
+                { code: 'D0170', name: 'RE-EVALUATION, LIMITED PROBLEM FOCUSED' },
+                { code: 'D0180', name: 'COMPREHENSIVE PERIODONTAL EVALUATION - NEW OR ESTABLISHED PATIENT' },
+                { code: 'D0210', name: 'INTRAORAL-COMPREHENSIVE SERIES OF RADIOGRAPHIC IMAGES' },
+                { code: 'D0220', name: 'INTRAORAL-PERIAPICAL FIRST RADIOGRAPHIC IMAGE' },
+                { code: 'D0230', name: 'INTRAORAL-PERIAPICAL EACH ADDITIONAL RADIOGRAPHIC IMAGE' },
+                { code: 'D0240', name: 'INTRAORAL- OCCLUSAL RADIOGRAPHIC IMAGE' },
+                { code: 'D0250', name: 'EXTRA-ORAL-2D PROJECTION RADIOGRAPHIC IMAGE CREATED USING A STATIONARY RADIATION SOURCE, AND DETECTOR' },
+                { code: 'D0251', name: 'EXTRA-ORAL POSTERIOR DENTAL RADIOGRAPHIC IMAGE' },
+                { code: 'D0270', name: 'BITEWING - SINGLE RADIOGRAPHIC IMAGE' },
+                { code: 'D0272', name: 'BITEWINGS - TWO RADIOGRAPHIC IMAGES' },
+                { code: 'D0273', name: 'BITEWINGS - THREE RADIOGRAPHIC IMAGES' },
+                { code: 'D0274', name: 'BITEWINGS - FOUR RADIOGRAPHIC IMAGES' },
+                { code: 'D0277', name: 'VERTICAL BITEWINGS-7 TO 8 FILMS' },
+                { code: 'D0310', name: 'SIALOGRAPHY' },
+                { code: 'D0320', name: 'TEMPOROMANDIBULAR JOINT ARTHOGRAM, INCLUDING INJECTION' },
+                { code: 'D0321', name: 'OTHER TEMPOROMANDIBULAR JOINT FILMS, BY REPORT' },
+                { code: 'D0322', name: 'TOMOGRAPHIC SURVEY' },
+                { code: 'D0330', name: 'PANORAMIC RADIOGRAPHIC IMAGE' },
+                { code: 'D0340', name: 'CEPHALOMETRIC RADIOGRAPHIC IMAGE' },
+                { code: 'D0350', name: '2D ORAL/FACIAL PHOTOGRAPHIC IMAGE OBTAINED INTRA-ORALLY OR EXTRA-ORALLY' },
+                { code: 'D0351', name: '3D PHOTOGRAPHIC IMAGE' },
+                { code: 'D0367', name: 'CONE BEAM CT CAPTURE AND INTERPRETATION WITH FIELD OF VIEW OF BOTH JAWS, WITH OR WITHOUT CRANIUM' },
+                { code: 'D0415', name: 'BACTERIOLOGIC STUDIES' },
+                { code: 'D0460', name: 'PULP VITALITY TESTS' },
+                { code: 'D0470', name: 'DIAGNOSTIC CASTS' },
+                { code: 'D0502', name: 'OTHER ORAL PATHOLOGY PROCEDURES, BY REPORT' },
+                { code: 'D0601', name: 'CARIES RISK ASSESSMENT AND DOCUMENTATION, WITH A FINDING OF LOW RISK' },
+                { code: 'D0602', name: 'CARIES RISK ASSESSMENT AND DOCUMENTATION, WITH A FINDING OF MODERATE RISK' },
+                { code: 'D0603', name: 'CARIES RISK ASSESSMENT AND DOCUMENTATION, WITH A FINDING OF HIGH RISK' },
+                { code: 'D0999', name: 'UNSPECIFIED DIAGNOSTIC PROCEDURE, BY REPORT' },
+                { code: 'D1110', name: 'PROPHYLAXIS - ADULT' },
+                { code: 'D1120', name: 'PROPHYLAXIS - CHILD' },
+                { code: 'D1206', name: 'TOPICAL APPLICATION OF FLUORIDE VARNISH' },
+                { code: 'D1208', name: 'TOPICAL APPLICATION OF FLUORIDE - EXCLUDING VARNISH' },
+                { code: 'D1330', name: 'ORAL HYGIENE INSTRUCTIONS' },
+                { code: 'D1351', name: 'SEALANT - PER TOOTH' },
+                { code: 'D1352', name: 'PREVENTIVE RESIN RESTORATION IS A MOD. TO HIGH CARIES RISK PATIENT PERM TOOTH' },
+                { code: 'D1353', name: 'SEALANT REPAIR-PER TOOTH' },
+                { code: 'D1354', name: 'APPLICATION OF CARIES ARRESTING MEDICAMENT-PER TOOTH' },
+                { code: 'D1355', name: 'CARIES PREVENTIVE MEDICAMENT APPLICATION-PER TOOTH' },
+                { code: 'D1510', name: 'SPACE MAINTAINER-FIXED, UNILATERAL-PER QUADRANT' },
+                { code: 'D1516', name: 'SPACE MAINTAINER --FIXED--BILATERAL, MAXILLARY' },
+                { code: 'D1517', name: 'SPACE MAINTAINER --FIXED--BILATERAL, MANDIBULAR' },
+                { code: 'D1520', name: 'SPACE MAINTAINER-REMOVABLE-UNILATERAL' },
+                { code: 'D1526', name: 'SPACE MAINTAINER --REMOVABLE--BILATERAL, MAXILLARY' },
+                { code: 'D1527', name: 'SPACE MAINTAINER --REMOVABLE--BILATERAL, MANDIBULAR' },
+                { code: 'D1551', name: 'RE-CEMENT OR RE-BOND BILATERAL SPACE MAINTAINER- MAXILLARY' },
+                { code: 'D1552', name: 'RE-CEMENT OR RE-BOND BILATERAL SPACE MAINTAINER- MANDIBULAR' },
+                { code: 'D1553', name: 'RE-CEMENT OR RE-BOND UNILATERAL SPACE MAINTAINER-PER QUADRANT' },
+                { code: 'D1556', name: 'REMOVAL OF FIXED UNILATERAL SPACE MAINTAINER-PER QUADRANT' },
+                { code: 'D1557', name: 'REMOVAL OF FIXED BILATERAL SPACE MAINTAINER-MAXILLARY' },
+                { code: 'D1558', name: 'REMOVAL OF FIXED BILATERAL SPACE MAINTAINER-MANDIBULAR' },
+                { code: 'D1575', name: 'DISTAL SHOE SPACE MAINTAINER - FIXED - UNILATERAL-PER QUADRANT' },
+                { code: 'D2140', name: 'AMALGAM-ONE SURFACE PERMANENT' },
+                { code: 'D2150', name: 'AMALGAM-TWO SURFACES PERMANENT' },
+                { code: 'D2160', name: 'AMALGAM - THREE SURFACES PERMANENT' },
+                { code: 'D2161', name: 'AMALGAM-FOUR OR MORE SURFACES PERMANENT' },
+                { code: 'D2330', name: 'RESIN-BASED COMPOSITE - ONE SURFACE, ANTERIOR' },
+                { code: 'D2331', name: 'RESIN-BASED COMPOSITE - TWO SURFACES, ANTERIOR' },
+                { code: 'D2332', name: 'RESIN-BASED COMPOSITE - THREE SURFACES, ANTERIOR' },
+                { code: 'D2335', name: 'RESIN-BASED COMPOSITE - FOUR OR MORE SURFACES (ANTERIOR)' },
+                { code: 'D2390', name: 'RESIN-BASED COMPOSITE CROWN, ANTERIOR PERMANENT' },
+                { code: 'D2391', name: 'RESIN-BASED COMPOSITE - ONE SURFACE, POSTERIOR PERMANENT' },
+                { code: 'D2392', name: 'RESIN-BASED COMPOSITE - TWO SURFACES, POSTERIOR PERMANENT' },
+                { code: 'D2393', name: 'RESIN-BASED COMPOSITE - THREE SURFACES, POSTERIOR PERMANENT' },
+                { code: 'D2394', name: 'RESIN-BASED COMPOSITE - FOUR OR MORE SURFACES, POSTERIOR PERMANENT' },
+                { code: 'D2510', name: 'INLAY - METALLIC -1 SURFACE' },
+                { code: 'D2520', name: 'INLAY-METALLIC-2 SURFACES' },
+                { code: 'D2530', name: 'INLAY-METALLIC-3+ SURFACES' },
+                { code: 'D2542', name: 'ONLAY-METALLIC-TWO SURFACES' },
+                { code: 'D2543', name: 'ONLAY-METALLIC-3 SURFACES' },
+                { code: 'D2544', name: 'ONLAY-METALLIC-4+ SURFACES' },
+                { code: 'D2650', name: 'INLAY-COMPOSITE/RESIN ISURFACE' },
+                { code: 'D2651', name: 'INLAY-COMPOSITE/RESIN-2 SURFACES' },
+                { code: 'D2652', name: 'INLAY-COMPOSITE/RESIN-3+SURFACES' },
+                { code: 'D2662', name: 'ONLAY-COMPOSITE/RESIN-2 SURFACES' },
+                { code: 'D2663', name: 'ONLAY-COMPOSITE/RESIN-3 SURFACES' },
+                { code: 'D2664', name: 'ONLAY-COMPOSITE/RESIN-4+ SURFACES' },
+                { code: 'D2710', name: 'CROWN - RESIN-BASED COMPOSITE (INDIRECT)' },
+                { code: 'D2720', name: 'CROWN-RESIN WITH HIGH NOBLE METAL' },
+                { code: 'D2721', name: 'CROWN-RESIN WITH PREDOMINANTLY BASE METAL' },
+                { code: 'D2722', name: 'CROWN-RESIN WITH NOBLE METAL' },
+                { code: 'D2740', name: 'CROWN - PORCELAIN/CERAMIC' },
+                { code: 'D2750', name: 'CROWN - PORCELAIN FUSED TO HIGH NOBLE METAL' },
+                { code: 'D2751', name: 'CROWN-PORCELAIN FUSED TO PREDOMINANTLY BASE METAL' },
+                { code: 'D2780', name: 'CROWN CAST HIGH NOBLE METAL' },
+                { code: 'D2781', name: 'CROWN CAST PREDOMINANTLY BASE METAL' },
+                { code: 'D2782', name: 'CROWN-34 CAST NOBLE METAL' },
+                { code: 'D2783', name: 'CROWN- PORCELAIN/CERAMIC' },
+                { code: 'D2790', name: 'CROWN-FULL CAST HIGH NOBLE METAL' },
+                { code: 'D2791', name: 'CROWN - FULL CAST PREDOMINANTLY BASE METAL' },
+                { code: 'D2792', name: 'CROWN-FULL CAST NOBLE METAL' },
+                { code: 'D2794', name: 'CROWN-TITANIUM AND TITANIUM ALLOYS' },
+                { code: 'D2910', name: 'RE-CEMENT OR RE-BOND INLAY, ONLAY, VENEER OR PARTIAL COVERAGE RESTORATION' },
+                { code: 'D2915', name: 'RE-CEMENT OR RE-BOND INDIRECTLY FABRICATED OR PREFABRICATED POST AND CORE' },
+                { code: 'D2920', name: 'RE-CEMENT OR RE-BOND CROWN' },
+                { code: 'D2930', name: 'PREFABRICATED STAINLESS STEEL CROWN-PRIMARY TOOTH' },
+                { code: 'D2931', name: 'PREFABRICATED STAINLESS STEEL CROWN-PERMANENT TOOTH' },
+                { code: 'D2932', name: 'PREFABRICATED RESIN CROWN' },
+                { code: 'D2933', name: 'PREFABRICATED STAINLESS STEEL CROWN WITH RESIN WINDOW' },
+                { code: 'D2934', name: 'PREFABRICATED ESTHETIC COATED STAINLESS STEEL CROWN - PRIMARY TOOTH' },
+                { code: 'D2940', name: 'PLACEMENT OF INTERIM DIRECT RESTORATION.' },
+                { code: 'D2950', name: 'CORE BUILDUP, INCLUDING ANY PINS WHEN REQUIRED' },
+                { code: 'D2951', name: 'PIN RETENTION - PER TOOTH, IN ADDITION TO RESTORATION' },
+                { code: 'D2952', name: 'CAST POST AND CORE IN ADDITION TO CROWN' },
+                { code: 'D2953', name: 'EACH ADDITIONAL CAST POST-SAME TOOTH' },
+                { code: 'D2954', name: 'PREFABRICATED POST AND CORE IN ADDITION TO CROWN' },
+                { code: 'D2955', name: 'POST REMOVAL (NOT IN CONJUNCTION WITH ENDODONTIC THERAPY)' },
+                { code: 'D2957', name: 'EACH ADDITIONAL PREFABRICATED POST - SAME TOOTH' },
+                { code: 'D2960', name: 'LABIAL VENEER (LAMINATE)-CHAIR' },
+                { code: 'D2961', name: 'LABIAL VENEER (RESIN LAMINATE) - LABORATORY' },
+                { code: 'D2962', name: 'LABIAL VENEER (PORC LAMINATE) - LABORATORY' },
+                { code: 'D2971', name: 'ADDITIONAL PROCEDURES TO CONSTRUCT NEW CROWN UNDER PARTIAL DENTURE FRAMEWORK' },
+                { code: 'D2980', name: 'CROWN REPAIR, BY REPORT' },
+                { code: 'D2999', name: 'UNSPECIFIED RESTORATIVE PROCEDURE, BY REPORT' },
+                { code: 'D3110', name: 'PULP CAP-DIRECT (EXLUDING FINAL RESTORATION)' },
+                { code: 'D3120', name: 'PULP CAP-INDIRECT (EXCLUDING FINAL RESTORATION)' },
+                { code: 'D3220', name: 'THERAPEUTIC PULPOTOMY (EXCLUDING FINAL RESTORATION) - REMOVAL OF PULP CORONAL TO THE DENTINOCEMENTAL JUNCTION AND APPLICATION OF MEDICAMENT' },
+                { code: 'D3230', name: 'PULPAL THERAPY (RESORBABLE FILLING) - ANTERIOR, PRIMARY TOOTH (EXCLUDING FINAL RESTORATION)' },
+                { code: 'D3240', name: 'PULPAL THERAPY (RESORBABLE FILLING) - POSTERIOR, PRIMARY TOOTH (EXCLUDING FINAL RESTORATION)' },
+                { code: 'D3310', name: 'ENDODONTIC THERAPY, ANTERIOR TOOTH (EXCLUDING FINAL RESTORATION)' },
+                { code: 'D3320', name: 'ENDODONTIC THERAPY, PREMOLAR TOOTH (EXCLUDING FINAL RESTORATION)' },
+                { code: 'D3330', name: 'ENDODONTIC THERAPY, MOLAR TOOTH (EXCLUDING FINAL RESTORATION)' },
+                { code: 'D3346', name: 'RETREATMENT OF PREVIOUS ROOT CANAL THERAPY-ANTERIOR' },
+                { code: 'D3347', name: 'RETREATMENT OF PREVIOUS ROOT CANAL THERAPY - PREMOLAR' },
+                { code: 'D3348', name: 'RETREATMENT OF PREVIOUS ROOT CANAL THERAPY-MOLAR' },
+                { code: 'D3351', name: 'APEXIFICATION/RECALCIFICATION-INITIAL VISIT (APICAL CLOSURE/ CALCIFIC REPAIR OF PERFORATIONS, ROOT RESORPTION, ETC.)' },
+                { code: 'D3352', name: 'APEXIFICATION/RECALCIFICATION - INTERIM MEDICATION REPLACEMENT' },
+                { code: 'D3353', name: 'APEXIFICATION/RECALCIFICATION-FINAL VISIT (INCLUDES COMPLETED ROOT CANAL THERAPYAPICAL CLOSURE/CALCIFIC REPAIR OF PERFORATIONS, ROOT RESORPTION, ETC.)' },
+                { code: 'D3410', name: 'APICOECTOMY - ANTERIOR' },
+                { code: 'D3421', name: 'APICOECTOMY - PREMOLAR (FIRST ROOT)' },
+                { code: 'D3425', name: 'APICOECTOMY - MOLAR (FIRST ROOT)' },
+                { code: 'D3426', name: 'APICOECTOMY (EACH ADDITIONAL ROOT) APICOECT' },
+                { code: 'D3430', name: 'RETROGRADE FILLING PER ROOT' },
+                { code: 'D3450', name: 'ROOT AMPUTATION - PER ROOT' },
+                { code: 'D3460', name: 'ENDODONTIC ENDOSSEOUS IMPLANT' },
+                { code: 'D3470', name: 'INTENTIONAL REIMPLANTATION' },
+                { code: 'D3910', name: 'SURGICAL PROCEDURE FOR ISOLATION OF TOOTH WITH RUBBER DAM' },
+                { code: 'D3920', name: 'HEMISECTION (INCLUDING ANY ROOT REMOVAL), NOT INCL ROOT CANAL THERAPY' },
+                { code: 'D3950', name: 'CANAL PREPARATION AND FITTING OF PREFORMED DOWEL OR POST' },
+                { code: 'D3999', name: 'UNSPECIFIED ENDODONTIC PROCEDURE, BY REPORT' },
+                { code: 'D4210', name: 'GINGIVECTOMY OR GINGIVOPLASTY-FOUR OR MORE CONTIGUOUS TEETH OR TOOTH BOUNDED SPACES PER QUADRANT' },
+                { code: 'D4211', name: 'GINGIVECTOMY OR GINGIVOPLASTY-ONE TO THREE CONTIGUOUS TEETH OR TOOTH BOUNDED SPACES PER QUADRANT' },
+                { code: 'D4230', name: 'ANATOMICAL CROWN EXPOSURE - FOUR OR MORE CONTIGUOUS TEETH OR TOOTH BOUNDED SPACES PER QUADRANT' },
+                { code: 'D4231', name: 'ANATOMICAL CROWN EXPOSURE ONE TO THREE TEETH OR TOOTH BOUNDED SPACES PER QUADRANT' },
+                { code: 'D4240', name: 'GINGIVAL FLAP PROCEDURE, INCLUDING ROOT PLANING-FOUR OR MORE CONTIGUOUS TEETH OR TOOTH BOUND SPACES PER QUADRANT' },
+                { code: 'D4241', name: 'GINGIVAL FLAP PROCEDURE, INCLUDING ROOT PLANING-ONE TO THREE CONTIGUOUS TEETH OR TOOTH BOUND SPACES PER QUADRANT' },
+                { code: 'D4245', name: 'APICALLY POSITIONED FLAP' },
+                { code: 'D4249', name: 'CLINICAL CROWN LENGTHENING-HARD TISSUE' },
+                { code: 'D4260', name: 'OSSEOUS SURGERY (INCLUDING ELEVATION OF A FULL THICKNESS FLAP AND CLOSURE) - FOUR OR MORE CONTIGUOUS TEETH OR TOOTH BOUNDED SPACES PER QUADRANT' },
+                { code: 'D4261', name: 'OSSEOUS SURGERY (INCLUDING ELEVATION OF A FULL THICKNESS FLAP AND CLOSURE) - ONE TO THREE CONTIGUOUS TEETH OR TOOTH BOUNDED' },
+                { code: 'D4266', name: 'SPACES PER QUADRANT GUIDED TISSUE REGENERATION, NATURAL TEETH-RESORBABLE BARRIER, PER SITE' },
+                { code: 'D4267', name: 'GUIDED TISSUE REGENERATION, NATURAL TEETH - NON- RESORBABLE BARRIER, PER SITE' },
+                { code: 'D4270', name: 'PEDICLE SOFT TISSUE GRAFT PROCEDURE' },
+                { code: 'D4273', name: 'SUBEPITHELIAL CONNECTIVE TISSUE GRAFT PROCEDURE' },
+                { code: 'D4274', name: 'DISTAL OR PROXIMAL WEDGE PROCEDURE' },
+                { code: 'D4275', name: 'SOFT TISSUE ALLOGRAFT' },
+                { code: 'D4276', name: 'COMBINED CONNECTIVE TISSUE AND DOUBLE PEDICLE GRAFT' },
+                { code: 'D4277', name: 'FREE SOFT TISSUE GRAFT PROCEDURE (INCLUDING DONOR SITE SURGERY), FIRST TOOTH OR EDENTULOUS TOOTH POSITION IN GRAFT' },
+                { code: 'D4278', name: 'FREE SOFT TISSUE GRAFT PROCEDURE (INCLUDING DONOR SITE SURGERY), EACH ADDITIONAL CONTIGUOUS TOOTH OR EDENTULOUS TOOTH POSITION IN SAME GRAFT SITE' },
+                { code: 'D4283', name: 'AUTOGENOUS CONNECTIVE TISSUE GRAFT PROCEDURE (INCLUDING DONOR AND RECIPIENT SURGICAL SITES) - EACH ADDITIONAL CONTIGUOUS TOOTH, IMPLANT OR EDENTULOUS TOOTH POSITION IN SAME GRAFT SITE' },
+                { code: 'D4285', name: 'NON-AUTOGENOUS CONNECTIVE TISSUE GRAFT PROCEDURE (INCLUDING RECIPIENT SURGICAL SITE AND DONOR MATERIAL) - EACH ADDITIONAL CONTIGUOUS TOOTH, IMPLANT OR EDENTULOUS TOOTH POSITION IN SAME GRAFT SITE' },
+                { code: 'D4341', name: 'PERIODONTAL SCALING AND ROOT PLANING - FOUR OR MORE TEETH PER QUADRANT' },
+                { code: 'D4342', name: 'PERIODONTAL SCALING AND ROOT PLANING-ONE TO THREE TEETH PER QUADRANT' },
+                { code: 'D4355', name: 'FULL MOUTH DEBRIDEMENT TO ENABLE A COMPREHENSIVE PERIODONTAL EVALUATION AND DIAGNOSIS ON A SUBSEQUENT VISIT' },
+                { code: 'D4381', name: 'LOCALIZED DELIVERY OF ANTIMICROBIAL AGENTS' },
+                { code: 'D4910', name: 'PERIODONTAL MAINTENANCE PROCEDURES' },
+                { code: 'D4920', name: 'UNSCHEDULED DRESSING CHANGE (BY SOMEONE OTHER THAN TREATING DENTIST OR THEIR STAFF)' },
+                { code: 'D4999', name: 'UNSPECIFIED PERIODONTAL PROCEDURE, BY REPORT' },
+                { code: 'D5110', name: 'COMPLETE DENTURE - MAXILLARY' },
+                { code: 'D5120', name: 'COMPLETE DENTURE - MANDIBULAR' },
+                { code: 'D5130', name: 'IMMEDIATE DENTURE - MAXILLARY' },
+                { code: 'D5140', name: 'IMMEDIATE DENTURE - MANDIBULAR' },
+                { code: 'D5211', name: 'MAXILLARY PARTIAL DENTURE, RESIN BASE (INCLUDING RETENTIVE/CLASPING MATERIALS, RESTS, AND TEETH)' },
+                { code: 'D5212', name: 'MANDIBULAR PARTIAL DENTURE, RESIN BASE (INCLUDING RETENTIVE/CLASPING MATERIALS, RESTS, AND TEETH)' },
+                { code: 'D5213', name: 'MAXILLARY PARTIAL DENTURE-CAST METAL FRAMEWORK WITH RESIN DENTURE BASES (INCLUDING RETENTIVE/CLASPING MATERIALS, RESTS AND TEETH)' },
+                { code: 'D5214', name: 'MANDIBULAR PARTIAL DENTURE-CAST METAL FRAMEWORK WITH RESIN DENTURE BASES (INCLUDING RETENTIVE/CLASPING MATERIALS, RESTS AND TEETH)' },
+                { code: 'D5410', name: 'ADJUST COMPLETE DENTURE - MAXILLARY' },
+                { code: 'D5411', name: 'ADJUST COMPLETE DENTURE - MANDIBULAR' },
+                { code: 'D5421', name: 'ADJUST PARTIAL DENTURE-MAXILLARY' },
+                { code: 'D5422', name: 'ADJUST PARTIAL DENTURE - MANDIBULAR' },
+                { code: 'D5511', name: 'REPAIR BROKEN COMPLETE DENTURE BASE MANDIBULAR' },
+                { code: 'D5512', name: 'REPAIR BROKEN COMPLETE DENTURE BASE, MAXILLARY' },
+                { code: 'D5630', name: 'REPAIR OR REPLACE BROKEN RETENTIVE/CLASPING MATERIALS PER TOOTH' },
+                { code: 'D5640', name: 'REPLACE MISSING OR BROKEN TEETH - PARTIAL DENTURE - PER TOOTH' },
+                { code: 'D5650', name: 'ADD TOOTH TO EXISTING PARTIAL DENTURE - PER TOOTH' },
+                { code: 'D5660', name: 'ADD CLASP TO EXISTING PARTIAL DENTURE' },
+                { code: 'D5670', name: 'REPLACE ALL TEETH AND ACRYLIC ON CAST METAL FRAMEWORK (MAXILLARY)' },
+                { code: 'D5671', name: 'REPLACE ALL TEETH AND ACRYLIC ON CAST METAL FRAMEWORK (MANDIBULAR)' },
+                { code: 'D5710', name: 'REBASE COMPLETE MAXILLARY DENTURE' },
+                { code: 'D5711', name: 'REBASE COMPLETE MANDIBULAR DENTURE' },
+                { code: 'D5720', name: 'REBASE MAXILLARY PARTIAL DENTURE' },
+                { code: 'D5721', name: 'REBASE MANDIBULAR PARTIAL DENTURE' },
+                { code: 'D5730', name: 'RELINE COMPLETE MAXILLARY DENTURE (CHAIRSIDE)' },
+                { code: 'D5731', name: 'RELINE COMPLETE MANDIBULAR DENTURE (CHAIRSIDE)' },
+                { code: 'D5740', name: 'RELINE MAXILLARY PARTIAL DENTURE (CHAIRSIDE)' },
+                { code: 'D5741', name: 'RELINE MANDIBULAR PARTIAL DENTURE (CHAIRSIDE)' },
+                { code: 'D5750', name: 'RELINE COMPLETE MAXILLARY DENTURE (LABORATORY)' },
+                { code: 'D5751', name: 'RELINE COMPLETE MANDIBULAR DENTURE (LABORATORY)' },
+                { code: 'D5760', name: 'RELINE MAXILLARY PARTIAL DENTURE (LABORATORY)' },
+                { code: 'D5761', name: 'RELINE MANDIBULAR PARTIAL DENTURE (LABORATORY)' },
+                { code: 'D5810', name: 'INTERIM COMPLETE DENTURE-MAXILLARY' },
+                { code: 'D5811', name: 'INTERIM COMPLETE DENTURE-MANDIBULAR' },
+                { code: 'D5820', name: 'INTERIM PARTIAL DENTURE (MAXILLARY)' },
+                { code: 'D5821', name: 'INTERIM PARTIAL DENTURE-MANDIBULAR' },
+                { code: 'D5850', name: 'TISSUE CONDITIONING, MAXILLARY' },
+                { code: 'D5851', name: 'TISSUE CONDITIONING, MANDIBULAR' },
+                { code: 'D5862', name: 'PRECISION ATTACHMENT, BY REPORT' },
+                { code: 'D5863', name: 'OVERDENTURE-COMPLETE MAXILLARY' },
+                { code: 'D5864', name: 'OVERDENTURE - PARTIAL MAXILLARY' },
+                { code: 'D5865', name: 'OVERDENTURE-COMPLETE MANDIBULAR' },
+                { code: 'D5866', name: 'OVERDENTURE-PARTIAL MANDIBULAR' },
+                { code: 'D5899', name: 'UNSPECIFIED REMOVABLE PROSTHODONTIC PROCEDURE, BY REPORT' },
+                { code: 'D5911', name: 'FACIAL MOULAGE (SECTIONAL)' },
+                { code: 'D5912', name: 'FACIAL MOULAGE (COMPLETE)' },
+                { code: 'D5913', name: 'NASAL PROSTHESIS' },
+                { code: 'D5914', name: 'AURICULAR PROSTHESIS' },
+                { code: 'D5915', name: 'ORBITAL PROSTHESIS' },
+                { code: 'D5916', name: 'OCULAR PROSTHESIS' },
+                { code: 'D5919', name: 'FACIAL PROSTHESIS' },
+                { code: 'D5922', name: 'NASAL SEPTAL PROSTHESIS' },
+                { code: 'D5923', name: 'OCULAR PROSTHESIS, INTERIM' },
+                { code: 'D5924', name: 'CRANIAL PROSTHESIS' },
+                { code: 'D5925', name: 'FACIAL AUGMENT IMPLANT PROSTHESIS' },
+                { code: 'D5926', name: 'NASAL PROSTHESIS, REPLACEMENT' },
+                { code: 'D5927', name: 'AURICULAR PROSTHESIS, REPLACE' },
+                { code: 'D5928', name: 'ORBITAL PROSTHESIS, REPLACE' },
+                { code: 'D5929', name: 'FACIAL PROSTHESIS, REPLACEMENT' },
+                { code: 'D5931', name: 'OBTURATOR PROSTHESIS, SURGICAL' },
+                { code: 'D5932', name: 'OBTURATOR PROSTHESIS, DEFINITIVE' },
+                { code: 'D5933', name: 'OBTURATOR PROSTHESIS, MODIFICATION' },
+                { code: 'D5934', name: 'MANDIBULAR RESECTION PROSTHESIS WITH GUIDE FLANGE' },
+                { code: 'D5935', name: 'MANDIBULAR RESECTION PROSTHESIS WITHOUT GUIDE FLANGE' },
+                { code: 'D5936', name: 'OBTURATOR PROSTHESIS, INTERIM' },
+                { code: 'D5937', name: 'TRISMUS APPLIANCE (NOT FOR TMD TREATMENT)' },
+                { code: 'D5951', name: 'FEEDING AID' },
+                { code: 'D5952', name: 'SPEECH AID PROSTHESIS, PEDIATRIC' },
+                { code: 'D5953', name: 'SPEECH AID PROSTHESIS, ADULT' },
+                { code: 'D5954', name: 'PALATAL AUGMENT PROSTHESIS' },
+                { code: 'D5955', name: 'PALATAL LIFT PROSTHESIS, DEFINITIVE' },
+                { code: 'D5958', name: 'PALATAL LIFT PROSTHESIS, INTERIM' },
+                { code: 'D5959', name: 'PALATAL LIFT PROSTHESIS, MODIFICATION' },
+                { code: 'D5960', name: 'SPEECH AID PROSTHESIS, MODIFICATION' },
+                { code: 'D5982', name: 'SURGICAL STENT' },
+                { code: 'D5983', name: 'RADIATION CARRIER' },
+                { code: 'D5984', name: 'RADIATION SHIELD' },
+                { code: 'D5985', name: 'RADIATION CONE LOCATOR' },
+                { code: 'D5986', name: 'FLUORIDE GEL CARRIER' },
+                { code: 'D5987', name: 'COMMISSURE SPLINT' },
+                { code: 'D5988', name: 'SURGICAL SPLINT' },
+                { code: 'D5992', name: 'ADJUST MAXILLOFACIAL PROSTHETIC APPLIANCE, BY REPORT' },
+                { code: 'D5993', name: 'MAINTENANCE AND CLEANING OF A MAXILLOFACIAL PROSTHESIS (EXTRA OR INTRAORAL) OTHER THAN REQUIRED ADJUSTMENTS.' },
+                { code: 'D5999', name: 'UNSPECIFIED MAXILLOFACIAL PROSTHESIS, BY REPORT' },
+                { code: 'D6210', name: 'PONTIC-CAST HIGH NOBLE METAL' },
+                { code: 'D6211', name: 'PONTIC-CAST BASE METAL' },
+                { code: 'D6212', name: 'PONTIC-CAST NOBLE METAL' },
+                { code: 'D6240', name: 'PONTIC-PORCELAIN FUSED-HIGH NOBLE' },
+                { code: 'D6241', name: 'PONTIC-PORCELAIN FUSED TO BASE METAL' },
+                { code: 'D6242', name: 'PONTIC-PORCELAIN FUSED-NOBLE METAL' },
+                { code: 'D6245', name: 'PROSTHODONTICS FIXED, PONTIC-PORCELAIN/CERAMIC' },
+                { code: 'D6250', name: 'PONTIC-RESIN WITH HIGH NOBLE METAL' },
+                { code: 'D6251', name: 'PONTIC-RESIN WITH BASE METAL' },
+                { code: 'D6252', name: 'PONTIC-RESIN WITH NOBLE METAL' },
+                { code: 'D6545', name: 'RETAINER-CAST METAL FIXED' },
+                { code: 'D6548', name: 'PROSTHODONTICS FIXED, RETAINER - PORCELAIN/CERAMIC FOR RESIN BONDED FIXED PROSTHODONTIC' },
+                { code: 'D6549', name: 'RESIN RETAINER-FOR RESIN BONDED FIXED PROSTHESIS' },
+                { code: 'D6720', name: 'CROWN-RESIN WITH HIGH NOBLE METAL' },
+                { code: 'D6721', name: 'CROWN-RESIN WITH BASE METAL' },
+                { code: 'D6722', name: 'CROWN-RESIN WITH NOBLE METAL' },
+                { code: 'D6740', name: 'RETAINER CROWN, PORCELAIN/CERAMIC' },
+                { code: 'D6750', name: 'CROWN-PORCELAIN FUSED HIGH NOBLE' },
+                { code: 'D6751', name: 'CROWN-PORCELAIN FUSED TO BASE METAL' },
+                { code: 'D6752', name: 'CROWN-PORCELAIN FUSED NOBLE METAL' },
+                { code: 'D6780', name: 'CROWN-3/4 CST HIGH NOBLE METAL' },
+                { code: 'D6781', name: 'PROSTHODONTICS FIXED, CROWN CAST PREDOMINANTLY BASED METAL' },
+                { code: 'D6782', name: 'PROSTHODONTICS FIXED, CROWN CAST NOBLE METAL' },
+                { code: 'D6783', name: 'PROSTHODONTICS FIXED, CROWN PORCELAIN/CERAMIC' },
+                { code: 'D6790', name: 'CROWN-FULL CAST HIGH NOBLE' },
+                { code: 'D6791', name: 'CROWN-FULL CAST BASE METAL' },
+                { code: 'D6792', name: 'CROWN-FULL CAST NOBLE METAL' },
+                { code: 'D6920', name: 'CONNECTOR BAR' },
+                { code: 'D6930', name: 'RE-CEMENT OR RE-BOND FIXED PARTIAL DENTURE' },
+                { code: 'D6940', name: 'STRESS BREAKER' },
+                { code: 'D6950', name: 'PRECISION ATTACHMENT' },
+                { code: 'D6980', name: 'FIXED PARTIAL DENTURE REPAIR' },
+                { code: 'D6999', name: 'FIXED PROSTHODONTIC PROCEDURE' },
+                { code: 'D7111', name: 'EXTRACTION, CORONAL REMNANTS - PRIMARY TOOTH' },
+                { code: 'D7140', name: 'EXTRACTION, ERUPTED TOOTH OR EXPOSED ROOT (ELEVATION AND/OR FORCEPS REMOVAL)' },
+                { code: 'D7210', name: 'SURGICAL REMOVAL OF ERUPTED TOOTH REQUIRING REMOVAL OF BONE AND/OR SECTIONING OF TOOTH, AND INCLUDING ELEVATION OF MUCOPERIOSTEAL FLAP IF INDICATED' },
+                { code: 'D7220', name: 'REMOVAL OF IMPACTED TOOTH-SOFT TISSUE' },
+                { code: 'D7230', name: 'REMOVAL OF IMPACTED TOOTH-PARTIALLY BONY' },
+                { code: 'D7240', name: 'REMOVAL OF IMPACTED TOOTH-COMPLETELY BONY' },
+                { code: 'D7241', name: 'REMOVAL OF IMPACTED TOOTH-COMPLETELY BONY, WITH UNUSUAL SURGICAL COMPLICATIONS' },
+                { code: 'D7250', name: 'SURGICAL REMOVAL OF RESIDUAL TOOTH ROOTS (CUTTING PROCEDURE)' },
+                { code: 'D7260', name: 'OROANTRAL FISTULA CLOSURE' },
+                { code: 'D7261', name: 'PRIMARY CLOSURE OF A SINUS PERFORATION' },
+                { code: 'D7270', name: 'TOOTH REIMPLANTATION AND/OR STABILIZATION OF ACCIDENTALLY EVULSED OR DISPLACED TOOTH' },
+                { code: 'D7272', name: 'TOOTH TRANSPLANTATION (INLCUDES REIMPLANTATION FROM ONE SITE TO ANOTHER)' },
+                { code: 'D7280', name: 'SURGICAL ACCESS OF AN UNERUPTED TOOTH' },
+                { code: 'D7282', name: 'MOBILIZATION OF ERUPTED OR MALPOSITIONED TOOTH TO AID ERUPTION' },
+                { code: 'D7283', name: 'PLACEMENT OF DEVICE TO FACILITATE ERUPTION OF IMPACTED TOOTH' },
+                { code: 'D7285', name: 'INCISIONAL BIOPSY OF ORAL TISSUE-HARD (BONE, TOOTH)' },
+                { code: 'D7286', name: 'INCISIONAL BIOPSY OF ORAL TISSUE-SOFT' },
+                { code: 'D7290', name: 'SURGICAL REPOSITIONING OF TEETH' },
+                { code: 'D7291', name: 'TRANSSEPTAL FIBEROTOMY, BY REPORT' },
+                { code: 'D7310', name: 'ALVEOLOPLASTY IN CONJUNCTION WITH EXTRACTIONS - FOUR OR MORE TEETH OR TOOTH SPACES, PER QUADRANT' },
+                { code: 'D7320', name: 'ALVEOLOPLASTY NOT IN CONJUNCTION WITH EXTRACTIONS - FOUR OR MORE TEETH OR TOOTH SPACES, PER QUADRANT' },
+                { code: 'D7340', name: 'VESTIBULOPLASTY - RIDGE EXTENSION (SECONDARY EPITHELIALIZATION)' },
+                { code: 'D7350', name: 'VESTIBULOPLASTY-RIDGE EXTENSION RADICAL EXCISION - LESION DIAMETER UP TO 1.25CM' },
+                { code: 'D7411', name: 'EXCISION OF BENIGN LESION GREATER THAN 1.25 CM' },
+                { code: 'D7413', name: 'EXCISION OF MALIGNANT LESION UP TO 1.25 CM' },
+                { code: 'D7414', name: 'EXCISION OF MALIGNANT LESION GREATER THAN 1.25 CM' },
+                { code: 'D7440', name: 'EXCISION OF MALIGNANT TUMOR - LESION DIAMETER UP TO 1.25CM' },
+                { code: 'D7441', name: 'EXCISION OF MALIGNANT TUMOR-LESION DIAMETER GREATER THAN 1.25CM' },
+                { code: 'D7450', name: 'REMOVAL OF ODONTOGENIC CYST OR TUMOR - LESION DIAMETER UP TO 1.25CM' },
+                { code: 'D7451', name: 'REMOVAL OF ODONTOGENIC CYST OR TUMOR - LESION GREATER THAN 1.25CM' },
+                { code: 'D7460', name: 'REMOVAL OF NONODONTOGENIC CYST OR TUMOR-LESION DIAMETER UP TO 1.25CM' },
+                { code: 'D7461', name: 'REMOVAL OF NONODONTOGENIC CYST OR TUMOR-LESION GREATER THAN 1.25CM' },
+                { code: 'D7465', name: 'DESTRUCTION OF LESION(S) BY PHYSICAL OR CHEMICAL METHOD, BY REPORT' },
+                { code: 'D7472', name: 'REMOVAL OF TORUS PALATINUS' },
+                { code: 'D7510', name: 'INCISION AND DRAINAGE OF ABSCESS - INTRAORAL SOFT TISSUE' },
+                { code: 'D7520', name: 'INCISION AND DRAINAGE OF ABSCESS - EXTRAORAL SOFT TISSUE' },
+                { code: 'D7530', name: 'REMOVAL OF FOREIGN BODY FROM MUCOSA, SKIN, OR SUBCUTANEOUS ALVEOLAR TISSUE' },
+                { code: 'D7540', name: 'REMOVAL OF REACTION-PRODUCING FOREIGN BODIES, MUSCULOSKELETAL SYSTEM' },
+                { code: 'D7550', name: 'PARTIAL OSTECTOMY/SEQUESTRECTOMY FOR REMOVAL OF NON- VITAL BONE' },
+                { code: 'D7560', name: 'MAXILLARY SINUSOTOMY FOR REMOVAL OF TOOTH FRAGMENT OR FOREIGN BODY' },
+                { code: 'D7670', name: 'ALVEOLUS STABILIZATION OF TEETH, CLOSED REDUCTION SPLINTING' },
+                { code: 'D7820', name: 'CLOSED REDUCTION DISLOCATION' },
+                { code: 'D7880', name: 'OCCLUSAL ORTHOTIC DEVICE, BY REPORT' },
+                { code: 'D7899', name: 'UNSPECIFIED TMD THERAPY, BY REPORT' },
+                { code: 'D7910', name: 'SUTURE SMALL WOUNDS UP TO 5 CM' },
+                { code: 'D7911', name: 'COMPLICATED SUTURE-UP TO 5 CM' },
+                { code: 'D7912', name: 'COMPLEX SUTURE - GREATER THAN 5CM' },
+                { code: 'D7955', name: 'REPAIR OF MAXILLOFACIAL SOFT AND/OR HARD TISSUE DEFECT' },
+                { code: 'D7961', name: 'BUCCAL/LABIAL FRENECTOMY (FRENULECTOMY)' },
+                { code: 'D7962', name: 'LINGUAL FRENECTOMY (FRENULECTOMY)' },
+                { code: 'D7970', name: 'EXCISION OF HYPERPLASTIC TISSUE - PER ARCH' },
+                { code: 'D7971', name: 'EXCISION OF PERICORONAL GINGIVA' },
+                { code: 'D7972', name: 'SURGICAL REDUCTION OF FIBROUS TUBEROSITY' },
+                { code: 'D7980', name: 'SURGICAL SIALOLITHOTOMY' },
+                { code: 'D7983', name: 'CLOSURE OF SALIVARY FISTULA' },
+                { code: 'D7997', name: 'APPLIANCE REMOVAL (NOT BY DENTIST WHO PLACED APPLIANCE), INCLUDES REMOVAL OF ARCHBAR' },
+                { code: 'D7999', name: 'UNSPECIFIED ORAL SURGERY PROCEDURE, BY REPORT' },
+                { code: 'D8010', name: 'LIMITED ORTHODONTIC TREATMENT OF THE PRIMARY DENTITION' },
+                { code: 'D8020', name: 'LIMITED ORTHODONTIC TREATMENT OF THE TRANSITIONAL DENTITION' },
+                { code: 'D8070', name: 'COMPREHENSIVE ORTHODONTIC TREATMENT OF THE TRANSITIONAL DENTITION' },
+                { code: 'D8080', name: 'COMPREHENSIVE ORTHODONTIC TREATMENT OF THE ADOLESCENT DENTITION' },
+                { code: 'D8090', name: 'COMPREHENSIVE ORTHODONTIC TREATMENT OF THE ADULT DENTITION' },
+                { code: 'D8210', name: 'REMOVABLE APPLIANCE THERAPY (INCLUDES APPLIANCES FOR THUMB SUCKING AND TONGUE THRUSTING)' },
+                { code: 'D8220', name: 'FIXED APPLIANCE THERAPY (INCLUDES APPLIANCES FOR THUMB SUCKING AND TONGUE THRUSTING)' },
+                { code: 'D8670', name: 'PERIODIC ORTHODONTIC TREATMENT VISIT' },
+                { code: 'D8680', name: 'ORTHODONTIC RETENTION (REMOVAL OF APPLIANCES)' },
+                { code: 'D8999', name: 'UNSPECIFIED ORTHODONTIC PROCEDURE, BY REPORT' },
+                { code: 'D9110', name: 'PALLIATIVE TREATMENT OF DENTAL PAIN - PER VISIT' },
+                { code: 'D9120', name: 'FIXED PARTIAL DENTURE SECTIONING' },
+                { code: 'D9130', name: 'TEMPOROMANDIBULAR JOINT DYSFUNCTION--NON-INVASIVE PHYSICAL THERAPIES' },
+                { code: 'D9210', name: 'LOCAL ANESTHESIA NOT IN CONJUCTION WITH OPERATIVE OR SURGICAL PROCEDURES' },
+                { code: 'D9211', name: 'REGIONAL BLOCK ANESTHESIA' },
+                { code: 'D9212', name: 'TRIGEMINAL DIVISION BLOCK ANESTHESIA' },
+                { code: 'D9222', name: 'DEEP SEDATION/GENERAL ANESTHESIA FIRST 15 MINUTES' },
+                { code: 'D9223', name: 'DEEP SEDATION/GENERAL ANESTHESIA - EACH SUBSEQUENT 15 MINUTE INCREMENT' },
+                { code: 'D9230', name: 'INHALATION OF NITROUS OXIDE/ANALGESIA, ANXIOLYSIS' },
+                { code: 'D9239', name: 'INTRAVENOUS MODERATE (CONSCIOUS) SEDATION/ANALGESIA-FIRST 15 MINUTES' },
+                { code: 'D9243', name: 'INTRAVENOUS MODERATE (CONSCIOUS) SEDATION/ANALGESIA - EACH SUBSEQUENT 15 MINUTE INCREMENT' },
+                { code: 'D9248', name: 'NON-INTRAVENOUS MODERATE SEDATION' },
+                { code: 'D9310', name: 'CONSULTATION - DIAGNOSTIC SERVICE PROVIDED BY DENTIST OR PHYSICIAN OTHER THAN REQUESTING DENTIST OR PHYSICIAN HOUSE/EXTENDED CARE FACILITY CALL' },
+                { code: 'D9420', name: 'HOSPITAL OR AMBULATORY SURGICAL CENTER CALL' },
+                { code: 'D9430', name: 'OFFICE VISIT FOR OBSERVATION-NO OTHER SERVICES PERFORMED' },
+                { code: 'D9440', name: 'OFFICE VISIT - AFTER REGULARLY SCHEDULED HOURS' },
+                { code: 'D9610', name: 'THERAPEUTIC DRUG INJECTION, BY REPORT' },
+                { code: 'D9612', name: 'THERAPEUTIC DRUG INJECTION-2 OR MORE MEDICATIONS BY REPORT' },
+                { code: 'D9630', name: 'OTHER DRUGS AND/OR MEDICAMENTS, BY REPORT' },
+                { code: 'D9910', name: 'APPLICATION OF DESENSITIZING MEDICAMENT' },
+                { code: 'D9920', name: 'BEHAVIOR MANAGEMENT, BY REPORT' },
+                { code: 'D9930', name: 'TREATMENT OF COMPLICATIONS (POST-SURGICAL) - UNUSUAL CIRCUMSTANCES, BY REPORT' },
+                { code: 'D9944', name: 'OCCLUSAL GUARD--HARD APPLIANCE, FULL ARCH' },
+                { code: 'D9950', name: 'OCCLUSION ANALYSIS-MOUNTED CASE' },
+                { code: 'D9951', name: 'OCCLUSAL ADJUSTMENT LIMITED' },
+                { code: 'D9952', name: 'OCCLUSAL ADJUSTMENT-COMPLETE' },
+                { code: 'D9970', name: 'ENAMEL MICROABRASION' },
+                { code: 'D9974', name: 'INTERNAL BLEACHING-PER TOOTH' },
+                { code: 'D9994', name: 'DENTAL CASE MANAGEMENT-PATIENT EDUCATION TO IMPROVE ORAL HEALTH LITERACY' },
+                { code: 'D9995', name: 'TELEDENTISTRY-SYNCHRONOUS; REAL-TIME ENCOUNTER' },
+                { code: 'D9999', name: 'UNSPECIFIED ADJUNCTIVE PROCEDURE, BY REPORT' },
+            ];
+            let patientData = [];
+            let providerData = [];
+    
+            // --- UI Element References ---
+            const formElementsWithId = Array.from(document.querySelectorAll('[id]'));
+            const downloadDataBtn = document.getElementById('downloadDataBtn');
+            const clearFormBtn = document.getElementById('clearFormBtn');
+            const printFormBtn = document.getElementById('printFormBtn');
+            const uploadCsvBtn = document.getElementById('uploadCsvBtn');
+            const csvFileInput = document.getElementById('csvFileInput');
+
+            // --- Function Definitions ---
+            function createProcedureRow(data = {}) {
+                const tableBody = document.getElementById('proceduresTable').getElementsByTagName('tbody')[0];
+                const row = tableBody.insertRow();
+                row.innerHTML = `
+                    <td><div class="relative"><input type="text" class="form-input code-input" value="${data.code || ''}" placeholder="Code"></div></td>
+                    <td><div class="relative"><input type="text" class="form-input name-input" value="${data.name || ''}" placeholder="Description"></div></td>
+                    <td><input type="text" class="form-input" value="${data.coverage || ''}"></td>
+                    <td><input type="text" class="form-input" value="${data.frequency || ''}"></td>
+                    <td><input type="date" class="form-input" value="${data.history || ''}"></td>
+                    <td><input type="text" class="form-input" value="${data.info || ''}"></td>
+                    <td class="no-print"><button class="px-2 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600" onclick="this.closest('tr').remove()">X</button></td>
+                `;
+                attachAutocompleteListeners(row);
+            }
+
+            function attachAutocompleteListeners(row) {
+                row.querySelectorAll('.code-input, .name-input').forEach(input => {
+                    input.addEventListener('input', (e) => showCodeSuggestions(e.target));
+                });
+            }
+
+            function showCodeSuggestions(inputElement) {
+                hideAllSuggestions();
+                const query = inputElement.value.toLowerCase();
+                if (query.length < 1) return;
+                const isCode = inputElement.classList.contains('code-input');
+                const matches = allProcedureData.filter(p => (isCode ? p.code : p.name).toLowerCase().includes(query));
+                if (matches.length === 0) return;
+
+                const suggestionsDiv = document.createElement('div');
+                suggestionsDiv.className = 'suggestions-list';
+                matches.slice(0, 10).forEach(match => {
+                    const item = document.createElement('div');
+                    item.className = 'suggestion-item';
+                    item.textContent = `${match.code} - ${match.name}`;
+                    item.onclick = () => {
+                        const row = inputElement.closest('tr');
+                        row.querySelector('.code-input').value = match.code;
+                        row.querySelector('.name-input').value = match.name;
+                        hideAllSuggestions();
+                    };
+                    suggestionsDiv.appendChild(item);
+                });
+                inputElement.parentElement.appendChild(suggestionsDiv);
+            }
+            
+            function handlePatientSearch(e) {
+                const inputElement = e.target;
+                const query = inputElement.value.toLowerCase().trim();
+                const suggestionsContainer = document.getElementById('patientSuggestions');
+                suggestionsContainer.innerHTML = '';
+
+                if (query.length < 2 || patientData.length === 0) {
+                    suggestionsContainer.classList.add('hidden');
+                    return;
+                }
+
+                const matches = patientData.filter(p => {
+                    const fName = (p['patient first name'] || p['first name'] || '').toLowerCase();
+                    const lName = (p['patient last name'] || p['last name'] || '').toLowerCase();
+                    const memberId = (p['member id'] || p['patient id'] || '').toLowerCase();
+                    const dob = (p['patient dob'] || p['date of birth'] || p['dob'] || '').toLowerCase();
+                    return fName.includes(query) || lName.includes(query) || memberId.includes(query) || dob.includes(query);
+                });
+
+                if (!matches.length) {
+                    suggestionsContainer.classList.add('hidden');
+                    return;
+                }
+
+                matches.slice(0, 10).forEach(p => {
+                    const fName = p['patient first name'] || p['first name'] || '';
+                    const lName = p['patient last name'] || p['last name'] || '';
+                    const memberId = p['member id'] || p['patient id'] || '';
+                    const item = document.createElement('div');
+                    item.className = 'suggestion-item';
+                    item.textContent = `${fName} ${lName} (ID: ${memberId})`;
+                    item.onclick = () => fillPatientAndSubscriberForm(p);
+                    suggestionsContainer.appendChild(item);
+                });
+                
+                const patientInfoRect = document.getElementById('patientInfoSection').getBoundingClientRect();
+                const containerRect = document.querySelector('.container').getBoundingClientRect();
+                suggestionsContainer.style.top = `${patientInfoRect.height}px`;
+                suggestionsContainer.style.left = `0px`;
+                suggestionsContainer.style.width = `100%`;
+                
+                suggestionsContainer.classList.remove('hidden');
+            }
+
+            function fillPatientAndSubscriberForm(patient) {
+                const getValue = (keys) => {
+                    for (const key of keys) { 
+                        const normalizedKey = key.toLowerCase().replace(/[\s\W]/g, '');
+                        for (const patientKey in patient) {
+                            if (patientKey.toLowerCase().replace(/[\s\W]/g, '') === normalizedKey) {
+                                return patient[patientKey];
+                            }
+                        }
+                    }
+                    return '';
+                };
+                document.getElementById('patientFirstName').value = getValue(['patient first name', 'first name']);
+                document.getElementById('patientLastName').value = getValue(['patient last name', 'last name']);
+                document.getElementById('patientDOB').value = getValue(['patient dob', 'date of birth', 'dob']);
+                document.getElementById('patientMemberID').value = getValue(['member id', 'patient id']);
+                document.getElementById('patientSSN').value = getValue(['ssn', 'social security number']);
+                document.getElementById('patientDOS').value = getValue(['dos', 'date of service']);
+                let subscriberName = getValue(['subscriber name', 'sub name']);
+                let relationship = getValue(['relationship']);
+                if (!subscriberName && (!relationship || relationship.toLowerCase() === 'self')) {
+                    document.getElementById('subscriberName').value = `${getValue(['patient first name', 'first name'])} ${getValue(['patient last name', 'last name'])}`.trim();
+                    document.getElementById('subscriberDOB').value = getValue(['patient dob', 'date of birth', 'dob']);
+                    document.getElementById('subscriberMemberID').value = getValue(['member id', 'patient id']);
+                    document.getElementById('relationship').value = 'Self';
+                } else {
+                    document.getElementById('subscriberName').value = subscriberName;
+                    document.getElementById('subscriberDOB').value = getValue(['subscriber dob', 'sub dob']);
+                    document.getElementById('subscriberMemberID').value = getValue(['subscriber member id', 'sub id']);
+                    const relSelect = document.getElementById('relationship');
+                    const optionExists = [...relSelect.options].some(opt => opt.value.toLowerCase() === relationship.toLowerCase());
+                    relSelect.value = optionExists ? relationship.charAt(0).toUpperCase() + relationship.slice(1).toLowerCase() : 'Other';
+                }
+                document.getElementById('insuranceCo').value = getValue(['insurance name', 'insurance']);
+                hideAllSuggestions();
+            }
+
+            function loadProviderData() {
+                const saved = localStorage.getItem('benefitsProviders');
+                providerData = saved ? JSON.parse(saved) : [];
+            }
+
+            function saveProviderData() {
+                const practiceName = document.getElementById('practiceName').value.trim();
+                if (!practiceName) { alert("Practice Name is required to save."); return; }
+                const newInfo = {
+                    practiceName: practiceName,
+                    practiceNPI: document.getElementById('practiceNPI').value,
+                    practiceTaxID: document.getElementById('practiceTaxID').value,
+                    practicePhone: document.getElementById('practicePhone').value,
+                    practiceFax: document.getElementById('practiceFax').value,
+                    providerName: document.getElementById('providerName').value,
+                    providerGroupNPI: document.getElementById('providerGroupNPI').value,
+                    providerTaxID: document.getElementById('providerTaxID').value,
+                    address: {
+                        street: document.getElementById('streetAddress').value,
+                        city: document.getElementById('city').value,
+                        state: document.getElementById('state').value,
+                        zip: document.getElementById('zipCode').value,
+                    }
+                };
+                const existingIndex = providerData.findIndex(p => p.practiceName.toLowerCase() === practiceName.toLowerCase());
+                if (existingIndex > -1) providerData[existingIndex] = newInfo; else providerData.push(newInfo);
+                localStorage.setItem('benefitsProviders', JSON.stringify(providerData));
+                alert(`Info for "${practiceName}" saved successfully.`);
+            }
+            
+            function handleProviderSearch(e) {
+                const inputElement = e.target;
+                const query = inputElement.value.toLowerCase().trim();
+                const suggestionsContainer = document.getElementById('providerSuggestions');
+                suggestionsContainer.innerHTML = '';
+                if (query.length < 1) { hideAllSuggestions(); return; }
+                const matches = providerData.filter(p => p.practiceName.toLowerCase().includes(query) || (p.providerName && p.providerName.toLowerCase().includes(query)));
+                if (!matches.length) { hideAllSuggestions(); return; }
+                matches.forEach(p => {
+                    const item = document.createElement('div');
+                    item.className = 'suggestion-item';
+                    item.textContent = `${p.practiceName} - ${p.providerName || ''}`;
+                    item.onclick = () => fillProviderForm(p);
+                    suggestionsContainer.appendChild(item);
+                });
+                suggestionsContainer.classList.remove('hidden');
+                const rect = inputElement.getBoundingClientRect();
+                const containerRect = inputElement.closest('.relative').getBoundingClientRect();
+                suggestionsContainer.style.top = `${rect.bottom - containerRect.top}px`;
+                suggestionsContainer.style.left = `${rect.left - containerRect.left}px`;
+                suggestionsContainer.style.width = `${rect.width}px`;
+            }
+
+            function fillProviderForm(p) {
+                document.getElementById('practiceName').value = p.practiceName || '';
+                document.getElementById('practiceNPI').value = p.practiceNPI || '';
+                document.getElementById('practiceTaxID').value = p.practiceTaxID || '';
+                document.getElementById('practicePhone').value = p.practicePhone || '';
+                document.getElementById('practiceFax').value = p.practiceFax || '';
+                document.getElementById('providerName').value = p.providerName || '';
+                document.getElementById('providerGroupNPI').value = p.providerGroupNPI || '';
+                document.getElementById('providerTaxID').value = p.providerTaxID || '';
+                if (typeof p.address === 'object' && p.address !== null) {
+                    document.getElementById('streetAddress').value = p.address.street || '';
+                    document.getElementById('city').value = p.address.city || '';
+                    document.getElementById('state').value = p.address.state || '';
+                    document.getElementById('zipCode').value = p.address.zip || '';
+                } else if (typeof p.providerAddress === 'string') {
+                    document.getElementById('streetAddress').value = p.providerAddress;
+                }
+                hideAllSuggestions();
+            }
+
+            function hideAllSuggestions() {
+                document.querySelectorAll('.suggestions-list').forEach(el => { el.innerHTML = ''; el.classList.add('hidden'); });
+            }
+
+            function getFormData() {
+                const formData = {};
+                formElementsWithId.forEach(el => {
+                    if ((el.tagName === 'INPUT' || el.tagName === 'SELECT') && el.id) {
+                        formData[el.id] = el.value;
+                    }
+                });
+
+                formData.coverageCategoryTable = [];
+                document.querySelectorAll('#coverageCategoryTable tbody tr').forEach(row => {
+                    const rowData = [];
+                    row.querySelectorAll('input').forEach(input => rowData.push(input.value));
+                    formData.coverageCategoryTable.push(rowData);
+                });
+                
+                formData.coveragePercentageGrid = [];
+                document.querySelectorAll('#coveragePercentageGrid input').forEach(input => {
+                    formData.coveragePercentageGrid.push(input.value);
+                });
+
+                formData.proceduresTable = [];
+                document.querySelectorAll('#proceduresTable tbody tr').forEach(row => {
+                    const rowData = {
+                        code: row.querySelector('.code-input').value,
+                        name: row.querySelector('.name-input').value,
+                        coverage: row.cells[2].querySelector('input').value,
+                        frequency: row.cells[3].querySelector('input').value,
+                        history: row.cells[4].querySelector('input').value,
+                        info: row.cells[5].querySelector('input').value,
+                    };
+                    if(rowData.code || rowData.name) formData.proceduresTable.push(rowData); // Only save rows with data
+                });
+
+                return formData;
+            }
+
+            function loadData(formData) {
+                 if (!formData) return;
+                for (const key in formData) {
+                    const el = document.getElementById(key);
+                    if (el) {
+                        el.value = formData[key];
+                    }
+                }
+                
+                document.getElementById('verificationStatus').dispatchEvent(new Event('change'));
+
+                if (formData.coverageCategoryTable) {
+                    document.querySelectorAll('#coverageCategoryTable tbody tr').forEach((row, rowIndex) => {
+                        row.querySelectorAll('input').forEach((input, inputIndex) => {
+                            if (formData.coverageCategoryTable[rowIndex]) {
+                                input.value = formData.coverageCategoryTable[rowIndex][inputIndex] || '';
+                            }
+                        });
+                    });
+                }
+                
+                if(formData.coveragePercentageGrid) {
+                    document.querySelectorAll('#coveragePercentageGrid input').forEach((input, index) => {
+                        input.value = formData.coveragePercentageGrid[index] || '';
+                    });
+                }
+
+                if (formData.proceduresTable) {
+                    const tableBody = document.getElementById('proceduresTable').getElementsByTagName('tbody')[0];
+                    tableBody.innerHTML = ''; 
+                    formData.proceduresTable.forEach(rowData => createProcedureRow(rowData));
+                }
+                // Add empty rows if less than 5
+                const currentRows = document.querySelectorAll('#proceduresTable tbody tr').length;
+                for (let i = currentRows; i < 5; i++) {
+                    createProcedureRow();
+                }
+            }
+            
+            function downloadWithData() {
+                const formData = getFormData();
+                let htmlContent = document.documentElement.outerHTML;
+
+                // Remove existing injected data script to prevent duplication
+                htmlContent = htmlContent.replace(/<script id="injected-data">.*?<\/script>/, '');
+
+                const scriptToInject = `<script id="injected-data">window.INITIAL_FORM_DATA = ${JSON.stringify(formData, null, 2)};<\/script>`;
+                htmlContent = htmlContent.replace('</body>', `${scriptToInject}</body>`);
+
+                const blob = new Blob([htmlContent], { type: 'text/html' });
+                const a = document.createElement('a');
+                const patientName = document.getElementById('patientFirstName').value + ' ' + document.getElementById('patientLastName').value || 'verification';
+                a.download = `benefits_verification_${patientName.trim().replace(/\s+/g, '_')}.html`;
+                a.href = URL.createObjectURL(blob);
+                a.click();
+                URL.revokeObjectURL(a.href);
+            }
+
+            function clearForm(){
+                if (confirm('Are you sure you want to clear the entire form? This action cannot be undone.')) {
+                     window.location.reload();
+                }
+            }
+            
+            function printForm() {
+                window.print();
+            }
+
+            // --- Event Listeners and Initialization ---
+            for(let i = 0; i < 5; i++) createProcedureRow();
+            loadProviderData();
+
+            // Load data if it's injected into the file
+            if (window.INITIAL_FORM_DATA) {
+                loadData(window.INITIAL_FORM_DATA);
+            }
+
+            ['practiceName', 'providerName'].forEach(id => {
+                document.getElementById(id).addEventListener('input', handleProviderSearch);
+            });
+            
+            document.querySelectorAll('.patient-search-field').forEach(field => {
+                field.addEventListener('input', handlePatientSearch);
+            });
+
+            document.getElementById('verificationStatus').addEventListener('change', function() {
+                this.classList.remove('status-eligible', 'status-partial', 'status-ineligible');
+                if (this.value === 'Eligible') this.classList.add('status-eligible');
+                else if (this.value === 'Partially Verified') this.classList.add('status-partial');
+                else if (this.value === 'Not Eligible') this.classList.add('status-ineligible');
+            });
+            
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.field-group, .suggestions-list, .relative')) { hideAllSuggestions(); }
+            });
+
+            uploadCsvBtn.addEventListener('click', () => csvFileInput.click());
+            csvFileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    patientData = [];
+                    const lines = e.target.result.split(/\r?\n/).filter(line => line.trim() !== '');
+                    if (lines.length < 2) { 
+                        document.getElementById('fileStatus').textContent = `Error: CSV file is empty or invalid.`;
+                        return;
+                    }
+                    const headers = lines[0].split(',').map(h => h.toLowerCase().replace(/"/g, '').trim());
+                    for (let i = 1; i < lines.length; i++) {
+                        const values = lines[i].split(',').map(v => v.replace(/"/g, '').trim());
+                        let entry = {};
+                        headers.forEach((h, index) => { entry[h] = values[index] || ''; });
+                        patientData.push(entry);
+                    }
+                    document.getElementById('fileStatus').textContent = `"${file.name}" loaded successfully. You can now search for patients.`;
+                };
+                reader.onerror = () => {
+                     document.getElementById('fileStatus').textContent = `Error reading file.`;
+                };
+                reader.readAsText(file);
+            });
+
+            document.getElementById('addProcedureBtn').addEventListener('click', () => createProcedureRow());
+            document.getElementById('saveProviderBtn').addEventListener('click', saveProviderData);
+            downloadDataBtn.addEventListener('click', downloadWithData);
+            clearFormBtn.addEventListener('click', clearForm);
+            printFormBtn.addEventListener('click', printForm);
+            
+        }); // End of DOMContentLoaded
+        
+        // ======================
+        // API INTEGRATION FUNCTIONS
+        // ======================
+        
+        // Function to verify eligibility using the global API
+        async function verifyEligibilityWithAPI(patientData, procedures) {
+            try {
+                // Use the global API request function
+                const result = await makeGlobalApiRequest('/eligibility/verify', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        patient: patientData,
+                        procedures: procedures,
+                        employeeId: localStorage.getItem('employeeId') || 'demo-employee'
+                    })
+                });
+                
+                console.log('Eligibility verification result:', result);
+                return result;
+            } catch (error) {
+                console.error('Eligibility verification failed:', error);
+                
+                // Fallback to mock data if API fails
+                return {
+                    eligible: true,
+                    coverage: 'Full Coverage',
+                    deductible: '$50',
+                    copay: '$20',
+                    message: 'API unavailable - showing mock data'
+                };
+            }
+        }
+        
+        // Listen for global API updates
+        window.addEventListener('globalApiUpdated', function(event) {
+            console.log('Eligibility API configuration updated:', event.detail);
+        });
+    </script>
+    
+    <!-- Load Global API Configuration -->
+    <script src="../js/global-api-loader.js"></script>
+</body>
+</html>

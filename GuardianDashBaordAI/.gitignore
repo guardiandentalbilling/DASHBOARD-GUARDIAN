@@ -1,0 +1,30 @@
+# Node modules and logs
+node_modules/
+logs/
+*.log
+npm-debug.log*
+
+# Environment files
+.env
+.env.*
+!*.example
+
+# Build / deployment artifacts
+frontend-build/
+dist/
+build/
+release/
+win-unpacked/
+
+# Runtime data
+uploads/*
+!uploads/.gitkeep
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+
+# Coverage
+coverage/

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>(function(){if(!document.getElementById('sidebar')){if(!location.search.includes('page=speech-practice'))location.replace('/index.html?page=speech-practice');}})();</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guardian AI Conversation Practice</title>
+    <!-- Global API Configuration -->
+    <script src="../js/global-api-loader.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            padding: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #ffffff;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        #recordBtn.recording .mic-icon {
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Message Box -->
+    <div id="messageBox" class="hidden fixed top-5 right-5 bg-white rounded-lg p-4 shadow-2xl z-[1000] text-center border-l-4 border-red-500">
+        <div class="flex items-center">
+            <p id="messageText" class="text-md font-semibold text-gray-700 ml-3"></p>
+            <button onclick="hideMessageBox()" class="ml-4 text-gray-400 hover:text-gray-600">&times;</button>
+        </div>
+    </div>
+
+    <!-- Main Practice Tool -->
+    <div class="max-w-3xl w-full mx-auto">
+        <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-200">
+            <div class="text-center mb-6">
+                <img src="https://guardiandentalbilling.com/wp-content/uploads/2025/02/Logo-250-x-150-px-1.png" alt="Guardian Dental Billing Logo" class="mx-auto h-24 w-auto mb-4">
+                <h2 class="text-3xl font-bold text-gray-800">AI Conversation Practice</h2>
+                <p class="text-gray-500 mt-2">Practice your insurance calls. Press the button and speak, then listen to the AI's response.</p>
+            </div>
+            
+            <div class="space-y-6">
+                <div id="status" class="text-center font-semibold text-gray-600 bg-gray-100 p-3 rounded-lg">Press the button below to start</div>
+                
+                <div class="flex justify-center items-center py-8">
+                    <button id="recordBtn" class="w-24 h-24 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-lg transform hover:scale-105 transition-transform focus:outline-none focus:ring-4 focus:ring-blue-300">
+                        <div class="mic-icon">
+                            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path></svg>
+                        </div>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-gray-50 p-4 rounded-lg border">
+                        <h3 class="font-semibold text-gray-700 mb-2">You Said:</h3>
+                        <p id="userTranscript" class="text-gray-600 min-h-[50px]">...</p>
+                    </div>
+                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                        <h3 class="font-semibold text-blue-800 mb-2">AI Responded:</h3>
+                        <p id="aiResponse" class="text-blue-700 min-h-[50px]">...</p>
+                    </div>
+                </div>
+
+                <div id="audioPlayerContainer" class="hidden pt-4">
+                    <audio id="audioPlayer" controls class="w-full"></audio>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check for browser support
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            alert("Sorry, your browser does not support Speech Recognition. Please use Google Chrome.");
+        }
+        const recognition = SpeechRecognition ? new SpeechRecognition() : null;
+
+        // UI Elements
+        const recordBtn = document.getElementById('recordBtn');
+        const statusDiv = document.getElementById('status');
+        const userTranscriptDiv = document.getElementById('userTranscript');
+        const aiResponseDiv = document.getElementById('aiResponse');
+        const audioPlayer = document.getElementById('audioPlayer');
+        const audioPlayerContainer = document.getElementById('audioPlayerContainer');
+
+    // Gemini requests now go through backend proxy via makeGeminiApiRequest
+
+        let isRecording = false;
+
+        // Message Box Functions
+        function showMessageBox(message) {
+            const messageBox = document.getElementById('messageBox');
+            const messageText = document.getElementById('messageText');
+            messageText.innerText = message;
+            messageBox.classList.remove('hidden');
+            setTimeout(() => hideMessageBox(), 5000);
+        }
+
+        function hideMessageBox() {
+            document.getElementById('messageBox').classList.add('hidden');
+        }
+
+        function setupRecognition() {
+            recognition.lang = 'en-US';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            recognition.onstart = () => {
+                isRecording = true;
+                recordBtn.classList.add('recording', 'bg-red-500', 'hover:bg-red-600');
+                recordBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                statusDiv.textContent = 'Listening...';
+            };
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                userTranscriptDiv.textContent = transcript;
+                getAIResponse(transcript);
+            };
+
+            recognition.onerror = (event) => {
+                console.error("Speech Recognition Error:", event.error);
+                showMessageBox(`Error: ${event.error}`);
+                resetUI();
+            };
+
+            recognition.onend = () => {
+                isRecording = false;
+                recordBtn.classList.remove('recording', 'bg-red-500', 'hover:bg-red-600');
+                recordBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                statusDiv.textContent = 'Processing... Please wait.';
+            };
+        }
+
+        async function getAIResponse(userText) {
+            aiResponseDiv.textContent = 'Thinking...';
+            
+            // 1. Get text response from Gemini via proxy helper
+            const systemPrompt = "You are a helpful and patient customer service representative at a dental insurance company. Your name is Alex. Keep your responses concise and professional, suitable for a phone call practice scenario. The user is an employee practicing their English.";
+            
+            const textPayload = {
+                contents: [{ parts: [{ text: userText }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+            };
+
+            try {
+                const textResult = await makeGeminiApiRequest(textPayload, 'gemini-2.5-flash-preview-05-20');
+                const aiText = textResult.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (!aiText) throw new Error("Could not get a text response from the AI.");
+                
+                aiResponseDiv.textContent = aiText;
+                
+                // 2. Convert AI text response to speech
+                statusDiv.textContent = 'Converting response to audio...';
+                await convertToSpeech(aiText);
+
+            } catch (e) {
+                console.error("AI Response Error:", e);
+                showMessageBox(e.message);
+                resetUI();
+            }
+        }
+
+        const convertToSpeech = async (text) => {
+            const payload = {
+                contents: [{ parts: [{ text: `Say in a clear, friendly voice: ${text}` }] }],
+                generationConfig: {
+                    responseModalities: ["AUDIO"],
+                    speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: "Puck" } } }
+                },
+                model: "gemini-2.5-flash-preview-tts"
+            };
+            const result = await makeGeminiApiRequest(payload, 'gemini-2.5-flash-preview-tts');
+            const audioPart = result?.candidates?.[0]?.content?.parts?.[0];
+            const audioData = audioPart?.inlineData?.data;
+            const mimeType = audioPart?.inlineData?.mimeType;
+
+            if (audioData && mimeType?.startsWith("audio/")) {
+                const sampleRate = parseInt(mimeType.match(/rate=(\d+)/)[1], 10);
+                const pcmData = base64ToArrayBuffer(audioData);
+                const pcm16 = new Int16Array(pcmData);
+                const wavBlob = pcmToWav(pcm16, sampleRate);
+                const audioUrl = URL.createObjectURL(wavBlob);
+                
+                audioPlayer.src = audioUrl;
+                audioPlayerContainer.classList.remove('hidden');
+                audioPlayer.play();
+                statusDiv.textContent = 'AI Speaking...';
+
+                audioPlayer.onended = () => {
+                    resetUI();
+                };
+            } else {
+                throw new Error("Audio data is missing from the API response.");
+            }
+        };
+
+        const base64ToArrayBuffer = (base64) => {
+            const binaryString = window.atob(base64);
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return bytes.buffer;
+        };
+
+        const pcmToWav = (pcmData, sampleRate) => {
+            const numChannels = 1;
+            const bitsPerSample = 16;
+            const dataLength = pcmData.length * (bitsPerSample / 8);
+            const buffer = new ArrayBuffer(44 + dataLength);
+            const view = new DataView(buffer);
+            const writeString = (view, offset, string) => {
+                for (let i = 0; i < string.length; i++) {
+                    view.setUint8(offset + i, string.charCodeAt(i));
+                }
+            };
+            writeString(view, 0, 'RIFF');
+            view.setUint32(4, 36 + dataLength, true);
+            writeString(view, 8, 'WAVE');
+            writeString(view, 12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true);
+            view.setUint16(22, numChannels, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * numChannels * (bitsPerSample / 8), true);
+            view.setUint16(32, numChannels * (bitsPerSample / 8), true);
+            view.setUint16(34, bitsPerSample, true);
+            writeString(view, 36, 'data');
+            view.setUint32(40, dataLength, true);
+            for (let i = 0; i < pcmData.length; i++) {
+                view.setInt16(44 + i * 2, pcmData[i], true);
+            }
+            return new Blob([view], { type: 'audio/wav' });
+        };
+
+
+        function handleRecordClick() {
+            if (!recognition) return;
+            if (isRecording) {
+                recognition.stop();
+            } else {
+                userTranscriptDiv.textContent = '...';
+                aiResponseDiv.textContent = '...';
+                audioPlayerContainer.classList.add('hidden');
+                recognition.start();
+            }
+        }
+
+        function resetUI() {
+            statusDiv.textContent = 'Press the button below to start';
+            recordBtn.disabled = false;
+        }
+
+        // Event Listeners
+        if (recognition) {
+            recordBtn.addEventListener('click', handleRecordClick);
+            setupRecognition();
+        }
+
+        // React to global key updates
+        window.addEventListener('globalApiUpdated', () => {
+            console.log('Speech Practice: Gemini configuration updated');
+        });
+    </script>
+</body>
+</html>

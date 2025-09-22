@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Set Demo Credentials</title>
+</head>
+<body>
+    <h1>Set Demo Credentials for Testing</h1>
+    <button onclick="setDemoCredentials()">Set Demo Employee Credentials</button>
+    <button onclick="setDemoAdminCredentials()">Set Demo Admin Credentials</button>
+    <button onclick="clearCredentials()">Clear Credentials</button>
+    <br><br>
+    <a href="/index.html">Go to Employee Dashboard</a><br>
+    <a href="/admin.html">Go to Admin Dashboard</a><br>
+    <a href="/login.html">Go to Login Page</a>
+
+    <script>
+        function setDemoCredentials() {
+            // Set demo employee credentials
+            localStorage.setItem('authToken', 'demo-token-employee');
+            localStorage.setItem('userData', JSON.stringify({
+                id: 'demo_employee',
+                name: 'Demo Employee',
+                email: 'employee@test.com',
+                role: 'employee'
+            }));
+            alert('Demo Employee credentials set! You can now access index.html');
+        }
+
+        function setDemoAdminCredentials() {
+            // Set demo admin credentials
+            localStorage.setItem('authToken', 'demo-token-admin');
+            localStorage.setItem('userData', JSON.stringify({
+                id: 'demo_admin',
+                name: 'Demo Admin',
+                email: 'admin@test.com',
+                role: 'admin'
+            }));
+            alert('Demo Admin credentials set! You can now access admin.html or index.html');
+        }
+
+        function clearCredentials() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userData');
+            alert('Credentials cleared!');
+        }
+    </script>
+</body>
+</html>

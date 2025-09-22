@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>(function(){if(!document.getElementById('sidebar')){if(!location.search.includes('page=chat'))location.replace('/index.html?page=chat');}})();</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Team Chat</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <script src="../js/global-api-loader.js"></script>
+  <style>
+    body{font-family: 'Inter', sans-serif;}
+    .glass{background:rgba(255,255,255,0.10);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,0.15);}    
+    .scroll-hide::-webkit-scrollbar{width:6px;} .scroll-hide::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#6366f1,#14b8a6);border-radius:3px;}
+    .message-bubble{max-width:72%;word-wrap:break-word;}
+    .message-bubble a{color:#60a5fa;text-decoration:underline;}
+    .typing-dots span{animation:blink 1.4s infinite both;} .typing-dots span:nth-child(2){animation-delay:.2s;} .typing-dots span:nth-child(3){animation-delay:.4s;}@keyframes blink{0%,80%,100%{opacity:.2;}40%{opacity:1;}}
+    .neon-border{box-shadow:0 0 12px -2px rgba(99,102,241,.6),0 0 30px -8px rgba(20,184,166,.6);}    
+    .contact-active{background:linear-gradient(90deg,#312e81,#0f766e);color:#fff;}
+  </style>
+</head>
+<body class="min-h-full bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 text-slate-100 p-4">
+  <div class="h-[calc(100vh-2rem)] w-full mx-auto rounded-2xl overflow-hidden relative flex flex-col">
+    <div class="absolute inset-0 pointer-events-none opacity-40" style="background:radial-gradient(circle at 20% 30%,rgba(99,102,241,.25),transparent 60%),radial-gradient(circle at 80% 70%,rgba(16,185,129,.20),transparent 55%);"></div>
+    <div class="relative flex flex-1 gap-4">
+      <!-- Contacts / Search -->
+      <aside class="hidden md:flex flex-col w-72 glass rounded-xl p-4 space-y-4 overflow-hidden">
+        <div>
+          <div class="flex items-center gap-2 mb-2">
+            <i class="fas fa-users text-indigo-400"></i>
+            <h2 class="font-semibold tracking-wide text-sm uppercase text-indigo-200">Team</h2>
+          </div>
+          <div class="relative">
+            <input id="chatSearch" placeholder="Search employees" class="w-full bg-slate-800/60 rounded-lg py-2 pl-9 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-slate-400" />
+            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+          </div>
+        </div>
+        <div id="contacts" class="flex-1 overflow-y-auto space-y-1 scroll-hide pr-1"></div>
+      </aside>
+
+      <!-- Main Chat Panel -->
+      <section class="flex flex-col flex-1 glass rounded-xl p-0 overflow-hidden">
+        <!-- Header -->
+        <div id="chatHeader" class="flex items-center gap-3 px-5 py-3 border-b border-white/10">
+          <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-600 to-teal-500 grid place-items-center font-semibold" id="peerAvatar">?</div>
+          <div class="flex flex-col">
+            <span id="peerName" class="font-semibold text-slate-100">Select a contact</span>
+            <span id="peerMeta" class="text-xs text-slate-400">No conversation started</span>
+          </div>
+          <div class="ml-auto flex items-center gap-2 text-slate-400 text-lg">
+            <button id="refreshBtn" title="Refresh" class="hover:text-indigo-300 transition"><i class="fas fa-rotate"></i></button>
+          </div>
+        </div>
+        <!-- Messages -->
+        <div id="messages" class="flex-1 overflow-y-auto px-5 py-4 space-y-4 scroll-hide relative">
+          <div id="emptyState" class="text-center text-sm text-slate-500 mt-10">Start a conversation by selecting a teammate.</div>
+        </div>
+        <!-- Composer -->
+        <div class="border-t border-white/10 p-3 bg-slate-900/40 backdrop-blur">
+          <form id="composer" class="flex items-end gap-3">
+            <div class="flex items-center gap-2">
+              <label class="cursor-pointer w-10 h-10 rounded-lg bg-slate-800/70 hover:bg-slate-700 grid place-items-center text-slate-400 hover:text-indigo-300 transition" title="Attach image">
+                <i class="fas fa-paperclip"></i>
+                <input type="file" id="imageInput" accept="image/*" class="hidden" />
+              </label>
+            </div>
+            <div class="flex-1 relative">
+              <textarea id="messageInput" rows="1" placeholder="Type a message" class="w-full resize-none bg-slate-800/70 rounded-xl py-3 px-4 pr-12 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-slate-500"></textarea>
+              <div id="typingIndicator" class="absolute right-3 bottom-2 hidden typing-dots text-indigo-300 text-xs"><span>.</span><span>.</span><span>.</span></div>
+            </div>
+            <button id="sendBtn" class="h-11 px-6 rounded-xl bg-gradient-to-br from-indigo-600 to-teal-500 hover:from-indigo-500 hover:to-teal-400 text-sm font-semibold tracking-wide shadow-md shadow-indigo-900/40 transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2">
+              <i class="fas fa-paper-plane"></i><span>Send</span>
+            </button>
+          </form>
+          <div id="uploadPreview" class="mt-2 hidden flex items-center gap-3 bg-slate-800/60 rounded-lg p-2 text-xs"></div>
+        </div>
+      </section>
+
+      <!-- Profile Side Panel (collapsible on mobile) -->
+      <aside id="profilePanel" class="hidden lg:flex flex-col w-72 glass rounded-xl p-4 space-y-4 overflow-hidden">
+        <div class="flex items-center gap-4">
+          <div id="profileAvatar" class="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-600 to-teal-500 grid place-items-center text-2xl font-bold">?</div>
+          <div class="flex flex-col">
+            <span id="profileName" class="font-semibold text-slate-100 text-lg">—</span>
+            <span id="profileRole" class="text-xs text-teal-300 uppercase tracking-wide">—</span>
+          </div>
+        </div>
+        <div class="text-xs text-slate-400 leading-relaxed" id="profileInfo">Select a teammate to view public details.</div>
+        <button id="profileMessageBtn" class="mt-auto w-full py-2 rounded-lg bg-gradient-to-r from-indigo-600 to-teal-500 hover:from-indigo-500 hover:to-teal-400 text-sm font-semibold tracking-wide">Message</button>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    // Basic state
+    let currentUserId = localStorage.getItem('currentUserId') || (JSON.parse(localStorage.getItem('userData')||'{}')._id) || null; // attempt fallback
+    let selectedPeerId = null;
+    let lastMessageTs = null;
+    let pollingInterval = null;
+    const POLL_MS = 5000;
+
+    // Elements
+    const contactsEl = document.getElementById('contacts');
+    const messagesEl = document.getElementById('messages');
+    const messageInput = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const imageInput = document.getElementById('imageInput');
+    const uploadPreview = document.getElementById('uploadPreview');
+    const chatSearch = document.getElementById('chatSearch');
+    const emptyState = document.getElementById('emptyState');
+    const peerNameEl = document.getElementById('peerName');
+    const peerMetaEl = document.getElementById('peerMeta');
+    const peerAvatarEl = document.getElementById('peerAvatar');
+    const profileAvatar = document.getElementById('profileAvatar');
+    const profileName = document.getElementById('profileName');
+    const profileRole = document.getElementById('profileRole');
+    const profileInfo = document.getElementById('profileInfo');
+    const profileMessageBtn = document.getElementById('profileMessageBtn');
+    const refreshBtn = document.getElementById('refreshBtn');
+
+    // Utility
+    const apiBase = (window.GLOBAL_API_BASE_URL || 'http://localhost:5000/api');
+    function api(path, opts={}){ return fetch(apiBase + path, { headers:{ 'Content-Type':'application/json','x-user-id': currentUserId||'' }, ...opts}); }
+    function avatarLetter(name){ return (name||'?').charAt(0).toUpperCase(); }
+    function formatTime(ts){ const d=new Date(ts); return d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}); }
+    function linkify(text){ if(!text) return ''; const urlRegex=/(https?:\/\/[^\s]+)/g; return text.replace(urlRegex, url=>`<a href="${url}" target="_blank" rel="noopener">${url}</a>`); }
+
+    async function loadUsers(q=''){
+      contactsEl.innerHTML = '<div class="text-xs text-slate-500 px-2 py-1">Loading...</div>';
+      try {
+        const res = await api('/chat/users'+(q?`?q=${encodeURIComponent(q)}`:''));
+        const data = await res.json();
+        if(!data.success) throw new Error(data.error||'Failed');
+        renderContacts(data.users);
+      } catch(e){ contactsEl.innerHTML = '<div class="text-xs text-rose-400 px-2 py-1">Failed to load users</div>'; }
+    }
+
+    function renderContacts(users){
+      contactsEl.innerHTML = '';
+      users.forEach(u=>{
+        if(u._id === currentUserId) return; // skip self
+        const btn = document.createElement('button');
+        btn.className = 'w-full flex items-center gap-3 p-2 rounded-lg hover:bg-slate-800/60 transition text-left text-sm';
+        btn.innerHTML = `<div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-600 to-teal-500 grid place-items-center font-semibold">${avatarLetter(u.name)}</div>
+          <div class="flex flex-col flex-1"><span class="font-medium text-slate-100">${u.name}</span><span class="text-xs text-slate-400">${u.role||''}</span></div>`;
+        btn.addEventListener('click',()=>selectPeer(u));
+        contactsEl.appendChild(btn);
+      });
+    }
+
+    function selectPeer(user){
+      selectedPeerId = user._id;
+      lastMessageTs = null;
+      peerNameEl.textContent = user.name;
+      peerMetaEl.textContent = user.role || 'Teammate';
+      peerAvatarEl.textContent = avatarLetter(user.name);
+      profileAvatar.textContent = avatarLetter(user.name);
+      profileName.textContent = user.name;
+      profileRole.textContent = (user.role||'').toUpperCase();
+      profileInfo.textContent = user.email || '';
+      messagesEl.innerHTML = '';
+      emptyState?.remove();
+      loadMessages(true);
+      restartPolling();
+    }
+
+    async function loadMessages(scrollBottom=false){
+      if(!selectedPeerId) return;
+      try {
+        const url = '/chat/messages?peerId='+encodeURIComponent(selectedPeerId) + (lastMessageTs?`&after=${encodeURIComponent(lastMessageTs)}`:'');
+        const res = await api(url);
+        const data = await res.json();
+        if(!data.success) return;
+        if(data.messages.length){
+          data.messages.forEach(m=>renderMessage(m));
+          lastMessageTs = data.messages[data.messages.length-1].createdAt;
+          if(scrollBottom) messagesEl.scrollTop = messagesEl.scrollHeight; else maybeAutoscroll();
+        }
+      } catch(e){ console.warn('Load messages failed', e); }
+    }
+
+    function maybeAutoscroll(){
+      const nearBottom = (messagesEl.scrollHeight - messagesEl.scrollTop - messagesEl.clientHeight) < 160;
+      if(nearBottom) messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    function renderMessage(m){
+      const mine = m.senderId === currentUserId;
+      const wrap = document.createElement('div');
+      wrap.className = 'flex w-full ' + (mine? 'justify-end':'justify-start');
+      const bubble = document.createElement('div');
+      bubble.className = 'message-bubble px-4 py-2 rounded-2xl mb-1 text-sm shadow ' + (mine? 'bg-gradient-to-br from-indigo-600 to-teal-600 text-white':'bg-slate-800/70 text-slate-100');
+      let html = '';
+      if(m.attachments && m.attachments.length){
+        m.attachments.forEach(att=>{
+          if(att.mimeType && att.mimeType.startsWith('image/')){
+            html += `<div class='mb-2'><img src='${att.url}' class='max-h-60 rounded-lg shadow-md hover:opacity-90 transition cursor-pointer'/></div>`;
+          }
+        });
+      }
+      if(m.content){ html += `<div>${linkify(m.content)}</div>`; }
+      html += `<div class='mt-1 text-[10px] opacity-70 tracking-wide'>${formatTime(m.createdAt)}</div>`;
+      bubble.innerHTML = html;
+      wrap.appendChild(bubble);
+      messagesEl.appendChild(wrap);
+    }
+
+    async function sendMessage(e){
+      e && e.preventDefault();
+      if(!selectedPeerId) return;
+      const text = messageInput.value.trim();
+      if(!text && !pendingImage) return;
+      const optimistic = { _id: 'temp-'+Date.now(), senderId: currentUserId, recipientId: selectedPeerId, content: text, type: pendingImage? 'image':'text', attachments: pendingImage? [pendingImage]:[], createdAt: new Date().toISOString() };
+      renderMessage(optimistic); messagesEl.scrollTop = messagesEl.scrollHeight;
+      messageInput.value=''; resizeTextarea(); uploadPreview.classList.add('hidden');
+      const body = { peerId: selectedPeerId, content: text, type: optimistic.type, attachments: optimistic.attachments };
+      try {
+        await api('/chat/message',{ method:'POST', body: JSON.stringify(body) });
+        // fetch new canonical messages (will include the just-sent one)
+        await loadMessages(true);
+      } catch(e){ console.error('Send failed', e); }
+      pendingImage = null;
+    }
+
+    // Image upload handling
+    let pendingImage = null;
+    imageInput.addEventListener('change', async ()=>{
+      const file = imageInput.files[0];
+      if(!file) return;
+      uploadPreview.classList.remove('hidden');
+      uploadPreview.textContent = 'Uploading '+file.name+'...';
+      const form = new FormData(); form.append('image', file);
+      try {
+        const res = await fetch(apiBase+'/chat/upload', { method:'POST', body: form, headers:{'x-user-id': currentUserId||''} });
+        const data = await res.json();
+        if(!data.success) throw new Error(data.error||'Upload failed');
+        pendingImage = { url: data.url, mimeType: data.mimeType, originalName: data.originalName };
+        uploadPreview.innerHTML = `<img src='${data.url}' class='h-12 w-12 object-cover rounded-md'/> <span class='text-xs text-slate-300 truncate max-w-[120px]'>${data.originalName}</span> <button class='px-2 py-1 text-[10px] bg-rose-600/70 hover:bg-rose-600 rounded-md' id='cancelUpload'>Remove</button>`;
+        document.getElementById('cancelUpload').onclick = ()=>{ pendingImage=null; uploadPreview.classList.add('hidden'); uploadPreview.innerHTML=''; };
+      } catch(e){ uploadPreview.textContent = 'Upload failed'; setTimeout(()=>uploadPreview.classList.add('hidden'),2000); }
+      imageInput.value='';
+    });
+
+    // Auto-grow textarea
+    function resizeTextarea(){ messageInput.style.height='auto'; messageInput.style.height = Math.min(messageInput.scrollHeight, 200)+'px'; }
+    messageInput.addEventListener('input', resizeTextarea);
+    messageInput.addEventListener('keydown', e=>{
+      if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendMessage(); }
+    });
+
+    document.getElementById('composer').addEventListener('submit', sendMessage);
+    sendBtn.addEventListener('click', sendMessage);
+    refreshBtn.addEventListener('click', ()=> loadMessages(true));
+
+    function restartPolling(){ if(pollingInterval) clearInterval(pollingInterval); pollingInterval = setInterval(()=> loadMessages(false), POLL_MS); }
+
+    chatSearch.addEventListener('input', (e)=>{ const v=e.target.value.trim(); loadUsers(v); });
+
+    // Init
+    (function init(){ loadUsers(); const urlParams=new URLSearchParams(location.search); const pre=urlParams.get('peer'); if(pre){ // attempt preselect after users load delay
+      setTimeout(async ()=>{ const res = await api('/chat/users?q='); const data = await res.json(); if(data.success){ const target=data.users.find(u=>u._id===pre); if(target) selectPeer(target); } }, 600); }
+    })();
+
+    window.addEventListener('beforeunload', ()=>{ if(pollingInterval) clearInterval(pollingInterval); });
+  </script>
+</body>
+</html>

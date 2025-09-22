@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Phonetic Name Assistant</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js" defer></script>
+    
+    <script>tailwind.config={darkMode:'class'};</script>
+    <style>
+        :root {
+            --bg-dark: #0a0c1c;
+            --primary-glow: #00f6ff;
+            --secondary-glow: #ff00c1;
+            --border-color: rgba(0, 246, 255, 0.2);
+            --text-light: #e0e8ff;
+            --text-dark: #a8b2d1;
+        }
+
+        body { 
+            font-family: 'Exo 2', sans-serif; 
+            background-color: var(--bg-dark); 
+            color: var(--text-light);
+            overflow-x: hidden;
+        }
+
+        body:before, body:after { display:none !important; }
+
+        /* Background Grid */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-image: 
+                linear-gradient(to right, rgba(0, 246, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 246, 255, 0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: -2;
+            animation: bg-pan 120s linear infinite;
+        }
+        
+        /* Background Gradient Overlay */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, rgba(10, 12, 28, 0) 0%, var(--bg-dark) 70%);
+            z-index: -1;
+        }
+        
+        @keyframes bg-pan {
+            from { background-position: 0 0; }
+            to { background-position: -1200px -1200px; }
+        }
+
+        /* Futuristic Glass Panel Effect */
+        .glass { 
+            background: rgba(14, 21, 57, 0.5);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            position: relative;
+            box-shadow: 0 0 40px -10px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(0, 246, 255, 0.1);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+        }
+
+        .glass:hover {
+            border-color: rgba(0, 246, 255, 0.5);
+            box-shadow: 0 0 50px -10px rgba(0, 0, 0, 0.7), inset 0 0 20px rgba(0, 246, 255, 0.2), 0 0 20px -5px var(--primary-glow);
+        }
+
+        /* Glowing Text */
+        .gradient-text { 
+            color: #fff;
+            text-shadow: 0 0 5px var(--primary-glow), 0 0 10px var(--primary-glow), 0 0 15px var(--primary-glow);
+            transition: text-shadow 0.3s ease-in-out;
+        }
+        .gradient-text:hover {
+            text-shadow: 0 0 8px var(--primary-glow), 0 0 20px var(--primary-glow), 0 0 35px var(--primary-glow);
+        }
+
+        .phonetic-word { 
+            display:inline-block; 
+            padding:.5rem 1.2rem; 
+            margin:.3rem; 
+            border-radius: 8px;
+            font-weight:600; 
+            font-size:.9rem; 
+            position:relative; 
+            overflow:hidden;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .phonetic-word:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 0 15px -2px var(--primary-glow);
+        }
+
+        .theme-toggle { position:fixed; top:1rem; right:1rem; z-index:50; }
+
+        .result-wrapper-enter { animation:fadeInUp .5s ease-out forwards; }
+        @keyframes fadeInUp { 
+            from { transform:translateY(20px); opacity:0; } 
+            to { transform:translateY(0); opacity:1; }
+        }
+        
+        .spinner { 
+            border: 3px solid rgba(0, 246, 255, 0.2); 
+            border-top: 3px solid var(--primary-glow); 
+            border-radius:50%; 
+            width:24px; 
+            height:24px; 
+            animation:spin 1s linear infinite; 
+        }
+        @keyframes spin { to { transform:rotate(360deg);} }
+
+        /* Custom futuristic input */
+        .futuristic-input {
+            background: rgba(10, 12, 28, 0.7);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+        .futuristic-input:focus {
+            outline: none;
+            border-color: var(--primary-glow);
+            box-shadow: 0 0 15px -5px var(--primary-glow);
+        }
+        
+        /* Custom futuristic button */
+        .futuristic-btn {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--primary-glow);
+            color: var(--primary-glow);
+            background: transparent;
+            transition: all 0.3s ease;
+            text-shadow: 0 0 5px var(--primary-glow);
+        }
+        .futuristic-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, var(--primary-glow), transparent);
+            transition: left 0.4s ease;
+        }
+        .futuristic-btn:hover {
+            background: var(--primary-glow);
+            color: var(--bg-dark);
+            box-shadow: 0 0 20px var(--primary-glow);
+            text-shadow: none;
+        }
+        .futuristic-btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-secondary {
+            border-color: rgba(255, 255, 255, 0.3);
+            color: var(--text-light);
+            text-shadow: none;
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #fff;
+            color: #fff;
+            box-shadow: none;
+        }
+        .header-icon {
+            transition: all 0.3s ease-in-out;
+        }
+        .header-icon:hover {
+            transform: scale(1.1) rotate(15deg);
+        }
+        .header-icon:hover .w-20 {
+             box-shadow: 0 0 35px theme(colors.cyan.400);
+        }
+
+        .footer-logo {
+            filter: drop-shadow(0 0 6px rgba(0, 246, 255, 0.6));
+            transition: all 0.3s ease;
+            mix-blend-mode: screen; /* Helps in making white background transparent */
+        }
+        .footer-logo:hover {
+            filter: drop-shadow(0 0 12px var(--primary-glow));
+            transform: scale(1.05);
+        }
+
+        /* Futuristic multi-layer background additions */
+        .futuristic-bg { position:fixed; inset:0; z-index:-4; overflow:hidden; pointer-events:none; }
+        .futuristic-bg .aurora-layer { position:absolute; width:180%; height:160%; top:-30%; left:-40%; background:linear-gradient(115deg, rgba(0,246,255,0.08) 0%, rgba(255,0,193,0.05) 35%, rgba(0,246,255,0.08) 70%, rgba(16,185,129,0.05) 100%); mix-blend-mode:screen; animation:auroraMove 36s linear infinite; transform:translateZ(0) rotate(8deg); filter:blur(40px); }
+        .futuristic-bg .aurora-layer.delay2 { animation-duration:48s; animation-direction:reverse; opacity:.65; }
+        @keyframes auroraMove { 0% { transform:translateX(0) translateY(0) rotate(8deg); } 50% { transform:translateX(18%) translateY(-6%) rotate(12deg); } 100% { transform:translateX(0) translateY(0) rotate(8deg); } }
+
+        .futuristic-bg .orb { position:absolute; border-radius:50%; filter:blur(28px) brightness(1.2); opacity:.55; animation:float 28s ease-in-out infinite; will-change:transform; }
+        .futuristic-bg .orb-cyan { width:520px; height:520px; top:55%; left:-8%; background:radial-gradient(circle at 30% 35%, rgba(0,246,255,0.55), rgba(0,246,255,0) 70%); animation-duration:42s; }
+        .futuristic-bg .orb-pink { width:420px; height:420px; top:5%; right:-6%; background:radial-gradient(circle at 70% 40%, rgba(255,0,193,0.5), rgba(255,0,193,0) 70%); animation-duration:38s; animation-direction:reverse; }
+        .futuristic-bg .orb-green { width:420px; height:420px; bottom:-10%; right:30%; background:radial-gradient(circle at 50% 50%, rgba(16,185,129,0.45), rgba(16,185,129,0) 70%); animation-duration:50s; }
+        @keyframes float { 0% { transform:translate3d(0,0,0) scale(1); } 33% { transform:translate3d(6%, -4%, 0) scale(1.08); } 66% { transform:translate3d(-4%, 3%, 0) scale(.95); } 100% { transform:translate3d(0,0,0) scale(1); } }
+
+        /* Subtle star field */
+        .starfield { position:absolute; inset:0; background:
+            radial-gradient(circle at 10% 20%, rgba(255,255,255,0.15) 0 1px, transparent 1px 100%),
+            radial-gradient(circle at 70% 40%, rgba(255,255,255,0.12) 0 1px, transparent 1px 100%),
+            radial-gradient(circle at 40% 80%, rgba(255,255,255,0.1) 0 1px, transparent 1px 100%),
+            radial-gradient(circle at 85% 75%, rgba(255,255,255,0.18) 0 1px, transparent 1px 100%),
+            radial-gradient(circle at 25% 55%, rgba(255,255,255,0.12) 0 1px, transparent 1px 100%);
+            background-size:100% 100%; animation:stars 26s linear infinite; mix-blend-mode:screen; opacity:.35; }
+        @keyframes stars { 0% { transform:translateY(0); } 100% { transform:translateY(-4%); } }
+
+        /* Elevate main content slightly above new layers */
+        main, header, footer, .glass { position:relative; z-index:1; }
+
+        /* High-contrast info cards for readability */
+        .info-card { position:relative; background:rgba(18,28,52,0.78); border:1px solid rgba(255,255,255,0.08); border-radius:1rem; backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); box-shadow:0 0 0 1px rgba(255,255,255,0.04), 0 4px 22px -6px rgba(0,0,0,0.7); transition:box-shadow .35s ease, transform .35s ease, border-color .35s ease; }
+        .info-card:hover { transform:translateY(-4px) scale(1.015); }
+        .info-card h3 { color:#f8fbff; letter-spacing:.08em; text-shadow:0 0 6px rgba(255,255,255,0.25); }
+        .info-card p { color:#d8e6ff; text-shadow:0 1px 2px rgba(0,0,0,0.6); }
+        .info-card.cyan { border-color:rgba(0,246,255,0.35); box-shadow:0 0 0 1px rgba(0,246,255,0.15), 0 0 26px -8px rgba(0,246,255,0.65); }
+        .info-card.cyan:hover { box-shadow:0 0 0 1px rgba(0,246,255,0.45), 0 0 36px -6px rgba(0,246,255,0.95); }
+        .info-card.pink { border-color:rgba(255,0,193,0.35); box-shadow:0 0 0 1px rgba(255,0,193,0.15), 0 0 26px -8px rgba(255,0,193,0.6); }
+        .info-card.pink:hover { box-shadow:0 0 0 1px rgba(255,0,193,0.45), 0 0 36px -6px rgba(255,0,193,0.9); }
+        .info-card.green { border-color:rgba(16,185,129,0.35); box-shadow:0 0 0 1px rgba(16,185,129,0.15), 0 0 26px -8px rgba(16,185,129,0.55); }
+        .info-card.green:hover { box-shadow:0 0 0 1px rgba(16,185,129,0.45), 0 0 36px -6px rgba(16,185,129,0.85); }
+        .info-card .icon-wrap { width:2.75rem; height:2.75rem; display:flex; align-items:center; justify-content:center; border-radius:.85rem; font-size:1.05rem; font-weight:600; }
+        .info-card.cyan .icon-wrap { background:linear-gradient(145deg, rgba(0,246,255,0.18), rgba(0,246,255,0.05)); color:#5beeff; }
+        .info-card.pink .icon-wrap { background:linear-gradient(145deg, rgba(255,0,193,0.18), rgba(255,0,193,0.05)); color:#ff7adb; }
+        .info-card.green .icon-wrap { background:linear-gradient(145deg, rgba(16,185,129,0.18), rgba(16,185,129,0.05)); color:#34efba; }
+        @media (prefers-reduced-motion:reduce){ .info-card:hover{transform:none} }
+    </style>
+</head>
+<body class="min-h-screen pb-24 dark">
+    <!-- Futuristic animated background layers -->
+    <div class="futuristic-bg" aria-hidden="true">
+        <div class="aurora-layer"></div>
+        <div class="aurora-layer delay2"></div>
+        <div class="starfield"></div>
+        <div class="orb orb-cyan"></div>
+        <div class="orb orb-pink"></div>
+        <div class="orb orb-green"></div>
+    </div>
+
+    <header class="max-w-5xl mx-auto px-6 pt-12 md:pt-20 text-center">
+        <div class="inline-block mb-6 header-icon">
+            <div class="w-20 h-20 rounded-2xl flex items-center justify-center bg-cyan-400/10 border border-cyan-400/20 text-cyan-400 shadow-[0_0_20px_theme(colors.cyan.400)] transition-shadow duration-300 ease-in-out">
+                <i class="fas fa-wave-square text-4xl"></i>
+            </div>
+        </div>
+        <h1 class="text-4xl md:text-6xl font-extrabold tracking-tighter gradient-text uppercase">Phonetic Name Assistant</h1>
+        <p class="mt-4 text-base md:text-lg max-w-2xl mx-auto leading-relaxed text-slate-400">Struggling to pronounce a complex name? Our Phonetic Name Assistant is here to help. Instantly convert any name into a simple, easy-to-read phonetic guide and the official NATO alphabet for crystal-clear communication. Plus, you can hear the precise pronunciation in a standard US accent with a single click, ensuring you say it right every time.</p>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-6 mt-12 space-y-10">
+        <!-- Input Card -->
+        <section class="glass rounded-3xl p-8">
+            <div class="grid md:grid-cols-5 gap-6 items-end">
+                <div class="md:col-span-3">
+                    <label for="nameInput" class="block text-sm font-semibold uppercase tracking-widest text-cyan-400 mb-2">Full Name</label>
+                    <input id="nameInput" type="text" placeholder="e.g., Aida Shakeel" class="w-full rounded-xl px-5 py-4 font-semibold tracking-wide futuristic-input placeholder:text-gray-500" />
+                </div>
+                <div class="md:col-span-2 flex gap-3">
+                    <button id="convertBtn" class="flex-1 h-14 futuristic-btn font-semibold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3">
+                        <span id="buttonText" class="tracking-widest uppercase">Convert</span>
+                        <div id="spinner" class="spinner hidden"></div>
+                    </button>
+                    <button id="clearBtn" class="h-14 px-6 rounded-xl font-semibold btn-secondary transition">Clear</button>
+                </div>
+            </div>
+            <div id="errorMessage" class="hidden mt-6 border border-red-500/50 bg-red-900/20 text-red-300 rounded-xl p-4 text-sm font-medium flex gap-3">
+                <i class="fas fa-triangle-exclamation mt-0.5"></i>
+                <span id="errorText">Something went wrong. Please try again.</span>
+            </div>
+        </section>
+
+        <!-- Info Cards -->
+        <section class="grid md:grid-cols-3 gap-6">
+            <div class="info-card cyan p-6 flex flex-col gap-4">
+                <div class="icon-wrap"><i class="fas fa-language"></i></div>
+                <h3 class="font-semibold uppercase tracking-wider">Simple Phonetics</h3>
+                <p class="text-sm leading-relaxed">Readable syllable grouping for immediate, intuitive pronunciation.</p>
+            </div>
+            <div class="info-card pink p-6 flex flex-col gap-4">
+                <div class="icon-wrap"><i class="fas fa-spell-check"></i></div>
+                <h3 class="font-semibold uppercase tracking-wider">NATO Alphabet</h3>
+                <p class="text-sm leading-relaxed">Letter-by-letter clarity for verbal confirmation in calls or meetings.</p>
+            </div>
+            <div class="info-card green p-6 flex flex-col gap-4">
+                <div class="icon-wrap"><i class="fas fa-volume-high"></i></div>
+                <h3 class="font-semibold uppercase tracking-wider">Instant Audio</h3>
+                <p class="text-sm leading-relaxed">Hear the generated pronunciation to learn and repeat it accurately.</p>
+            </div>
+        </section>
+
+        <!-- Results -->
+        <section id="resultContainer" class="hidden space-y-8">
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="glass rounded-2xl p-6 relative overflow-hidden result-wrapper-enter">
+                    <h3 class="text-sm font-bold tracking-widest text-cyan-400 mb-3 flex items-center gap-2 uppercase"><i class="fas fa-wave-square"></i> Pronunciation Guide</h3>
+                    <div id="phoneticOutputContainer" class="min-h-[180px] leading-relaxed"></div>
+                </div>
+                <div class="glass rounded-2xl p-6 relative overflow-hidden result-wrapper-enter" style="animation-delay: 200ms;">
+                    <h3 class="text-sm font-bold tracking-widest text-fuchsia-400 mb-3 flex items-center gap-2 uppercase"><i class="fas fa-flag"></i> NATO Spelling</h3>
+                    <div id="phoneticAlphaOutputContainer" class="min-h-[180px] leading-relaxed"></div>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap gap-4">
+                <button id="playBtn" class="px-7 py-3 rounded-xl futuristic-btn font-semibold flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i class="fas fa-play"></i><span>Play Pronunciation</span>
+                </button>
+                <button id="copyBtn" class="px-6 py-3 rounded-xl btn-secondary font-medium flex items-center gap-2"><i class="fas fa-copy"></i> Copy Text</button>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="mt-16 py-8 border-t border-cyan-400/10 text-center">
+        <div class="flex items-center justify-center gap-3 text-sm tracking-wider text-slate-400">
+            <span>Powered by Guardian Dental Billing LLC</span>
+            <a href="https://guardiandentalbilling.com/" target="_blank" rel="noopener">
+                <img src="https://guardiandentalbilling.com/wp-content/uploads/2025/02/Logo-250-x-150-px-1-1.png" alt="Guardian Dental Billing LLC Logo" class="h-10 footer-logo">
+            </a>
+        </div>
+    </footer>
+
+
+    <script src="../js/global-api-loader.js"></script>
+    <script>
+    // Using secure backend proxy; no API key stored in this file.
+
+        // UI elements
+        const nameInput = document.getElementById('nameInput');
+        const convertBtn = document.getElementById('convertBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const playBtn = document.getElementById('playBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const phoneticOutputContainer = document.getElementById('phoneticOutputContainer');
+        const phoneticAlphaOutputContainer = document.getElementById('phoneticAlphaOutputContainer');
+        const resultContainer = document.getElementById('resultContainer');
+        const spinner = document.getElementById('spinner');
+        const buttonText = document.getElementById('buttonText');
+        const errorMessage = document.getElementById('errorMessage');
+        const errorText = document.getElementById('errorText');
+
+        // State variables
+        let audioUrl = null;
+
+        /**
+         * Converts a Base64 string to an ArrayBuffer.
+         */
+        const base64ToArrayBuffer = (base64) => {
+            const binaryString = window.atob(base64);
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return bytes.buffer;
+        };
+
+        /**
+         * Converts raw PCM audio data to a playable WAV Blob.
+         */
+        const pcmToWav = (pcmData, sampleRate) => {
+            const numChannels = 1;
+            const bitsPerSample = 16;
+            const dataLength = pcmData.length * (bitsPerSample / 8);
+            const buffer = new ArrayBuffer(44 + dataLength);
+            const view = new DataView(buffer);
+
+            const writeString = (view, offset, string) => {
+                for (let i = 0; i < string.length; i++) {
+                    view.setUint8(offset + i, string.charCodeAt(i));
+                }
+            };
+
+            // RIFF header
+            writeString(view, 0, 'RIFF');
+            view.setUint32(4, 36 + dataLength, true);
+            writeString(view, 8, 'WAVE');
+            // fmt chunk
+            writeString(view, 12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true); // PCM
+            view.setUint16(22, numChannels, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * numChannels * (bitsPerSample / 8), true);
+            view.setUint16(32, numChannels * (bitsPerSample / 8), true);
+            view.setUint16(34, bitsPerSample, true);
+            // data chunk
+            writeString(view, 36, 'data');
+            view.setUint32(40, dataLength, true);
+
+            for (let i = 0; i < pcmData.length; i++) {
+                view.setInt16(44 + i * 2, pcmData[i], true);
+            }
+
+            return new Blob([view], { type: 'audio/wav' });
+        };
+
+        /**
+         * Renders the formatted phonetic text into the UI.
+         */
+        const badgePalette = [
+            'bg-cyan-500/20 text-cyan-300 border-cyan-500/30',
+            'bg-fuchsia-500/20 text-fuchsia-300 border-fuchsia-500/30',
+            'bg-violet-500/20 text-violet-300 border-violet-500/30',
+            'bg-rose-500/20 text-rose-300 border-rose-500/30',
+            'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
+            'bg-amber-500/20 text-amber-300 border-amber-500/30'
+        ];
+
+        const renderPhoneticOutput = (text, container) => {
+            container.innerHTML = ''; 
+            const lines = text.split('\n').filter(line => line.trim() !== '');
+            lines.forEach((line, index) => {
+                const words = line.split('|').map(word => word.trim()).filter(word => word !== '');
+                words.forEach((word) => {
+                    const wordSpan = document.createElement('span');
+                    wordSpan.textContent = word;
+                    const paletteIndex = (index + word.length) % badgePalette.length;
+                    wordSpan.className = `phonetic-word ${badgePalette[paletteIndex]}`;
+                    container.appendChild(wordSpan);
+                });
+                if (index < lines.length - 1) {
+                    container.appendChild(document.createElement('br'));
+                }
+            });
+        };
+
+        const setUIState = (loading) => {
+            convertBtn.disabled = loading;
+            nameInput.disabled = loading;
+            playBtn.disabled = true; 
+            if (!loading && audioUrl) {
+                playBtn.disabled = false;
+            }
+            spinner.classList.toggle('hidden', !loading);
+            buttonText.classList.toggle('hidden', loading);
+        };
+
+        const showError = (message) => {
+            errorText.textContent = message;
+            errorMessage.classList.remove('hidden');
+        };
+
+        const hideError = () => {
+            errorMessage.classList.add('hidden');
+        };
+        
+        const fetchWithRetry = async (url, options, retries = 3) => {
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (response.status === 429 || response.status === 503) {
+                        const delay = Math.pow(2, i) * 1000 + Math.random() * 1000;
+                        console.log(`API unavailable (status ${response.status}), retrying in ${delay.toFixed(0)}ms...`);
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        continue;
+                    }
+                    if (!response.ok) {
+                        const errorBody = await response.text();
+                        throw new Error(`API error ${response.status}: ${errorBody}`);
+                    }
+                    return response;
+                } catch (e) {
+                    if (i === retries - 1) throw e;
+                }
+            }
+        };
+
+        const convertName = async () => {
+            const name = nameInput.value.trim();
+            if (!name) {
+                showError("Please enter a name.");
+                return;
+            }
+            
+            // No direct key check; proxy route handles security. (Optional fallback uses local key if admin added via settings.)
+
+            setUIState(true);
+            hideError();
+            resultContainer.classList.add('hidden');
+            if (audioUrl) URL.revokeObjectURL(audioUrl);
+            audioUrl = null;
+
+            try {
+                const combinedTextPrompt = `For the name "${name}", provide two phonetic spellings in a JSON object:
+1.  "simplePhonetic": A simple, easy-to-read phonetic spelling. Do not use IPA symbols. Separate phonetic words with a vertical bar (|) and name parts with a newline. (e.g., "zhawn | loo-k\\npi-KAHRD").
+2.  "natoPhonetic": The NATO phonetic alphabet spelling. Separate phonetic words with a vertical bar (|) and name parts with a newline. (e.g., "Juliett | Echo | Alpha | November\\nPapa | India | Charlie | Alpha").
+
+Provide only the JSON object.`;
+                
+                const combinedTextPayload = {
+                    contents: [{ parts: [{ text: combinedTextPrompt }] }],
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: {
+                            type: "OBJECT",
+                            properties: {
+                                "simplePhonetic": { "type": "STRING" },
+                                "natoPhonetic": { "type": "STRING" }
+                            },
+                            required: ["simplePhonetic", "natoPhonetic"]
+                        }
+                    }
+                };
+                
+                const audioPayload = {
+                    contents: [{ parts: [{ text: `Say clearly: ${name}` }] }],
+                    generationConfig: { responseModalities: ["AUDIO"] },
+                    model: "gemini-2.5-flash-preview-tts"
+                };
+
+                // Use secure proxy helper (returns JSON)
+                const [textResult, audioResult] = await Promise.all([
+                    window.makeGeminiApiRequest(combinedTextPayload, 'gemini-2.5-flash-preview-05-20'),
+                    window.makeGeminiApiRequest(audioPayload, 'gemini-2.5-flash-preview-tts')
+                ]);
+
+                const phoneticDataText = textResult?.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (!phoneticDataText) {
+                    throw new Error('Failed to get phonetic spellings from API.');
+                }
+                const phoneticData = JSON.parse(phoneticDataText);
+                
+                const simplePhoneticText = phoneticData.simplePhonetic?.trim();
+                const alphaPhoneticText = phoneticData.natoPhonetic?.trim();
+
+                if (simplePhoneticText) {
+                    renderPhoneticOutput(simplePhoneticText, phoneticOutputContainer);
+                } else {
+                    throw new Error('Simplified phonetic spelling was not returned.');
+                }
+                
+                if (alphaPhoneticText) {
+                    renderPhoneticOutput(alphaPhoneticText, phoneticAlphaOutputContainer);
+                } else {
+                    throw new Error('NATO phonetic spelling was not returned.');
+                }
+
+                const audioPart = audioResult?.candidates?.[0]?.content?.parts?.[0];
+                const audioData = audioPart?.inlineData?.data;
+                const mimeType = audioPart?.inlineData?.mimeType;
+
+                if (audioData && mimeType?.startsWith("audio/")) {
+                    const sampleRateMatch = mimeType.match(/rate=(\d+)/);
+                    if (!sampleRateMatch) throw new Error("Sample rate not found in audio MIME type.");
+                    
+                    const sampleRate = parseInt(sampleRateMatch[1], 10);
+                    const pcmData = base64ToArrayBuffer(audioData);
+                    const pcm16 = new Int16Array(pcmData);
+                    const wavBlob = pcmToWav(pcm16, sampleRate);
+                    audioUrl = URL.createObjectURL(wavBlob);
+                } else {
+                    console.error('API Error: Audio data is missing or malformed.', audioResult);
+                    showError('Audio pronunciation is not available for this name.');
+                }
+
+                resultContainer.classList.remove('hidden');
+
+            } catch (e) {
+                console.error("API call failed:", e);
+                showError(`Conversion failed. ${e.message}`);
+            } finally {
+                setUIState(false);
+            }
+        };
+
+        const playAudio = () => {
+            if (audioUrl) {
+                const audio = new Audio(audioUrl);
+                audio.play();
+            }
+        };
+
+        const copyText = () => {
+            const simple = phoneticOutputContainer.textContent.trim();
+            const nato = phoneticAlphaOutputContainer.textContent.trim();
+            const combined = `Pronunciation:\n${simple}\n\nNATO:\n${nato}`;
+            navigator.clipboard.writeText(combined).then(()=>{
+                const original = copyBtn.innerHTML;
+                copyBtn.innerHTML = '<i class="fas fa-check text-emerald-400"></i> Copied!';
+                setTimeout(()=>copyBtn.innerHTML = original, 1800);
+            }).catch(()=>{
+                showError('Failed to copy to clipboard.');
+            });
+        };
+
+        const clearAll = () => {
+            nameInput.value='';
+            phoneticOutputContainer.innerHTML='';
+            phoneticAlphaOutputContainer.innerHTML='';
+            resultContainer.classList.add('hidden');
+            hideError();
+            audioUrl && URL.revokeObjectURL(audioUrl);
+            audioUrl = null;
+        };
+
+        // Event Listeners
+        convertBtn.addEventListener('click', convertName);
+        clearBtn.addEventListener('click', clearAll);
+        nameInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') convertName(); });
+        playBtn.addEventListener('click', playAudio);
+        copyBtn.addEventListener('click', copyText);
+
+        window.addEventListener('beforeunload', () => { if (audioUrl) URL.revokeObjectURL(audioUrl); });
+    </script>
+    
+</body>
+</html>
+

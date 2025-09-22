@@ -1,0 +1,38 @@
+<div class="bg-white p-4 rounded-xl shadow-lg mb-8">
+    <h3 class="font-bold text-sm text-gray-600 mb-2">Currency Exchange Calculator</h3>
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
+        <input type="number" id="converter-amount" placeholder="Amount" class="md:col-span-2 w-full p-2 border rounded-lg">
+        <select id="converter-from" class="w-full p-2 border rounded-lg"><option value="USD">USD</option><option value="PKR">PKR</option></select>
+        <i class="fas fa-exchange-alt text-center text-gray-400"></i>
+        <select id="converter-to" class="w-full p-2 border rounded-lg"><option value="PKR">PKR</option><option value="USD">USD</option></select>
+    </div>
+    <p class="text-right mt-2 font-bold text-indigo-600 text-lg">Result: <span id="converter-result">PKR 0.00</span></p>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6 text-white">
+    <div class="bg-gradient-to-br from-indigo-500 to-blue-600 p-6 rounded-xl shadow-lg"><div><p class="text-3xl font-extrabold text-shadow">12</p><p class="text-sm opacity-80 text-shadow">Total Employees</p></div></div>
+    <div class="bg-gradient-to-br from-gray-500 to-gray-600 p-6 rounded-xl shadow-lg"><div><p class="text-3xl font-extrabold text-shadow">2</p><p class="text-sm opacity-80 text-shadow">Employees on Leave</p></div></div>
+    <div class="bg-gradient-to-br from-orange-500 to-red-500 p-6 rounded-xl shadow-lg"><div><p class="text-3xl font-extrabold text-shadow">4</p><p class="text-sm opacity-80 text-shadow">Pending Leave Req.</p></div></div>
+    <div class="bg-gradient-to-br from-teal-400 to-green-500 p-6 rounded-xl shadow-lg"><div><p class="text-3xl font-extrabold text-shadow">1</p><p class="text-sm opacity-80 text-shadow">Pending Loan Req.</p></div></div>
+    <div class="bg-gradient-to-br from-purple-500 to-pink-500 p-6 rounded-xl shadow-lg"><div><p class="text-3xl font-extrabold text-shadow">84</p><p class="text-sm opacity-80 text-shadow">Total Clients</p></div></div>
+    <div class="bg-gradient-to-br from-sky-500 to-cyan-400 p-6 rounded-xl shadow-lg"><div><p class="text-3xl font-extrabold text-shadow">8</p><p class="text-sm opacity-80 text-shadow">Loans Given</p></div></div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+    <div class="bg-white p-6 rounded-xl shadow-lg"></div>
+    <div class="bg-white p-6 rounded-xl shadow-lg"></div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+    <div class="bg-white p-6 rounded-xl shadow-lg"></div>
+    <div class="bg-white p-6 rounded-xl shadow-lg"></div>
+</div>
+
+<script>
+    // Script for the dashboard content (converter, history tables, etc.)
+    const USD_TO_PKR_RATE = 278.50;
+    
+    const amountInput = document.getElementById('converter-amount');
+    const fromSelect = document.getElementById('converter-from');
+    // ... all other scripts specific to the dashboard content
+</script>

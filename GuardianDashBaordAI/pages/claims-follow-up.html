@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>(function(){if(!document.getElementById('sidebar')){if(!location.search.includes('page=claims-follow-up'))location.replace('/index.html?page=claims-follow-up');}})();</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claims Status Follow-up Form</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+    <!-- Global API Configuration -->
+    <script src="../js/global-api-loader.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .container {
+            max-width: 1100px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        .field-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 200px;
+        }
+        input, select {
+            padding: 8px;
+            border: 1px solid #c2e2f6;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        .remove-btn {
+            background-color: #ef4444;
+            color: white;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .remove-btn:hover {
+            background-color: #dc2626;
+        }
+        #messageBox {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            text-align: center;
+        }
+        /* Suggestions list custom scrollbar */
+        #suggestions::-webkit-scrollbar {
+            width: 5px;
+        }
+        #suggestions::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        #suggestions::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 5px;
+        }
+        #suggestions::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+         /* Custom spinner animation */
+        .spinner {
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #10b981;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* Style for the phonetic output to handle newlines and spacing */
+        .phonetic-output-container {
+            white-space: pre-wrap;
+            line-height: 2.5rem; /* Increased for better spacing */
+        }
+        .phonetic-word {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            margin: 0.25rem;
+            border-radius: 9999px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-8">
+
+    <div class="container rounded-2xl shadow-lg p-6">
+        <h2 class="text-3xl text-center text-blue-800 font-bold mb-6">Claims Status Follow-up Form</h2>
+        
+        <!-- Hidden file input for CSV -->
+        <input type="file" id="csvFileInput" accept=".csv" class="hidden">
+        
+        <!-- Suggestions container for autofill -->
+        <div id="suggestions" class="absolute z-50 w-full bg-white border border-gray-300 rounded-md shadow-lg hidden max-h-60 overflow-y-auto"></div>
+
+        <!-- Insurance Info -->
+        <div class="mb-4">
+            <label class="block text-sm font-semibold text-gray-700">Insurance Name</label>
+            <input type="text" id="insuranceName" class="mt-1 block w-full rounded-md shadow-sm">
+        </div>
+
+        <!-- Practice Details -->
+        <h3 class="text-xl font-bold text-blue-700 mb-4 mt-6">Practice Details</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="field-container">
+                <label class="text-sm font-semibold text-gray-700">Practice Name</label>
+                <input type="text" id="practiceName" class="mt-1 rounded-md shadow-sm">
+            </div>
+            <div class="field-container">
+                <label class="text-sm font-semibold text-gray-700">Practice Tax ID</label>
+                <input type="text" id="practiceTax" class="mt-1 rounded-md shadow-sm">
+            </div>
+            <div class="field-container">
+                <label class="text-sm font-semibold text-gray-700">Practice NPI</label>
+                <input type="text" id="practiceNPI" class="mt-1 rounded-md shadow-sm">
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+            <div class="field-container">
+                <label class="text-sm font-semibold text-gray-700">Provider Name</label>
+                <input type="text" id="providerName" class="mt-1 rounded-md shadow-sm">
+            </div>
+            <div class="field-container">
+                <label class="text-sm font-semibold text-gray-700">Provider NPI</label>
+                <input type="text" id="providerNPI" class="mt-1 rounded-md shadow-sm">
+            </div>
+            <div class="field-container">
+                <label class="text-sm font-semibold text-gray-700">Provider Tax ID</label>
+                <input type="text" id="providerTax" class="mt-1 rounded-md shadow-sm">
+            </div>
+        </div>
+
+        <div class="mt-6">
+            <label class="block text-sm font-semibold text-gray-700">Practice Complete Address</label>
+            <input type="text" id="practiceAddress" class="mt-1 block w-full rounded-md shadow-sm">
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <div class="field-container">
+                <label class="text-sm font-semibold text-gray-700">Practice Phone Number</label>
+                <input type="text" id="practicePhone" class="mt-1 rounded-md shadow-sm">
+            </div>
+            <div class="field-container">
+                <label class="text-sm font-semibold text-gray-700">Practice Fax Number</label>
+                <input type="text" id="practiceFax" class="mt-1 rounded-md shadow-sm">
+            </div>
+        </div>
+
+        <!-- Save Practice Button -->
+        <div class="mt-4 flex justify-end">
+            <button id="savePracticeBtn" class="px-4 py-2 bg-green-500 text-white font-semibold rounded-lg shadow-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75 transition-colors">
+                Save Practice Info
+            </button>
+        </div>
+
+
+        <!-- Patient Details -->
+        <h3 class="text-xl font-bold text-blue-700 mb-4 mt-6">Patient & Claim Details</h3>
+        <p id="fileStatus" class="text-sm text-green-600 mb-2 font-medium h-5"></p>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative">
+             <div class="field-container">
+                <label class="text-sm font-semibold text-gray-700">Patient First Name</label>
+                <input type="text" id="patientFirst" class="mt-1 rounded-md shadow-sm" autocomplete="off">
+            </div>
+            <div class="field-container">
+                <label class="text-sm font-semibold text-gray-700">Patient Last Name</label>
+                <input type="text" id="patientLast" class="mt-1 rounded-md shadow-sm" autocomplete="off">
+            </div>
+            <div class="field-container">
+                <label class="text-sm font-semibold text-gray-700">Date of Birth (DOB)</label>
+                <input type="text" id="dob" class="mt-1 rounded-md shadow-sm" placeholder="YYYY-MM-DD" autocomplete="off">
+            </div>
+            <div class="field-container">
+                <label class="text-sm font-semibold text-gray-700">Date of Service (DOS)</label>
+                <input type="text" id="dos" class="mt-1 rounded-md shadow-sm" placeholder="YYYY-MM-DD">
+            </div>
+            <div class="field-container lg:col-span-2">
+                <label class="text-sm font-semibold text-gray-700">Member ID (MID)</label>
+                <input type="text" id="memberId" class="mt-1 rounded-md shadow-sm" autocomplete="off">
+            </div>
+            <div class="field-container lg:col-span-2">
+                <label class="text-sm font-semibold text-gray-700">Claim Number</label>
+                <input type="text" id="claimNumber" class="mt-1 rounded-md shadow-sm">
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
+            <div class="field-container">
+                <label class="text-sm font-semibold text-gray-700">Claim Status</label>
+                <input type="text" id="claimStatus" class="mt-1 rounded-md shadow-sm">
+            </div>
+            <div class="field-container">
+                <label class="text-sm font-semibold text-gray-700">Received Date</label>
+                <input type="date" id="receivedDate" class="mt-1 rounded-md shadow-sm">
+            </div>
+            <div class="field-container">
+                <label class="text-sm font-semibold text-gray-700">Processed Date</label>
+                <input type="date" id="processedDate" class="mt-1 rounded-md shadow-sm">
+            </div>
+             <div class="field-container md:col-span-2 lg:col-span-4">
+                <label class="text-sm font-semibold text-gray-700">Denial Reason</label>
+                <input type="text" id="denialReason" class="mt-1 rounded-md shadow-sm">
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
+            <div class="field-container">
+                <label class="text-sm font-semibold text-gray-700">Billed Amount</label>
+                <input type="number" id="billedAmount" class="mt-1 rounded-md shadow-sm" placeholder="0.00">
+            </div>
+            <div class="field-container">
+                <label class="text-sm font-semibold text-gray-700">Paid Amount</label>
+                <input type="number" id="paidAmount" class="mt-1 rounded-md shadow-sm" placeholder="0.00">
+            </div>
+            <div class="field-container">
+                <label class="text-sm font-semibold text-gray-700">Patient Resp (PR)</label>
+                <input type="number" id="patientResp" class="mt-1 rounded-md shadow-sm" placeholder="0.00">
+            </div>
+            <div class="field-container">
+                <label class="text-sm font-semibold text-gray-700">Sec Ins Paid</label>
+                <input type="number" id="secInsPaid" class="mt-1 rounded-md shadow-sm" placeholder="0.00">
+            </div>
+             <div class="field-container lg:col-span-2">
+                <label class="text-sm font-semibold text-gray-700">Write-off</label>
+                <input type="number" id="writeoff" class="mt-1 rounded-md shadow-sm bg-gray-100" placeholder="0.00" readonly>
+            </div>
+        </div>
+        
+        <!-- Procedure Codes -->
+        <div class="mt-8 p-6 rounded-lg bg-indigo-50 border border-indigo-200">
+            <h3 class="text-lg font-semibold text-gray-700">Procedure Code Details</h3>
+            <div id="adaCodes" class="mt-4 space-y-4"></div>
+            <button type="button" onclick="addAdaCode()" class="mt-4 px-4 py-2 bg-green-500 text-white font-semibold rounded-lg shadow-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75 transition-colors">
+                + Add Procedure
+            </button>
+        </div>
+
+
+        <!-- Payment -->
+        <h3 class="text-xl font-bold text-blue-700 mb-4 mt-6">Payment Details</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="field-container">
+                <label class="text-sm font-semibold text-gray-700">Payment Method</label>
+                <select id="paymentMethod" class="mt-1 rounded-md shadow-sm">
+                    <option value="Check">Check</option>
+                    <option value="Credit Card">Credit Card</option>
+                    <option value="EFT">EFT</option>
+                </select>
+            </div>
+            <div class="field-container">
+                <label class="text-sm font-semibold text-gray-700">Check/CC Number</label>
+                <input type="text" id="checkNumber" class="mt-1 rounded-md shadow-sm">
+            </div>
+            <div class="field-container">
+                <label class="text-sm font-semibold text-gray-700">Payment Date</label>
+                <input type="date" id="paymentDate" class="mt-1 rounded-md shadow-sm">
+            </div>
+            <div class="field-container">
+                <label class="text-sm font-semibold text-gray-700">Cashed Date</label>
+                <input type="date" id="cashedDate" class="mt-1 rounded-md shadow-sm">
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <div class="field-container">
+                <label class="text-sm font-semibold text-gray-700">Is there any PR/Sec Ins?</label>
+                <input type="text" id="prSecIns" class="mt-1 rounded-md shadow-sm">
+            </div>
+            <div class="field-container">
+                <label class="text-sm font-semibold text-gray-700">Appeal TFL</label>
+                <input type="text" id="appealTFL" class="mt-1 rounded-md shadow-sm">
+            </div>
+        </div>
+
+        <!-- Representative -->
+        <h3 class="text-xl font-bold text-blue-700 mb-4 mt-6">Call Details</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="field-container">
+                <label class="text-sm font-semibold text-gray-700">Representative Name</label>
+                <input type="text" id="repName" class="mt-1 rounded-md shadow-sm">
+            </div>
+            <div class="field-container">
+                <label class="text-sm font-semibold text-gray-700">Call Ref#</label>
+                <input type="text" id="callRef" class="mt-1 rounded-md shadow-sm">
+            </div>
+            <div class="field-container">
+                <label class="text-sm font-semibold text-gray-700">Date</label>
+                <input type="date" id="repDate" class="mt-1 rounded-md shadow-sm">
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-wrap justify-center mt-8 gap-4">
+            <button id="uploadCsvBtn" class="px-8 py-3 bg-green-600 text-white font-bold rounded-full shadow-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-75 transition-colors">
+                Upload Patient CSV
+            </button>
+            <button id="showPhoneticBtn" class="px-8 py-3 bg-teal-500 text-white font-bold rounded-full shadow-lg hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-75 transition-colors">
+                Phonetic Spelling
+            </button>
+            <button id="showArCommentBtn" class="px-8 py-3 bg-purple-600 text-white font-bold rounded-full shadow-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-75 transition-colors">
+                Generate Comment
+            </button>
+            <button onclick="generatePDF()" class="px-8 py-3 bg-indigo-600 text-white font-bold rounded-full shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-75 transition-colors">
+                Generate EOB
+            </button>
+            <button onclick="clearSavedData()" class="px-8 py-3 bg-yellow-500 text-white font-bold rounded-full shadow-lg hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-opacity-75 transition-colors">
+                Clear Practice Data
+            </button>
+            <button onclick="clearPatientData()" class="px-8 py-3 bg-red-500 text-white font-bold rounded-full shadow-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-75 transition-colors">
+                Clear Patient Data
+            </button>
+            <button onclick="clearAllData()" class="px-8 py-3 bg-gray-700 text-white font-bold rounded-full shadow-lg hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-600 focus:ring-opacity-75 transition-colors">
+                Clear All Data
+            </button>
+        </div>
+
+        <!-- Phonetic Converter Section (Initially Hidden) -->
+        <div id="phoneticConverterContainer" class="hidden mt-8 pt-6 border-t-2 border-dashed border-gray-300">
+             <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-200 w-full">
+                <h1 class="text-3xl font-bold text-gray-800 mb-2 text-center">Phonetic Name Converter</h1>
+                <p class="text-gray-500 mb-6 text-center">Enter a patient's name to get its phonetic spelling and hear the pronunciation.</p>
+                
+                <div class="flex flex-col md:flex-row gap-4 mb-6">
+                    <div class="flex-grow">
+                        <label for="nameInput" class="block text-gray-700 font-medium mb-2">Patient's Full Name</label>
+                        <input type="text" id="nameInput" placeholder="e.g., Jean-Luc Picard" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all">
+                    </div>
+                    <button id="convertBtn" class="mt-auto px-6 py-2 bg-green-500 text-white font-semibold rounded-lg shadow-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                        <span id="buttonText">Convert</span>
+                        <div id="spinner" class="spinner hidden"></div>
+                    </button>
+                </div>
+
+                <div id="phoneticResultContainer" class="hidden">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Results</h2>
+                    <div class="bg-gray-50 border border-gray-200 rounded-xl p-6 mb-4">
+                        <h3 class="text-gray-600 font-medium mb-2">Pronunciation Guide</h3>
+                        <div id="phoneticOutputContainer" class="text-gray-800 font-bold text-lg phonetic-output-container"></div>
+                    </div>
+                    <div class="bg-gray-50 border border-gray-200 rounded-xl p-6 mb-4">
+                        <h3 class="text-gray-600 font-medium mb-2">NATO Phonetic Spelling</h3>
+                        <div id="phoneticAlphaOutputContainer" class="text-gray-800 font-bold text-lg phonetic-output-container"></div>
+                    </div>
+                    <button id="playBtn" class="w-full px-6 py-3 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all flex items-center justify-center gap-2 disabled:bg-gray-400 disabled:cursor-not-allowed">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
+                        <span>Play Pronunciation</span>
+                    </button>
+                    <div id="errorMessage" class="hidden mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative" role="alert">
+                        <strong class="font-bold">Error!</strong>
+                        <span class="block sm:inline" id="errorText">Something went wrong. Please try again.</span>
+                    </div>
+                </div>
+                <p class="text-xs text-gray-400 text-center mt-6">Powered by Google Gemini</p>
+            </div>
+        </div>
+
+        <!-- AR Comment Generator Section (Initially Hidden) -->
+        <div id="arCommentGeneratorContainer" class="hidden mt-8 pt-6 border-t-2 border-dashed border-gray-300">
+             <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-200 w-full">
+                <h1 class="text-3xl font-bold text-gray-800 mb-2 text-center">AR Comment Generator</h1>
+                <p class="text-gray-500 mb-6 text-center">Generate a professional comment based on the claim details above.</p>
+                
+                <!-- Action Buttons -->
+                <div class="mt-8 flex items-center justify-center gap-4">
+                    <button onclick="generateComment()" class="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors">Generate Comment</button>
+                    <button id="copyButton" onclick="copyComment()" class="px-6 py-3 bg-gray-600 text-white font-semibold rounded-lg shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">Copy to Clipboard</button>
+                </div>
+
+                <!-- Result Display -->
+                <div id="arResultContainer" class="mt-8 hidden p-6 rounded-lg bg-green-50 border border-green-200">
+                    <h3 class="text-lg font-semibold text-gray-700">Generated Comment</h3>
+                    <div id="arResult" class="mt-2 p-4 border border-gray-200 bg-white rounded-lg whitespace-pre-wrap font-mono text-sm text-gray-800"></div>
+                </div>
+             </div>
+        </div>
+
+    </div>
+    
+    <!-- Custom Message Box -->
+    <div id="messageBox" class="hidden rounded-lg p-6">
+        <p id="messageText" class="text-lg font-semibold text-gray-700"></p>
+        <button onclick="hideMessageBox()" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">Close</button>
+    </div>
+
+    <script>
+        const { jsPDF } = window.jspdf;
+        
+        // --- CSV Autofill Variables ---
+        const csvFileInput = document.getElementById('csvFileInput');
+        const fileStatus = document.getElementById('fileStatus');
+        const suggestionsContainer = document.getElementById('suggestions');
+        const uploadCsvBtn = document.getElementById('uploadCsvBtn');
+        let patientData = [];
+        
+        const patientSearchableFields = [
+            document.getElementById('patientFirst'),
+            document.getElementById('patientLast'),
+            document.getElementById('dob'),
+            document.getElementById('memberId')
+        ];
+
+        window.onload = function() {
+            loadPracticeData();
+            addAdaCode(true);
+        };
+        
+        // --- Existing Form Functions ---
+
+        function showMessageBox(message) {
+            const messageBox = document.getElementById('messageBox');
+            const messageText = document.getElementById('messageText');
+            messageText.innerText = message;
+            messageBox.classList.remove('hidden');
+        }
+
+        function hideMessageBox() {
+            document.getElementById('messageBox').classList.add('hidden');
+        }
+
+        // --- Practice/Provider Autofill ---
+        let practiceAndProviderData = [];
+        const practiceSearchableFields = [
+            document.getElementById('practiceName'),
+            document.getElementById('providerName')
+        ];
+
+        function savePracticeData() {
+            const practiceName = document.getElementById('practiceName').value;
+            if (!practiceName.trim()) {
+                showMessageBox("Practice Name is required to save the details.");
+                return;
+            }
+            const newPractice = {
+                practiceName: practiceName,
+                practiceTax: document.getElementById('practiceTax').value,
+                practiceNPI: document.getElementById('practiceNPI').value,
+                providerName: document.getElementById('providerName').value,
+                providerNPI: document.getElementById('providerNPI').value,
+                providerTax: document.getElementById('providerTax').value,
+                practiceAddress: document.getElementById('practiceAddress').value,
+                practicePhone: document.getElementById('practicePhone').value,
+                practiceFax: document.getElementById('practiceFax').value,
+            };
+            const existingIndex = practiceAndProviderData.findIndex(p => p.practiceName.toLowerCase() === newPractice.practiceName.toLowerCase());
+            if (existingIndex > -1) {
+                practiceAndProviderData[existingIndex] = newPractice;
+            } else {
+                practiceAndProviderData.push(newPractice);
+            }
+            localStorage.setItem('claimsPracticesData', JSON.stringify(practiceAndProviderData));
+            showMessageBox(`Practice "${newPractice.practiceName}" has been saved.`);
+        }
+
+        function loadPracticeData() {
+            const savedData = localStorage.getItem('claimsPracticesData');
+            if (savedData) {
+                practiceAndProviderData = JSON.parse(savedData);
+            }
+        }
+
+        function handlePracticeSearch(event) {
+            const targetInput = event.target;
+            const query = targetInput.value.toLowerCase().trim();
+            clearSuggestions();
+            if (query.length === 0) return;
+            const matches = practiceAndProviderData.filter(p => 
+                p.practiceName?.toLowerCase().includes(query) || 
+                p.providerName?.toLowerCase().includes(query)
+            );
+            displayPracticeSuggestions(matches, targetInput);
+        }
+
+        function displayPracticeSuggestions(matches, targetInput) {
+            if (matches.length === 0) return;
+            positionSuggestions(targetInput);
+            matches.slice(0, 10).forEach(practice => {
+                const suggestionText = `${practice.practiceName} - ${practice.providerName}`;
+                const suggestionEl = document.createElement('div');
+                suggestionEl.className = 'p-2 hover:bg-indigo-100 cursor-pointer text-sm text-gray-700 border-b';
+                suggestionEl.textContent = suggestionText;
+                suggestionEl.addEventListener('click', () => {
+                    fillPracticeForm(practice);
+                    clearSuggestions();
+                });
+                suggestionsContainer.appendChild(suggestionEl);
+            });
+            if (matches.length > 0) {
+                suggestionsContainer.classList.remove('hidden');
+            }
+        }
+
+        function fillPracticeForm(practice) {
+            document.getElementById('practiceName').value = practice.practiceName || '';
+            document.getElementById('practiceTax').value = practice.practiceTax || '';
+            document.getElementById('practiceNPI').value = practice.practiceNPI || '';
+            document.getElementById('providerName').value = practice.providerName || '';
+            document.getElementById('providerNPI').value = practice.providerNPI || '';
+            document.getElementById('providerTax').value = practice.providerTax || '';
+            document.getElementById('practiceAddress').value = practice.practiceAddress || '';
+            document.getElementById('practicePhone').value = practice.practicePhone || '';
+            document.getElementById('practiceFax').value = practice.practiceFax || '';
+        }
+
+        function clearSavedData() {
+            localStorage.removeItem('claimsPracticesData');
+            practiceAndProviderData = [];
+            document.getElementById('practiceName').value = '';
+            document.getElementById('practiceTax').value = '';
+            document.getElementById('practiceNPI').value = '';
+            document.getElementById('providerName').value = '';
+            document.getElementById('providerNPI').value = '';
+            document.getElementById('providerTax').value = '';
+            document.getElementById('practiceAddress').value = '';
+            document.getElementById('practicePhone').value = '';
+            document.getElementById('practiceFax').value = '';
+            showMessageBox("All saved practice data has been cleared.");
+        }
+        
+        function clearPatientData() {
+            const fieldsToClear = ['patientFirst', 'patientLast', 'dob', 'dos', 'memberId', 'claimNumber', 'claimStatus', 'receivedDate', 'processedDate', 'denialReason', 'billedAmount', 'paidAmount', 'patientResp', 'secInsPaid', 'writeoff'];
+            fieldsToClear.forEach(id => document.getElementById(id).value = '');
+            const procedureContainer = document.getElementById('adaCodes');
+            while (procedureContainer.firstChild) {
+                procedureContainer.removeChild(procedureContainer.firstChild);
+            }
+            addAdaCode(true); // Add back the initial row
+            showMessageBox("Patient data has been cleared.");
+        }
+
+        function clearAllData() {
+            clearSavedData();
+            clearPatientData();
+            const otherFields = ['insuranceName', 'paymentMethod', 'checkNumber', 'paymentDate', 'cashedDate', 'prSecIns', 'appealTFL', 'repName', 'callRef', 'repDate'];
+            otherFields.forEach(id => {
+                const el = document.getElementById(id);
+                if (el.tagName === 'SELECT') el.selectedIndex = 0;
+                else el.value = '';
+            });
+            showMessageBox("All form data has been cleared.");
+        }
+
+        function generatePDF() {
+            const doc = new jsPDF();
+            const margin = 15;
+            let y = margin;
+            const lineHeight = 6;
+            const pageWidth = doc.internal.pageSize.width;
+            const col1 = margin;
+            const col2 = pageWidth / 2;
+            const data = {
+                insuranceName: document.getElementById('insuranceName').value,
+                practiceName: document.getElementById('practiceName').value,
+                practiceTax: document.getElementById('practiceTax').value,
+                practiceNPI: document.getElementById('practiceNPI').value,
+                providerName: document.getElementById('providerName').value,
+                providerNPI: document.getElementById('providerNPI').value,
+                providerTax: document.getElementById('providerTax').value,
+                practiceAddress: document.getElementById('practiceAddress').value,
+                practicePhone: document.getElementById('practicePhone').value,
+                practiceFax: document.getElementById('practiceFax').value,
+                patientFirst: document.getElementById('patientFirst').value,
+                patientLast: document.getElementById('patientLast').value,
+                dos: document.getElementById('dos').value,
+                memberId: document.getElementById('memberId').value,
+                claimStatus: document.getElementById('claimStatus').value,
+                receivedDate: document.getElementById('receivedDate').value,
+                processedDate: document.getElementById('processedDate').value,
+                billedAmount: document.getElementById('billedAmount').value,
+                paidAmount: document.getElementById('paidAmount').value,
+                paymentMethod: document.getElementById('paymentMethod').value,
+                checkNumber: document.getElementById('checkNumber').value,
+                paymentDate: document.getElementById('paymentDate').value,
+                cashedDate: document.getElementById('cashedDate').value,
+                prSecIns: document.getElementById('prSecIns').value,
+                appealTFL: document.getElementById('appealTFL').value,
+                repName: document.getElementById('repName').value,
+                callRef: document.getElementById('callRef').value,
+                repDate: document.getElementById('repDate').value,
+            };
+            doc.setFontSize(22);
+            doc.setTextColor(44, 62, 80);
+            doc.setFont("helvetica", "bold");
+            doc.text("EXPLANATION OF BENEFITS", pageWidth / 2, y, { align: 'center' });
+            y += lineHeight * 2;
+            doc.setFontSize(16);
+            doc.setTextColor(52, 152, 219);
+            doc.setFont("helvetica", "bold");
+            doc.text(data.insuranceName, col1, y);
+            doc.text(data.practiceName, col2, y);
+            y += lineHeight * 1.5;
+            doc.setFontSize(10);
+            doc.setTextColor(52, 73, 94);
+            doc.setFont("helvetica", "normal");
+            doc.text(`Phone#: ${data.practicePhone}`, col1, y);
+            doc.text(`NPI: ${data.practiceNPI}`, col2, y);
+            y += lineHeight;
+            doc.text(`Received: ${data.receivedDate}`, col1, y);
+            doc.text(`Tax ID: ${data.practiceTax}`, col2, y);
+            y += lineHeight;
+            doc.text(`Payment: ${data.paymentMethod}`, col1, y);
+            doc.text(`Phone: ${data.practicePhone}`, col2, y);
+            y += lineHeight;
+            doc.text(`Pay Date: ${data.paymentDate}`, col1, y);
+            doc.text(`Fax: ${data.practiceFax}`, col2, y);
+            y += lineHeight;
+            doc.text(`Rep: ${data.repName}`, col1, y);
+            doc.text(`Address: ${data.practiceAddress}`, col2, y);
+            y += lineHeight;
+            doc.text(`Call Ref#: ${data.callRef}`, col1, y);
+            doc.text(`Date: ${data.repDate}`, col2, y);
+            y += lineHeight * 2;
+            doc.setFontSize(16);
+            doc.setTextColor(52, 152, 219);
+            doc.setFont("helvetica", "bold");
+            doc.text(`Provider: ${data.providerName}`, col1, y);
+            doc.text(`Claim Status: ${data.claimStatus}`, col2, y);
+            y += lineHeight;
+            doc.setFontSize(12);
+            doc.setTextColor(52, 73, 94);
+            doc.setFont("helvetica", "normal");
+            doc.text(`Patient: ${data.patientFirst} ${data.patientLast}`, col1, y);
+            doc.text(`DOS: ${data.dos}`, col2, y);
+            y += lineHeight;
+            doc.text(`Paid Amount: $${data.paidAmount}`, col1, y);
+            doc.text(`MID: ${data.memberId}`, col2, y);
+            y += lineHeight * 2;
+            const procedureEntries = document.querySelectorAll('.ada-entry'); // Updated selector
+            const tableData = [];
+            procedureEntries.forEach(entry => {
+                const inputs = entry.querySelectorAll('input, select');
+                tableData.push([inputs[0].value, inputs[1].value, 'N/A', 'N/A', 'N/A', 'N/A', 'N/A']); // Adjust for new structure
+            });
+
+            doc.autoTable({
+                startY: y,
+                head: [['ADA Code', 'Status', 'Billed', 'Allowed', 'Paid', 'PR', 'PR/CoIns']],
+                body: tableData,
+                theme: 'striped',
+                headStyles: { fillColor: [52, 152, 219] },
+                margin: { left: margin, right: margin }
+            });
+            y = doc.autoTable.previous.finalY + 10;
+            doc.setFontSize(12);
+            doc.setTextColor(52, 73, 94);
+            doc.setFont("helvetica", "bold");
+            doc.text(`Total Billed Amount: $${data.billedAmount}`, col1, y);
+            y += lineHeight;
+            doc.text(`Total Paid Amount: $${data.paidAmount}`, col1, y);
+            y += lineHeight;
+            doc.text(`PR/Secondary Insurance: ${data.prSecIns}`, col1, y);
+            y += lineHeight * 2;
+            doc.setFontSize(10);
+            doc.setTextColor(52, 73, 94);
+            doc.setFont("helvetica", "bold");
+            doc.text("Important Note:", col1, y);
+            y += lineHeight;
+            doc.setFont("helvetica", "normal");
+            const noteText = "This document is not a standard Explanation of Benefits (EOB) issued by the insurance carrier. It is a system-generated claim status report, prepared after one of our Dental Billing Experts at Guardian Dental Billing directly contacted the insurance representative. The information recorded here reflects the details provided during that call. For independent verification, please contact the listed insurance company and reference the provided call number along with the representative's name.";
+            const splitText = doc.splitTextToSize(noteText, pageWidth - (margin * 2));
+            doc.text(splitText, col1, y);
+            y += (splitText.length * lineHeight) + lineHeight;
+            doc.line(margin, y, pageWidth - margin, y);
+            y += lineHeight;
+            doc.setFontSize(12);
+            doc.setFont("helvetica", "bold");
+            doc.text("GUARDIAN DENTAL BILLING LLC", col1, y);
+            y += lineHeight;
+            doc.setFont("helvetica", "normal");
+            doc.text("www.guardiandentalbilling.com, billing@guardiandentalbilling.com, Guardiandentalbilling@gmail.com", col1, y);
+            y += lineHeight;
+            doc.text("+1 (732) 498-0786 Fax +1 (732) 944-0080", col1, y);
+            doc.save('EOB_claim.pdf');
+            showMessageBox("EOB has been successfully generated! Please check the Download Folder");
+        }
+        
+        // --- CSV Patient Autofill Functions ---
+        uploadCsvBtn.addEventListener('click', () => csvFileInput.click());
+        csvFileInput.addEventListener('change', handleFileSelect);
+        patientSearchableFields.forEach(field => {
+            field.addEventListener('input', handlePatientSearch);
+            field.addEventListener('focus', handlePatientSearch);
+        });
+
+        document.addEventListener('click', (event) => {
+            const isClickInsidePatientSearch = patientSearchableFields.some(field => field.contains(event.target));
+            const isClickInsidePracticeSearch = practiceSearchableFields.some(field => field.contains(event.target));
+            const isClickInsideSuggestions = suggestionsContainer.contains(event.target);
+            if (!isClickInsidePatientSearch && !isClickInsidePracticeSearch && !isClickInsideSuggestions) {
+                clearSuggestions();
+            }
+        });
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                parseCSV(e.target.result);
+                fileStatus.textContent = `"${file.name}" file loaded successfully.`;
+            };
+            reader.onerror = () => {
+                fileStatus.textContent = 'Error reading file.';
+                fileStatus.classList.remove('text-green-600').add('text-red-600');
+            };
+            reader.readAsText(file);
+        }
+
+        function parseCSV(csvText) {
+            patientData = [];
+            const lines = csvText.split(/\r?\n/).filter(line => line.trim() !== '');
+            if (lines.length < 2) {
+                fileStatus.textContent = 'CSV is empty or invalid.';
+                fileStatus.classList.add('text-red-600');
+                return;
+            }
+            const headers = lines[0].split(',').map(header => header.toLowerCase().replace(/\s+/g, ' ').trim());
+            for (let i = 1; i < lines.length; i++) {
+                const values = lines[i].split(',').map(value => value.trim());
+                let entry = {};
+                headers.forEach((header, index) => {
+                    entry[header] = values[index] || '';
+                });
+                patientData.push(entry);
+            }
+        }
+
+        function handlePatientSearch(event) {
+            const targetInput = event.target;
+            const query = targetInput.value.toLowerCase().trim();
+            clearSuggestions();
+            if (query.length === 0 && event.type === 'focus') { return; }
+            const searchKeyMap = {
+                'patientFirst': 'patient first name',
+                'patientLast': 'patient last name',
+                'dob': 'date of birth',
+                'memberId': 'member id'
+            };
+            const searchKey = searchKeyMap[targetInput.id];
+            const matches = query.length === 0 ? patientData : patientData.filter(p => p[searchKey]?.toLowerCase().includes(query));
+            displayPatientSuggestions(matches, targetInput);
+        }
+
+        function positionSuggestions(inputElement) {
+            const rect = inputElement.getBoundingClientRect();
+            const containerRect = document.querySelector('.container').getBoundingClientRect();
+            suggestionsContainer.style.left = `${rect.left - containerRect.left}px`;
+            suggestionsContainer.style.top = `${rect.bottom - containerRect.top}px`;
+            suggestionsContainer.style.width = `${rect.width}px`;
+        }
+
+        function displayPatientSuggestions(matches, targetInput) {
+            if (matches.length === 0 && targetInput.value.length > 0) return;
+            positionSuggestions(targetInput);
+            matches.slice(0, 10).forEach(patient => {
+                const firstName = patient['patient first name'] || '';
+                const lastName = patient['patient last name'] || '';
+                const suggestionText = `${firstName} ${lastName} (ID: ${patient['member id'] || ''})`;
+                const suggestionEl = document.createElement('div');
+                suggestionEl.className = 'p-2 hover:bg-indigo-100 cursor-pointer text-sm text-gray-700 border-b';
+                suggestionEl.textContent = suggestionText;
+                suggestionEl.addEventListener('click', () => {
+                    fillPatientForm(patient);
+                    clearSuggestions();
+                });
+                suggestionsContainer.appendChild(suggestionEl);
+            });
+            if (matches.length > 0) {
+                suggestionsContainer.classList.remove('hidden');
+            }
+        }
+
+        function fillPatientForm(patient) {
+            const firstName = patient['patient first name'] || '';
+            const lastName = patient['patient last name'] || '';
+            document.getElementById('patientFirst').value = firstName;
+            document.getElementById('patientLast').value = lastName;
+            document.getElementById('dob').value = patient['date of birth'] || '';
+            document.getElementById('dos').value = patient['date of service'] || '';
+            document.getElementById('memberId').value = patient['member id'] || '';
+            document.getElementById('billedAmount').value = patient['billed amount'] || '';
+            document.getElementById('insuranceName').value = patient['insurance name'] || patient['insurance'] || '';
+            document.getElementById('nameInput').value = `${firstName} ${lastName}`.trim();
+        }
+
+        function clearSuggestions() {
+            suggestionsContainer.innerHTML = '';
+            suggestionsContainer.classList.add('hidden');
+        }
+        
+        // --- Setup Event Listeners ---
+        document.getElementById('savePracticeBtn').addEventListener('click', savePracticeData);
+        practiceSearchableFields.forEach(field => {
+            field.addEventListener('input', handlePracticeSearch);
+            field.addEventListener('focus', handlePracticeSearch);
+        });
+
+        // --- AR Comment Generator Functions ---
+        function addAdaCode(isFirst = false) {
+            const container = document.getElementById('adaCodes');
+            const newIndex = container.children.length;
+            const div = document.createElement('div');
+            div.className = "ada-entry grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 border rounded-lg bg-white shadow-sm relative";
+            div.innerHTML = `
+                <div>
+                    <label class="text-xs">ADA Code</label>
+                    <input type="text" placeholder="e.g. D0120" class="w-full">
+                </div>
+                <div>
+                    <label class="text-xs">Status</label>
+                    <select onchange="toggleAdaReason(${newIndex})" class="w-full">
+                        <option value="Paid in full">Paid in full</option>
+                        <option value="Paid">Paid</option>
+                        <option value="Paid with PR">Paid with PR</option>
+                        <option value="Denied">Denied</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div id="adaReasonContainer-${newIndex}" class="sm:col-span-3 hidden">
+                    <label class="text-xs">Reason</label>
+                    <input type="text" placeholder="Reason for status (e.g., non-covered service)" class="w-full">
+                </div>
+                ${!isFirst ? '<button type="button" class="remove-btn absolute -top-2 -right-2" onclick="this.parentElement.remove()">X</button>' : ''}
+            `;
+            container.appendChild(div);
+        }
+        
+        function toggleAdaReason(index) {
+            const entry = document.querySelectorAll('.ada-entry')[index];
+            const status = entry.querySelector('select').value;
+            const container = document.getElementById(`adaReasonContainer-${index}`);
+            if (status === 'Denied' || status === 'Other') {
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+            }
+        }
+
+        function calculateWriteoff() {
+            const billed = parseFloat(document.getElementById('billedAmount').value) || 0;
+            const paid = parseFloat(document.getElementById('paidAmount').value) || 0;
+            const pr = parseFloat(document.getElementById('patientResp').value) || 0;
+            const secondary = parseFloat(document.getElementById('secInsPaid').value) || 0;
+            const writeoff = billed - (paid + pr + secondary);
+            document.getElementById('writeoff').value = writeoff >= 0 ? writeoff.toFixed(2) : '0.00';
+        }
+
+        ['billedAmount', 'paidAmount', 'patientResp', 'secInsPaid'].forEach(id => {
+            document.getElementById(id).addEventListener('input', calculateWriteoff);
+        });
+
+        function generateComment() {
+            const patient = (document.getElementById('patientFirst').value + ' ' + document.getElementById('patientLast').value).trim() || 'N/A';
+            const dos = document.getElementById('dos').value || 'N/A';
+            const claim = document.getElementById('claimNumber').value || 'N/A';
+            const claimStatus = document.getElementById('claimStatus').value || 'N/A';
+            const claimReason = document.getElementById('denialReason').value.trim();
+            const billed = document.getElementById('billedAmount').value || '0';
+            const paid = document.getElementById('paidAmount').value || '0';
+            const pr = document.getElementById('patientResp').value || '0';
+            const secondary = document.getElementById('secInsPaid').value || '0';
+            const writeoff = document.getElementById('writeoff').value || '0';
+            const method = document.getElementById('paymentMethod').value;
+            const checkno = document.getElementById('checkNumber').value || 'N/A';
+            const paydate = document.getElementById('paymentDate').value || 'N/A';
+            const callref = document.getElementById('callRef').value.trim();
+
+            let summaryLine1 = `Claim #${claim} for ${patient} (DOS ${dos}) is ${claimStatus}. Billed: $${billed} | Paid: $${paid} | PR: $${pr} | Sec: $${secondary} | W/O: $${writeoff}.`;
+            let summaryLine2 = claimReason ? `Denial Reason: ${claimReason}` : '';
+            let paymentInfo = `Payment via ${method} (${checkno}) on ${paydate}.`;
+
+            let comment = summaryLine1;
+            if (summaryLine2) comment += `\n${summaryLine2}`;
+            comment += `\n${paymentInfo}`;
+
+            let adaDetails = "\n\n--- PROCEDURE DETAILS ---\n";
+            let hasAdaCodes = false;
+            document.querySelectorAll('.ada-entry').forEach((entry, index) => {
+                const code = entry.querySelector('input[type="text"]').value;
+                const status = entry.querySelector('select').value;
+                const reasonInput = document.querySelector(`#adaReasonContainer-${index} input`);
+                const reason = reasonInput ? reasonInput.value.trim() : '';
+                if (code) {
+                    hasAdaCodes = true;
+                    adaDetails += `${code}: ${status}`;
+                    if (reason) adaDetails += ` (Reason: ${reason})`;
+                    adaDetails += `\n`;
+                }
+            });
+            
+            if (hasAdaCodes) comment += adaDetails.trim();
+            if (callref) comment += `\n\nCall Ref #: ${callref}`;
+
+            document.getElementById('arResult').textContent = comment.trim();
+            document.getElementById('arResultContainer').classList.remove('hidden');
+        }
+
+        function copyComment() {
+            const resultText = document.getElementById('arResult').textContent;
+            if (!resultText) return;
+            navigator.clipboard.writeText(resultText).then(() => {
+                const copyButton = document.getElementById('copyButton');
+                const originalText = copyButton.textContent;
+                copyButton.textContent = 'Copied!';
+                copyButton.classList.remove('bg-gray-600', 'hover:bg-gray-700');
+                copyButton.classList.add('bg-green-500');
+                setTimeout(() => {
+                    copyButton.textContent = originalText;
+                    copyButton.classList.remove('bg-green-500');
+                    copyButton.classList.add('bg-gray-600', 'hover:bg-gray-700');
+                }, 2000);
+            }).catch(err => console.error('Failed to copy: ', err));
+        }
+
+        // --- PHONETIC CONVERTER SCRIPT ---
+        const nameInput = document.getElementById('nameInput');
+        const convertBtn = document.getElementById('convertBtn');
+        const playBtn = document.getElementById('playBtn');
+        const phoneticOutputContainer = document.getElementById('phoneticOutputContainer');
+        const phoneticAlphaOutputContainer = document.getElementById('phoneticAlphaOutputContainer');
+        const phoneticResultContainer = document.getElementById('phoneticResultContainer');
+        const spinner = document.getElementById('spinner');
+        const buttonText = document.getElementById('buttonText');
+        const errorMessage = document.getElementById('errorMessage');
+        const errorText = document.getElementById('errorText');
+        const phoneticConverterContainer = document.getElementById('phoneticConverterContainer');
+        const showPhoneticBtn = document.getElementById('showPhoneticBtn');
+        const showArCommentBtn = document.getElementById('showArCommentBtn');
+        const arCommentGeneratorContainer = document.getElementById('arCommentGeneratorContainer');
+        let audioUrl = null;
+
+        showPhoneticBtn.addEventListener('click', () => { phoneticConverterContainer.classList.toggle('hidden'); });
+        showArCommentBtn.addEventListener('click', () => { arCommentGeneratorContainer.classList.toggle('hidden'); });
+
+        const base64ToArrayBuffer = (base64) => { const binaryString = window.atob(base64); const len = binaryString.length; const bytes = new Uint8Array(len); for (let i = 0; i < len; i++) { bytes[i] = binaryString.charCodeAt(i); } return bytes.buffer; };
+        const pcmToWav = (pcmData, sampleRate) => { const numChannels = 1; const bitsPerSample = 16; const dataLength = pcmData.length * (bitsPerSample / 8); const buffer = new ArrayBuffer(44 + dataLength); const view = new DataView(buffer); const writeString = (view, offset, string) => { for (let i = 0; i < string.length; i++) { view.setUint8(offset + i, string.charCodeAt(i)); } }; writeString(view, 0, 'RIFF'); view.setUint32(4, 36 + dataLength, true); writeString(view, 8, 'WAVE'); writeString(view, 12, 'fmt '); view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, numChannels, true); view.setUint32(24, sampleRate, true); view.setUint32(28, sampleRate * numChannels * (bitsPerSample / 8), true); view.setUint16(32, numChannels * (bitsPerSample / 8), true); view.setUint16(34, bitsPerSample, true); writeString(view, 36, 'data'); view.setUint32(40, dataLength, true); for (let i = 0; i < pcmData.length; i++) { view.setInt16(44 + i * 2, pcmData[i], true); } return new Blob([view], { type: 'audio/wav' }); };
+        const renderPhoneticOutput = (text, container, colorClass) => { container.innerHTML = ''; const lines = text.split('\n').filter(line => line.trim() !== ''); lines.forEach((line, index) => { const words = line.split('|').map(word => word.trim()).filter(word => word !== ''); words.forEach((word) => { const wordSpan = document.createElement('span'); wordSpan.textContent = word; wordSpan.className = `phonetic-word ${colorClass}`; container.appendChild(wordSpan); }); if (index < lines.length - 1) { container.appendChild(document.createElement('br')); } }); };
+        const setUIState = (loading) => { convertBtn.disabled = loading; nameInput.disabled = loading; playBtn.disabled = true; if (!loading && audioUrl) { playBtn.disabled = false; } spinner.classList.toggle('hidden', !loading); buttonText.textContent = loading ? 'Converting...' : 'Convert'; };
+        const showError = (message) => { errorText.textContent = message; errorMessage.classList.remove('hidden'); };
+        const hideError = () => { errorMessage.classList.add('hidden'); };
+        const fetchWithRetry = async (url, options, retries = 3) => { for (let i = 0; i < retries; i++) { try { const response = await fetch(url, options); if (response.status === 429 || response.status === 503) { const delay = Math.pow(2, i) * 1000 + Math.random() * 1000; await new Promise(resolve => setTimeout(resolve, delay)); continue; } if (!response.ok) { const errorBody = await response.text(); throw new Error(`API error ${response.status}: ${errorBody}`); } return response; } catch (e) { if (i === retries - 1) throw e; } } };
+        
+        const convertName = async () => {
+            const name = nameInput.value.trim();
+            if (!name) {
+                showError("Please enter a name.");
+                return;
+            }
+            setUIState(true);
+            hideError();
+            phoneticResultContainer.classList.add('hidden');
+            if (audioUrl) URL.revokeObjectURL(audioUrl);
+            audioUrl = null;
+            
+            try {
+                const combinedTextPrompt = `For the name "${name}", provide two phonetic spellings in a JSON object:\n1. "simplePhonetic": A simple, easy-to-read phonetic spelling. Do not use IPA symbols. Separate phonetic words with a vertical bar (|) and name parts with a newline. (e.g., "zhawn | loo-k\\npi-KAHRD").\n2. "natoPhonetic": The NATO phonetic alphabet spelling. Separate phonetic words with a vertical bar (|) and name parts with a newline. (e.g., "Juliett | Echo | Alpha | November\\nPapa | India | Charlie | Alpha").\n\nProvide only the JSON object.`;
+                const combinedTextPayload = { contents: [{ parts: [{ text: combinedTextPrompt }] }], generationConfig: { responseMimeType: "application/json", responseSchema: { type: "OBJECT", properties: { "simplePhonetic": { "type": "STRING" }, "natoPhonetic": { "type": "STRING" } }, required: ["simplePhonetic", "natoPhonetic"] } } };
+                const audioPayload = { contents: [{ parts: [{ text: `Say clearly: ${name}` }] }], generationConfig: { responseModalities: ["AUDIO"] }, model: "gemini-2.5-flash-preview-tts" };
+                const [textResult, audioResult] = await Promise.all([
+                    makeGeminiApiRequest(combinedTextPayload, 'gemini-2.5-flash-preview-05-20'),
+                    makeGeminiApiRequest(audioPayload, 'gemini-2.5-flash-preview-tts')
+                ]);
+                const phoneticDataText = textResult?.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (!phoneticDataText) { throw new Error('Failed to get phonetic spellings from API.'); }
+                const phoneticData = JSON.parse(phoneticDataText);
+                const simplePhoneticText = phoneticData.simplePhonetic?.trim();
+                const alphaPhoneticText = phoneticData.natoPhonetic?.trim();
+                if (simplePhoneticText) { renderPhoneticOutput(simplePhoneticText, phoneticOutputContainer, 'bg-blue-100 text-blue-800'); } else { throw new Error('Simplified phonetic spelling was not returned.'); }
+                if (alphaPhoneticText) { renderPhoneticOutput(alphaPhoneticText, phoneticAlphaOutputContainer, 'bg-purple-100 text-purple-800'); } else { throw new Error('NATO phonetic spelling was not returned.'); }
+                const audioPart = audioResult?.candidates?.[0]?.content?.parts?.[0];
+                const audioData = audioPart?.inlineData?.data;
+                const mimeType = audioPart?.inlineData?.mimeType;
+                if (audioData && mimeType?.startsWith("audio/")) {
+                    const sampleRateMatch = mimeType.match(/rate=(\d+)/);
+                    if (!sampleRateMatch) throw new Error("Sample rate not found in audio MIME type.");
+                    const sampleRate = parseInt(sampleRateMatch[1], 10);
+                    const pcmData = base64ToArrayBuffer(audioData);
+                    const pcm16 = new Int16Array(pcmData);
+                    const wavBlob = pcmToWav(pcm16, sampleRate);
+                    audioUrl = URL.createObjectURL(wavBlob);
+                } else {
+                    console.error('API Error: Audio data is missing or malformed.', audioResult);
+                    showError('Audio pronunciation is not available for this name.');
+                }
+                phoneticResultContainer.classList.remove('hidden');
+            } catch (e) {
+                console.error("API call failed:", e);
+                showError(`Conversion failed. ${e.message}`);
+            } finally {
+                setUIState(false);
+            }
+        };
+        const playAudio = () => { if (audioUrl) { const audio = new Audio(audioUrl); audio.play(); } };
+        convertBtn.addEventListener('click', convertName);
+        nameInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { convertName(); } });
+        playBtn.addEventListener('click', playAudio);
+        window.addEventListener('beforeunload', () => { if (audioUrl) { URL.revokeObjectURL(audioUrl); } });
+
+        // Listen for global API configuration updates
+        window.addEventListener('globalApiUpdated', (event) => {
+            console.log('Claims Follow-up: API configuration updated', event.detail);
+            // API key is automatically available as window.GEMINI_API_KEY
+            // No need to reload - the convertName function will use the updated key
+        });
+
+    </script>
+</body>
+</html>
+

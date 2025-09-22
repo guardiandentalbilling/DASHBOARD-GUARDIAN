@@ -1,0 +1,64 @@
+<div class="bg-white p-6 rounded-xl shadow-lg">
+    <h3 class="text-xl font-bold text-[#1A3464] mb-4">Employee Feedback Reports</h3>
+    <div class="mb-6 flex space-x-2">
+        <button class="tab-btn px-4 py-2 rounded-lg bg-indigo-100 text-indigo-700 font-semibold" onclick="showFeedbackTab('suggestion')">Suggestions</button>
+        <button class="tab-btn px-4 py-2 rounded-lg bg-pink-100 text-pink-700 font-semibold" onclick="showFeedbackTab('complaint')">Complaints</button>
+        <button class="tab-btn px-4 py-2 rounded-lg bg-green-100 text-green-700 font-semibold" onclick="showFeedbackTab('general')">General</button>
+    </div>
+    <div id="feedback-suggestion" class="feedback-tab">
+        <ul id="suggestion-list" class="space-y-4"></ul>
+    </div>
+    <div id="feedback-complaint" class="feedback-tab hidden">
+        <ul id="complaint-list" class="space-y-4"></ul>
+    </div>
+    <div id="feedback-general" class="feedback-tab hidden">
+        <ul id="general-list" class="space-y-4"></ul>
+    </div>
+</div>
+<script>
+function showFeedbackTab(type) {
+    ['suggestion','complaint','general'].forEach(t => {
+        document.getElementById('feedback-' + t).classList.add('hidden');
+    });
+    document.getElementById('feedback-' + type).classList.remove('hidden');
+}
+window.addEventListener('DOMContentLoaded', function() {
+    let feedbacks = JSON.parse(localStorage.getItem('feedbacks') || '[]');
+    // Only show dummy data if there are no real feedbacks
+    if (!Array.isArray(feedbacks) || feedbacks.length === 0) {
+        feedbacks = [
+            {subject: 'Workplace Environment', message: 'The office is comfortable and clean. Thank you!', type: 'general', date: new Date().toISOString()},
+            {subject: 'Suggestion', message: 'Can we have more flexible lunch hours?', type: 'suggestion', date: new Date(Date.now()-86400000).toISOString()},
+            {subject: 'Complaint', message: 'WiFi was down for 2 hours yesterday.', type: 'complaint', date: new Date(Date.now()-2*86400000).toISOString()},
+            {subject: 'Complaint', message: 'AC not working in meeting room.', type: 'complaint', date: new Date(Date.now()-3*86400000).toISOString()},
+            {subject: 'Suggestion', message: 'Add more healthy snacks in pantry.', type: 'suggestion', date: new Date(Date.now()-4*86400000).toISOString()},
+            {subject: 'General', message: 'Team collaboration is great!', type: 'general', date: new Date(Date.now()-5*86400000).toISOString()},
+            {subject: 'Complaint', message: 'Printer jammed frequently last week.', type: 'complaint', date: new Date(Date.now()-6*86400000).toISOString()},
+            {subject: 'Suggestion', message: 'Can we have a monthly team lunch?', type: 'suggestion', date: new Date(Date.now()-7*86400000).toISOString()},
+            {subject: 'General', message: 'Appreciate the new office chairs.', type: 'general', date: new Date(Date.now()-8*86400000).toISOString()},
+            {subject: 'Complaint', message: 'Parking lot was full on Monday.', type: 'complaint', date: new Date(Date.now()-9*86400000).toISOString()},
+            {subject: 'Suggestion', message: 'More training sessions on new software.', type: 'suggestion', date: new Date(Date.now()-10*86400000).toISOString()},
+            {subject: 'General', message: 'Thanks for the birthday celebration!', type: 'general', date: new Date(Date.now()-11*86400000).toISOString()}
+        ];
+    }
+    // Group feedbacks by type
+    const types = {suggestion: [], complaint: [], general: []};
+    feedbacks.forEach(f => {
+        const t = (f.type || 'general').toLowerCase();
+        if (types[t]) types[t].push(f);
+    });
+    Object.entries(types).forEach(([type, arr]) => {
+        const list = document.getElementById(type + '-list');
+        if (list) {
+            list.innerHTML = arr.length === 0 ? '<li class="text-gray-500">No feedback yet.</li>' : arr.map(f => `
+                <li class="border-b pb-4">
+                    <div class="font-semibold text-gray-800">${f.subject || 'No Subject'}</div>
+                    <div class="text-gray-700">${f.message || ''}</div>
+                    <div class="text-xs text-gray-400 mt-2">${new Date(f.date).toLocaleString()}</div>
+                </li>
+            `).join('');
+        }
+    });
+    showFeedbackTab('suggestion');
+});
+</script>

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revenue Dashboard</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+
+</head>
+<body class="bg-slate-100 font-sans">
+
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+
+        <div class="space-y-8">
+
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                <h3 class="text-xl font-bold text-[#1A3464] mb-4">Weekly Revenue (Last 8 Weeks)</h3>
+                <div class="h-56">
+                    <div class="h-40 flex items-end justify-between space-x-3">
+                        <div class="flex flex-col items-center w-full">
+                            <svg class="w-full h-[60%] fill-sky-500 cursor-pointer hover:opacity-75 transition-opacity" viewBox="0 0 30 100" preserveAspectRatio="none" title="Week -8: $4,200"><rect width="30" height="100" rx="6"></rect></svg>
+                            <span class="mt-1 text-xs font-bold text-gray-700">$4,200</span>
+                        </div>
+                        <div class="flex flex-col items-center w-full">
+                            <svg class="w-full h-[55%] fill-teal-500 cursor-pointer hover:opacity-75 transition-opacity" viewBox="0 0 30 100" preserveAspectRatio="none" title="Week -7: $3,900"><rect width="30" height="100" rx="6"></rect></svg>
+                            <span class="mt-1 text-xs font-bold text-gray-700">$3,900</span>
+                        </div>
+                        <div class="flex flex-col items-center w-full">
+                            <svg class="w-full h-[70%] fill-emerald-500 cursor-pointer hover:opacity-75 transition-opacity" viewBox="0 0 30 100" preserveAspectRatio="none" title="Week -6: $4,800"><rect width="30" height="100" rx="6"></rect></svg>
+                            <span class="mt-1 text-xs font-bold text-gray-700">$4,800</span>
+                        </div>
+                        <div class="flex flex-col items-center w-full">
+                            <svg class="w-full h-[75%] fill-lime-500 cursor-pointer hover:opacity-75 transition-opacity" viewBox="0 0 30 100" preserveAspectRatio="none" title="Week -5: $5,100"><rect width="30" height="100" rx="6"></rect></svg>
+                            <span class="mt-1 text-xs font-bold text-gray-700">$5,100</span>
+                        </div>
+                        <div class="flex flex-col items-center w-full">
+                            <svg class="w-full h-[65%] fill-amber-500 cursor-pointer hover:opacity-75 transition-opacity" viewBox="0 0 30 100" preserveAspectRatio="none" title="Week -4: $4,600"><rect width="30" height="100" rx="6"></rect></svg>
+                            <span class="mt-1 text-xs font-bold text-gray-700">$4,600</span>
+                        </div>
+                        <div class="flex flex-col items-center w-full">
+                            <svg class="w-full h-[60%] fill-orange-500 cursor-pointer hover:opacity-75 transition-opacity" viewBox="0 0 30 100" preserveAspectRatio="none" title="Week -3: $4,200"><rect width="30" height="100" rx="6"></rect></svg>
+                            <span class="mt-1 text-xs font-bold text-gray-700">$4,200</span>
+                        </div>
+                        <div class="flex flex-col items-center w-full">
+                            <svg class="w-full h-[80%] fill-red-500 cursor-pointer hover:opacity-75 transition-opacity" viewBox="0 0 30 100" preserveAspectRatio="none" title="Week -2: $5,500"><rect width="30" height="100" rx="6"></rect></svg>
+                            <span class="mt-1 text-xs font-bold text-gray-700">$5,500</span>
+                        </div>
+                        <div class="flex flex-col items-center w-full">
+                            <svg class="w-full h-[75%] fill-fuchsia-500 cursor-pointer hover:opacity-75 transition-opacity" viewBox="0 0 30 100" preserveAspectRatio="none" title="Week -1: $5,000"><rect width="30" height="100" rx="6"></rect></svg>
+                            <span class="mt-1 text-xs font-bold text-gray-700">$5,000</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-between mt-8 text-xs text-gray-500 font-semibold px-1">
+                        <span class="w-full text-center">W-8</span><span class="w-full text-center">W-7</span><span class="w-full text-center">W-6</span><span class="w-full text-center">W-5</span><span class="w-full text-center">W-4</span><span class="w-full text-center">W-3</span><span class="w-full text-center">W-2</span><span class="w-full text-center">W-1</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between">
+                <h2 class="text-3xl font-bold text-gray-800">Revenue Overview</h2>
+                <div class="hidden md:flex space-x-2">
+                    <button class="px-4 py-2 text-sm font-semibold bg-indigo-100 text-indigo-700 rounded-lg">Last 30 Days</button>
+                    <button class="px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-200 rounded-lg">This Year</button>
+                    <button class="px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-200 rounded-lg">All Time</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-white">
+                <div class="bg-gradient-to-br from-green-500 to-teal-600 p-6 rounded-xl shadow-lg"><p class="text-sm opacity-80">Total Gross Revenue</p><p class="text-3xl font-extrabold">$215,730</p><p class="text-xs opacity-80">PKR 60,076,005</p></div>
+                <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-6 rounded-xl shadow-lg"><p class="text-sm opacity-80">Avg. Monthly Revenue</p><p class="text-3xl font-extrabold">$17,977</p><p class="text-xs opacity-80">PKR 5,006,597</p></div>
+                <div class="bg-gradient-to-br from-purple-500 to-pink-500 p-6 rounded-xl shadow-lg"><p class="text-sm opacity-80">Top Paying Client</p><p class="text-3xl font-extrabold">Ortho Solutions</p><p class="text-xs opacity-80">$68,500 Billed</p></div>
+                <div class="bg-gradient-to-br from-orange-500 to-red-500 p-6 rounded-xl shadow-lg"><p class="text-sm opacity-80">Year-over-Year Growth</p><p class="text-3xl font-extrabold">+12.5%</p><p class="text-xs opacity-80">vs. Last Year</p></div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                <h3 class="text-xl font-bold text-[#1A3464] mb-4">Monthly Revenue (Last 12 Months)</h3>
+                <div class="h-[26rem]"> 
+                    <div class="h-80 flex items-end justify-between space-x-2">
+                        <div class="text-center w-full">
+                            <svg class="w-full h-[60%]" viewBox="0 0 30 100" preserveAspectRatio="none" title="Sep 2024: $16,500"><rect width="30" height="100" rx="6" class="fill-orange-300 cursor-pointer hover:opacity-75 transition-opacity"></rect></svg>
+                            <p class="mt-1 text-lg font-extrabold text-blue-900">$16,500</p><p class="text-xs text-gray-500">PKR 4.6M</p>
+                        </div>
+                        <div class="text-center w-full">
+                            <svg class="w-full h-[55%]" viewBox="0 0 30 100" preserveAspectRatio="none" title="Oct 2024: $15,200"><rect width="30" height="100" rx="6" class="fill-orange-300 cursor-pointer hover:opacity-75 transition-opacity"></rect></svg>
+                            <p class="mt-1 text-lg font-extrabold text-pink-700">$15,200</p><p class="text-xs text-gray-500">PKR 4.2M</p>
+                        </div>
+                        <div class="text-center w-full"><svg class="w-full h-[70%]" viewBox="0 0 30 100" preserveAspectRatio="none" title="Nov 2024: $18,100"><rect width="30" height="100" rx="6" class="fill-orange-300 cursor-pointer hover:opacity-75 transition-opacity"></rect></svg><p class="mt-1 text-lg font-extrabold text-green-700">$18,100</p><p class="text-xs text-gray-500">PKR 5.0M</p></div>
+                        <div class="text-center w-full"><svg class="w-full h-[75%]" viewBox="0 0 30 100" preserveAspectRatio="none" title="Dec 2024: $20,500"><rect width="30" height="100" rx="6" class="fill-orange-300 cursor-pointer hover:opacity-75 transition-opacity"></rect></svg><p class="mt-1 text-lg font-extrabold text-orange-700">$20,500</p><p class="text-xs text-gray-500">PKR 5.7M</p></div>
+                        <div class="text-center w-full"><svg class="w-full h-[65%]" viewBox="0 0 30 100" preserveAspectRatio="none" title="Jan 2025: $17,800"><rect width="30" height="100" rx="6" class="fill-orange-300 cursor-pointer hover:opacity-75 transition-opacity"></rect></svg><p class="mt-1 text-lg font-extrabold text-purple-700">$17,800</p><p class="text-xs text-gray-500">PKR 4.9M</p></div>
+                        <div class="text-center w-full"><svg class="w-full h-[60%]" viewBox="0 0 30 100" preserveAspectRatio="none" title="Feb 2025: $16,900"><rect width="30" height="100" rx="6" class="fill-orange-300 cursor-pointer hover:opacity-75 transition-opacity"></rect></svg><p class="mt-1 text-lg font-extrabold text-teal-700">$16,900</p><p class="text-xs text-gray-500">PKR 4.7M</p></div>
+                        <div class="text-center w-full"><svg class="w-full h-[80%]" viewBox="0 0 30 100" preserveAspectRatio="none" title="Mar 2025: $21,000"><rect width="30" height="100" rx="6" class="fill-orange-300 cursor-pointer hover:opacity-75 transition-opacity"></rect></svg><p class="mt-1 text-lg font-extrabold text-red-700">$21,000</p><p class="text-xs text-gray-500">PKR 5.8M</p></div>
+                        <div class="text-center w-full"><svg class="w-full h-[75%]" viewBox="0 0 30 100" preserveAspectRatio="none" title="Apr 2025: $19,800"><rect width="30" height="100" rx="6" class="fill-orange-300 cursor-pointer hover:opacity-75 transition-opacity"></rect></svg><p class="mt-1 text-lg font-extrabold text-yellow-700">$19,800</p><p class="text-xs text-gray-500">PKR 5.5M</p></div>
+                        <div class="text-center w-full"><svg class="w-full h-[85%]" viewBox="0 0 30 100" preserveAspectRatio="none" title="May 2025: $22,300"><rect width="30" height="100" rx="6" class="fill-orange-300 cursor-pointer hover:opacity-75 transition-opacity"></rect></svg><p class="mt-1 text-lg font-extrabold text-blue-700">$22,300</p><p class="text-xs text-gray-500">PKR 6.2M</p></div>
+                        <div class="text-center w-full"><svg class="w-full h-[70%]" viewBox="0 0 30 100" preserveAspectRatio="none" title="Jun 2025: $18,500"><rect width="30" height="100" rx="6" class="fill-orange-300 cursor-pointer hover:opacity-75 transition-opacity"></rect></svg><p class="mt-1 text-lg font-extrabold text-indigo-700">$18,500</p><p class="text-xs text-gray-500">PKR 5.1M</p></div>
+                        <div class="text-center w-full"><svg class="w-full h-[90%]" viewBox="0 0 30 100" preserveAspectRatio="none" title="Jul 2025: $23,100"><rect width="30" height="100" rx="6" class="fill-orange-300 cursor-pointer hover:opacity-75 transition-opacity"></rect></svg><p class="mt-1 text-lg font-extrabold text-pink-700">$23,100</p><p class="text-xs text-gray-500">PKR 6.4M</p></div>
+                        <div class="text-center w-full"><svg class="w-full h-[95%]" viewBox="0 0 30 100" preserveAspectRatio="none" title="Aug 2025: $24,500"><rect width="30" height="100" rx="6" class="fill-orange-400 cursor-pointer hover:opacity-75 transition-opacity"></rect></svg><p class="mt-1 text-lg font-extrabold text-green-700">$24,500</p><p class="text-xs text-gray-500">PKR 6.8M</p></div>
+                    </div>
+                    <div class="flex justify-between mt-2 text-xs text-gray-500 font-semibold">
+                        <span class="w-full text-center">Sep</span><span class="w-full text-center">Oct</span><span class="w-full text-center">Nov</span><span class="w-full text-center">Dec</span><span class="w-full text-center">Jan</span><span class="w-full text-center">Feb</span><span class="w-full text-center">Mar</span><span class="w-full text-center">Apr</span><span class="w-full text-center">May</span><span class="w-full text-center">Jun</span><span class="w-full text-center">Jul</span><span class="w-full text-center">Aug</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                <h3 class="text-xl font-bold text-[#1A3464] mb-4">Monthly Expenses (Last 12 Months)</h3>
+                <div class="h-[26rem]">
+                    <div class="h-80 flex items-end justify-between space-x-2">
+                        <div class="text-center w-full"><svg class="w-full h-[45%]" viewBox="0 0 30 100" preserveAspectRatio="none" title="Sep 2024: $8,200"><rect width="30" height="100" rx="6" class="fill-red-400 cursor-pointer hover:opacity-75 transition-opacity"></rect></svg><p class="mt-1 text-lg font-extrabold text-red-700">$8,200</p><p class="text-xs text-gray-500">PKR 2.2M</p></div>
+                        <div class="text-center w-full"><svg class="w-full h-[40%]" viewBox="0 0 30 100" preserveAspectRatio="none" title="Oct 2024: $7,900"><rect width="30" height="100" rx="6" class="fill-orange-400 cursor-pointer hover:opacity-75 transition-opacity"></rect></svg><p class="mt-1 text-lg font-extrabold text-orange-700">$7,900</p><p class="text-xs text-gray-500">PKR 2.2M</p></div>
+                        <div class="text-center w-full"><svg class="w-full h-[50%]" viewBox="0 0 30 100" preserveAspectRatio="none" title="Nov 2024: $9,100"><rect width="30" height="100" rx="6" class="fill-amber-400 cursor-pointer hover:opacity-75 transition-opacity"></rect></svg><p class="mt-1 text-lg font-extrabold text-yellow-700">$9,100</p><p class="text-xs text-gray-500">PKR 2.5M</p></div>
+                        <div class="text-center w-full"><svg class="w-full h-[55%]" viewBox="0 0 30 100" preserveAspectRatio="none" title="Dec 2024: $10,200"><rect width="30" height="100" rx="6" class="fill-lime-400 cursor-pointer hover:opacity-75 transition-opacity"></rect></svg><p class="mt-1 text-lg font-extrabold text-green-700">$10,200</p><p class="text-xs text-gray-500">PKR 2.8M</p></div>
+                        <div class="text-center w-full"><svg class="w-full h-[48%]" viewBox="0 0 30 100" preserveAspectRatio="none" title="Jan 2025: $8,800"><rect width="30" height="100" rx="6" class="fill-green-400 cursor-pointer hover:opacity-75 transition-opacity"></rect></svg><p class="mt-1 text-lg font-extrabold text-blue-700">$8,800</p><p class="text-xs text-gray-500">PKR 2.4M</p></div>
+                        <div class="text-center w-full"><svg class="w-full h-[47%]" viewBox="0 0 30 100" preserveAspectRatio="none" title="Feb 2025: $8,500"><rect width="30" height="100" rx="6" class="fill-emerald-400 cursor-pointer hover:opacity-75 transition-opacity"></rect></svg><p class="mt-1 text-lg font-extrabold text-indigo-700">$8,500</p><p class="text-xs text-gray-500">PKR 2.3M</p></div>
+                        <div class="text-center w-full"><svg class="w-full h-[52%]" viewBox="0 0 30 100" preserveAspectRatio="none" title="Mar 2025: $9,700"><rect width="30" height="100" rx="6" class="fill-teal-400 cursor-pointer hover:opacity-75 transition-opacity"></rect></svg><p class="mt-1 text-lg font-extrabold text-pink-700">$9,700</p><p class="text-xs text-gray-500">PKR 2.7M</p></div>
+                        <div class="text-center w-full"><svg class="w-full h-[54%]" viewBox="0 0 30 100" preserveAspectRatio="none" title="Apr 2025: $10,000"><rect width="30" height="100" rx="6" class="fill-cyan-400 cursor-pointer hover:opacity-75 transition-opacity"></rect></svg><p class="mt-1 text-lg font-extrabold text-teal-700">$10,000</p><p class="text-xs text-gray-500">PKR 2.8M</p></div>
+                        <div class="text-center w-full"><svg class="w-full h-[51%]" viewBox="0 0 30 100" preserveAspectRatio="none" title="May 2025: $9,300"><rect width="30" height="100" rx="6" class="fill-sky-400 cursor-pointer hover:opacity-75 transition-opacity"></rect></svg><p class="mt-1 text-lg font-extrabold text-purple-700">$9,300</p><p class="text-xs text-gray-500">PKR 2.6M</p></div>
+                        <div class="text-center w-full"><svg class="w-full h-[46%]" viewBox="0 0 30 100" preserveAspectRatio="none" title="Jun 2025: $8,600"><rect width="30" height="100" rx="6" class="fill-blue-400 cursor-pointer hover:opacity-75 transition-opacity"></rect></svg><p class="mt-1 text-lg font-extrabold text-orange-700">$8,600</p><p class="text-xs text-gray-500">PKR 2.4M</p></div>
+                        <div class="text-center w-full"><svg class="w-full h-[53%]" viewBox="0 0 30 100" preserveAspectRatio="none" title="Jul 2025: $9,900"><rect width="30" height="100" rx="6" class="fill-indigo-400 cursor-pointer hover:opacity-75 transition-opacity"></rect></svg><p class="mt-1 text-lg font-extrabold text-yellow-700">$9,900</p><p class="text-xs text-gray-500">PKR 2.7M</p></div>
+                        <div class="text-center w-full"><svg class="w-full h-[56%]" viewBox="0 0 30 100" preserveAspectRatio="none" title="Aug 2025: $10,500"><rect width="30" height="100" rx="6" class="fill-violet-400 cursor-pointer hover:opacity-75 transition-opacity"></rect></svg><p class="mt-1 text-lg font-extrabold text-green-700">$10,500</p><p class="text-xs text-gray-500">PKR 2.9M</p></div>
+                    </div>
+                     <div class="flex justify-between mt-2 text-xs text-gray-500 font-semibold">
+                        <span class="w-full text-center">Sep</span><span class="w-full text-center">Oct</span><span class="w-full text-center">Nov</span><span class="w-full text-center">Dec</span><span class="w-full text-center">Jan</span><span class="w-full text-center">Feb</span><span class="w-full text-center">Mar</span><span class="w-full text-center">Apr</span><span class="w-full text-center">May</span><span class="w-full text-center">Jun</span><span class="w-full text-center">Jul</span><span class="w-full text-center">Aug</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                <h3 class="text-xl font-bold text-[#1A3464] mb-4">Revenue Breakdown by Client</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-gray-50"><tr class="text-gray-600 uppercase text-xs"><th class="p-4">Client Name</th><th class="p-4">Status</th><th class="p-4 text-right">Total Billed</th><th class="p-4 text-right">Total Paid</th><th class="p-4 text-right">Outstanding Balance</th></tr></thead>
+                        <tbody class="text-gray-700">
+                            <tr class="hover:bg-slate-50"><td class="p-4 border-t font-semibold">Dental Care Inc.</td><td class="p-4 border-t"><span class="px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Active</span></td><td class="p-4 border-t text-right"><p class="font-semibold font-mono">$45,200</p><p class="text-xs text-gray-500 font-mono">PKR 12.58M</p></td><td class="p-4 border-t text-right"><p class="font-semibold font-mono text-green-600">$40,100</p><p class="text-xs text-gray-500 font-mono">PKR 11.16M</p></td><td class="p-4 border-t text-right"><p class="font-semibold font-mono text-red-600">$5,100</p><p class="text-xs text-gray-500 font-mono">PKR 1.42M</p></td></tr>
+                            <tr class="hover:bg-slate-50"><td class="p-4 border-t font-semibold">Bright Smiles LLC</td><td class="p-4 border-t"><span class="px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Active</span></td><td class="p-4 border-t text-right"><p class="font-semibold font-mono">$32,000</p><p class="text-xs text-gray-500 font-mono">PKR 8.91M</p></td><td class="p-4 border-t text-right"><p class="font-semibold font-mono text-green-600">$32,000</p><p class="text-xs text-gray-500 font-mono">PKR 8.91M</p></td><td class="p-4 border-t text-right"><p class="font-semibold font-mono text-gray-800">$0</p><p class="text-xs text-gray-500 font-mono">PKR 0</p></td></tr>
+                            <tr class="hover:bg-slate-50"><td class="p-4 border-t font-semibold">Ortho Solutions</td><td class="p-4 border-t"><span class="px-3 py-1 text-xs font-semibold rounded-full bg-gray-200 text-gray-800">Inactive</span></td><td class="p-4 border-t text-right"><p class="font-semibold font-mono">$68,500</p><p class="text-xs text-gray-500 font-mono">PKR 19.07M</p></td><td class="p-4 border-t text-right"><p class="font-semibold font-mono text-green-600">$50,000</p><p class="text-xs text-gray-500 font-mono">PKR 13.92M</p></td><td class="p-4 border-t text-right"><p class="font-semibold font-mono text-red-600">$18,500</p><p class="text-xs text-gray-500 font-mono">PKR 5.14M</p></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,115 @@
+<div class="space-y-8">
+    <h2 class="text-3xl font-bold text-gray-800">Manage Leave Requests</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-white">
+        <div class="bg-gradient-to-br from-orange-500 to-red-500 p-6 rounded-xl shadow-lg flex flex-col items-center">
+            <span class="mb-1 text-xs font-bold text-white">4</span>
+            <p class="text-3xl font-extrabold text-shadow">4</p>
+            <p class="text-sm opacity-80 text-shadow">Pending Requests</p>
+        </div>
+        <div class="bg-gradient-to-br from-green-500 to-teal-600 p-6 rounded-xl shadow-lg flex flex-col items-center">
+            <span class="mb-1 text-xs font-bold text-white">8</span>
+            <p class="text-3xl font-extrabold text-shadow">8</p>
+            <p class="text-sm opacity-80 text-shadow">Approved This Month</p>
+        </div>
+        <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-6 rounded-xl shadow-lg flex flex-col items-center">
+            <span class="mb-1 text-xs font-bold text-white">2</span>
+            <p class="text-3xl font-extrabold text-shadow">2</p>
+            <p class="text-sm opacity-80 text-shadow">Employees on Leave Today</p>
+        </div>
+        <div class="bg-gradient-to-br from-purple-500 to-pink-500 p-6 rounded-xl shadow-lg flex flex-col items-center">
+            <span class="mb-1 text-xs font-bold text-white">5.2%</span>
+            <p class="text-3xl font-extrabold text-shadow">5.2%</p>
+            <p class="text-sm opacity-80 text-shadow">Annual Leave Rate</p>
+        </div>
+    </div>
+
+    <div class="bg-white p-6 rounded-xl shadow-lg">
+        <div class="flex flex-col md:flex-row items-center justify-between mb-4">
+            <h3 class="text-xl font-bold text-[#1A3464] mb-4 md:mb-0">All Leave Requests</h3>
+            <div class="flex space-x-2">
+                <button class="px-4 py-2 text-sm font-semibold bg-indigo-100 text-indigo-700 rounded-lg">All</button>
+                <button class="px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-200 rounded-lg">Pending</button>
+                <button class="px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-200 rounded-lg">Approved</button>
+                <button class="px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-200 rounded-lg">Rejected</button>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+                <thead class="bg-gray-50">
+                    <tr class="text-gray-600 uppercase text-xs">
+                        <th class="p-4">Employee</th>
+                        <th class="p-4">Leave Type</th>
+                        <th class="p-4">Dates</th>
+                        <th class="p-4 text-center">Duration</th>
+                        <th class="p-4 text-center">Status</th>
+                        <th class="p-4 text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="text-gray-700">
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-4 border-t">
+                            <div class="flex items-center space-x-3">
+                                <img src="https://i.pravatar.cc/40?u=9" class="w-10 h-10 rounded-full" alt="Robert Harris">
+                                <div><p class="font-bold">Robert Harris</p><p class="text-xs text-gray-500">Billing Specialist</p></div>
+                            </div>
+                        </td>
+                        <td class="p-4 border-t">Vacation</td>
+                        <td class="p-4 border-t">Oct 01, 2025 - Oct 05, 2025</td>
+                        <td class="p-4 border-t text-center">5 Days</td>
+                        <td class="p-4 border-t text-center"><span class="px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span></td>
+                        <td class="p-4 border-t text-center space-x-2">
+                            <button class="text-green-500 hover:text-green-700 text-lg" title="Approve"><i class="fas fa-check-circle"></i></button>
+                            <button class="text-red-500 hover:text-red-700 text-lg" title="Reject"><i class="fas fa-times-circle"></i></button>
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-4 border-t">
+                            <div class="flex items-center space-x-3">
+                                <img src="https://i.pravatar.cc/40?u=5" class="w-10 h-10 rounded-full" alt="David Lee">
+                                <div><p class="font-bold">David Lee</p><p class="text-xs text-gray-500">Senior Biller</p></div>
+                            </div>
+                        </td>
+                        <td class="p-4 border-t">Personal Day</td>
+                        <td class="p-4 border-t">Sep 25, 2025 - Sep 25, 2025</td>
+                        <td class="p-4 border-t text-center">1 Day</td>
+                        <td class="p-4 border-t text-center"><span class="px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Approved</span></td>
+                        <td class="p-4 border-t text-center space-x-2">
+                             <button class="text-gray-400 hover:text-indigo-600" title="View Details"><i class="fas fa-eye"></i></button>
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-4 border-t">
+                            <div class="flex items-center space-x-3">
+                                <img src="https://i.pravatar.cc/40?u=4" class="w-10 h-10 rounded-full" alt="Emily Rodriguez">
+                                <div><p class="font-bold">Emily Rodriguez</p><p class="text-xs text-gray-500">Data Entry Operator</p></div>
+                            </div>
+                        </td>
+                        <td class="p-4 border-t">Vacation</td>
+                        <td class="p-4 border-t">Dec 20, 2025 - Dec 28, 2025</td>
+                        <td class="p-4 border-t text-center">7 Days</td>
+                        <td class="p-4 border-t text-center"><span class="px-3 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Rejected</span></td>
+                        <td class="p-4 border-t text-center space-x-2">
+                            <button class="text-gray-400 hover:text-indigo-600" title="View Details"><i class="fas fa-eye"></i></button>
+                        </td>
+                    </tr>
+                     <tr class="hover:bg-slate-50">
+                        <td class="p-4 border-t">
+                            <div class="flex items-center space-x-3">
+                                <img src="https://i.pravatar.cc/40?u=7" class="w-10 h-10 rounded-full" alt="James Brown">
+                                <div><p class="font-bold">James Brown</p><p class="text-xs text-gray-500">IT Support</p></div>
+                            </div>
+                        </td>
+                        <td class="p-4 border-t">Sick Leave</td>
+                        <td class="p-4 border-t">Sep 18, 2025 - Sep 19, 2025</td>
+                        <td class="p-4 border-t text-center">2 Days</td>
+                        <td class="p-4 border-t text-center"><span class="px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Approved</span></td>
+                        <td class="p-4 border-t text-center space-x-2">
+                             <button class="text-gray-400 hover:text-indigo-600" title="View Details"><i class="fas fa-eye"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

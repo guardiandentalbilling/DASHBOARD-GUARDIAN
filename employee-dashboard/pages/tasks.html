@@ -1,0 +1,213 @@
+<div class="space-y-8">
+        <div class="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
+                <h2 class="text-3xl font-bold text-gray-800">Manage Tasks</h2>
+                <div class="flex items-center space-x-4 w-full md:w-auto">
+                                <select id="taskFilter" class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="all">All Tasks</option>
+                                    <option value="in-progress">In Progress</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="completed">Completed</option>
+                                    <option value="due">Due</option>
+                                    <option value="overdue">Over Due</option>
+                                    <option value="previous">Previous</option>
+                                    <option value="newly">Newly Contracted</option>
+                                </select>
+                    <a href="#" data-page="Add Task" class="px-6 py-3 bg-[#1A3464] text-white font-semibold rounded-lg shadow-md hover:bg-opacity-90 transition-transform hover:scale-105 flex items-center justify-center">
+                        <i class="fas fa-plus mr-2"></i> Add New Task
+                    </a>
+                </div>
+        </div>
+
+                <div class="w-full mb-4">
+                    <input id="taskSearch" type="text" placeholder="Search tasks by name, client, or type..." class="w-full px-4 py-2 rounded-lg border border-gray-300 text-gray-700 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" id="tasksGrid">
+                <!-- Task Block 1 -->
+                        <div class="bg-blue-50 rounded-xl shadow-lg p-6 flex flex-col task-block" data-status="in-progress" data-name="Follow up on Claim #12345" data-client="Dental Care Inc." data-type="AR">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-bold text-lg text-blue-900">Follow up on Claim #12345</span>
+                                <span class="px-3 py-1 text-xs font-semibold rounded-full bg-blue-200 text-blue-800">In Progress</span>
+                            </div>
+                            <div class="mb-2 text-sm text-gray-700">Type: <span class="font-semibold">AR</span></div>
+                            <div class="mb-2 text-sm text-gray-700">Client: <span class="font-semibold">Dental Care Inc.</span></div>
+                            <div class="mb-2 text-sm text-gray-700">Number: <span class="font-semibold">GDB-T001</span></div>
+                            <div class="mb-2 text-sm text-gray-700">Revenue: <span class="font-semibold">$250</span></div>
+                            <div class="mb-2 text-sm text-gray-700">Assigned: <span class="font-semibold">John Doe</span></div>
+                            <div class="flex space-x-2 mt-auto">
+                                <button class="hover:text-indigo-600" title="Mark as Complete"><i class="fas fa-check"></i></button>
+                                <button class="hover:text-blue-600" title="Edit Task"><i class="fas fa-pencil-alt"></i></button>
+                            </div>
+                        </div>
+                <!-- Task Block 2 -->
+                        <div class="bg-gray-50 rounded-xl shadow-lg p-6 flex flex-col task-block" data-status="pending" data-name="Verify new patient insurance" data-client="Bright Smiles LLC" data-type="Insurance Verification">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-bold text-lg text-gray-900">Verify new patient insurance</span>
+                                <span class="px-3 py-1 text-xs font-semibold rounded-full bg-gray-200 text-gray-800">Pending</span>
+                            </div>
+                            <div class="mb-2 text-sm text-gray-700">Type: <span class="font-semibold">Insurance Verification</span></div>
+                            <div class="mb-2 text-sm text-gray-700">Client: <span class="font-semibold">Bright Smiles LLC</span></div>
+                            <div class="mb-2 text-sm text-gray-700">Number: <span class="font-semibold">GDB-T002</span></div>
+                            <div class="mb-2 text-sm text-gray-700">Revenue: <span class="font-semibold">$0</span></div>
+                            <div class="mb-2 text-sm text-gray-700">Assigned: <span class="font-semibold">Maria Garcia</span></div>
+                            <div class="flex space-x-2 mt-auto">
+                                <button class="hover:text-indigo-600" title="Start Task"><i class="fas fa-play"></i></button>
+                                <button class="hover:text-blue-600" title="Edit Task"><i class="fas fa-pencil-alt"></i></button>
+                            </div>
+                        </div>
+                <!-- Task Block 3 -->
+                        <div class="bg-green-50 rounded-xl shadow-lg p-6 flex flex-col opacity-80 task-block" data-status="completed" data-name="Submit weekly payment posting report" data-client="Dental Care Inc." data-type="Payment Posting">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-bold text-lg text-green-900 line-through">Submit weekly payment posting report</span>
+                                <span class="px-3 py-1 text-xs font-semibold rounded-full bg-green-200 text-green-800">Completed</span>
+                            </div>
+                            <div class="mb-2 text-sm text-gray-700">Type: <span class="font-semibold">Payment Posting</span></div>
+                            <div class="mb-2 text-sm text-gray-700">Client: <span class="font-semibold">Dental Care Inc.</span></div>
+                            <div class="mb-2 text-sm text-gray-700">Number: <span class="font-semibold">GDB-T003</span></div>
+                            <div class="mb-2 text-sm text-gray-700">Revenue: <span class="font-semibold">$400</span></div>
+                            <div class="mb-2 text-sm text-gray-700">Assigned: <span class="font-semibold">Jane Smith</span></div>
+                            <div class="flex space-x-2 mt-auto">
+                                <button class="hover:text-indigo-600" title="View Details"><i class="fas fa-eye"></i></button>
+                            </div>
+                        </div>
+                <!-- Task Block 4 -->
+                        <div class="bg-orange-50 rounded-xl shadow-lg p-6 flex flex-col task-block" data-status="newly" data-name="Appeal denied claim #54321" data-client="Smile Dental Group" data-type="Credentialing">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-bold text-lg text-orange-900">Appeal denied claim #54321</span>
+                                <span class="px-3 py-1 text-xs font-semibold rounded-full bg-orange-200 text-orange-800">Pending</span>
+                            </div>
+                            <div class="mb-2 text-sm text-gray-700">Type: <span class="font-semibold">Credentialing</span></div>
+                            <div class="mb-2 text-sm text-gray-700">Client: <span class="font-semibold">Smile Dental Group</span></div>
+                            <div class="mb-2 text-sm text-gray-700">Number: <span class="font-semibold">GDB-T004</span></div>
+                            <div class="mb-2 text-sm text-gray-700">Revenue: <span class="font-semibold">$150</span></div>
+                            <div class="mb-2 text-sm text-gray-700">Assigned: <span class="font-semibold">Alex Kim</span></div>
+                            <div class="flex space-x-2 mt-auto">
+                                <button class="hover:text-indigo-600" title="Start Appeal"><i class="fas fa-play"></i></button>
+                            </div>
+                        </div>
+                <!-- Task Block 5 -->
+                        <div class="bg-purple-50 rounded-xl shadow-lg p-6 flex flex-col task-block" data-status="previous" data-name="Update patient records" data-client="Healthy Smiles" data-type="Consultation">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-bold text-lg text-purple-900">Update patient records</span>
+                                <span class="px-3 py-1 text-xs font-semibold rounded-full bg-purple-200 text-purple-800">Low</span>
+                            </div>
+                            <div class="mb-2 text-sm text-gray-700">Type: <span class="font-semibold">Consultation</span></div>
+                            <div class="mb-2 text-sm text-gray-700">Client: <span class="font-semibold">Healthy Smiles</span></div>
+                            <div class="mb-2 text-sm text-gray-700">Number: <span class="font-semibold">GDB-T005</span></div>
+                            <div class="mb-2 text-sm text-gray-700">Revenue: <span class="font-semibold">$0</span></div>
+                            <div class="mb-2 text-sm text-gray-700">Assigned: <span class="font-semibold">Priya Patel</span></div>
+                            <div class="flex space-x-2 mt-auto">
+                                <button class="hover:text-blue-600" title="Edit"><i class="fas fa-pencil-alt"></i></button>
+                            </div>
+                        </div>
+                <!-- Task Block 6 -->
+                        <div class="bg-yellow-50 rounded-xl shadow-lg p-6 flex flex-col task-block" data-status="due" data-name="Send payment reminder" data-client="Dental Experts" data-type="Payment Posting">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-bold text-lg text-yellow-900">Send payment reminder</span>
+                                <span class="px-3 py-1 text-xs font-semibold rounded-full bg-yellow-200 text-yellow-800">Due</span>
+                            </div>
+                            <div class="mb-2 text-sm text-gray-700">Type: <span class="font-semibold">Payment Posting</span></div>
+                            <div class="mb-2 text-sm text-gray-700">Client: <span class="font-semibold">Dental Experts</span></div>
+                            <div class="mb-2 text-sm text-gray-700">Number: <span class="font-semibold">GDB-T006</span></div>
+                            <div class="mb-2 text-sm text-gray-700">Revenue: <span class="font-semibold">$50</span></div>
+                            <div class="mb-2 text-sm text-gray-700">Assigned: <span class="font-semibold">Sam Lee</span></div>
+                            <div class="flex space-x-2 mt-auto">
+                                <button class="hover:text-indigo-600" title="Send"><i class="fas fa-paper-plane"></i></button>
+                            </div>
+                        </div>
+                <!-- Task Block 7 -->
+                        <div class="bg-gray-100 rounded-xl shadow-lg p-6 flex flex-col task-block" data-status="pending" data-name="Review insurance policy" data-client="Dental Care Inc." data-type="Insurance Verification">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-bold text-lg text-gray-900">Review insurance policy</span>
+                                <span class="px-3 py-1 text-xs font-semibold rounded-full bg-gray-200 text-gray-800">Pending</span>
+                            </div>
+                            <div class="mb-2 text-sm text-gray-700">Type: <span class="font-semibold">Insurance Verification</span></div>
+                            <div class="mb-2 text-sm text-gray-700">Client: <span class="font-semibold">Dental Care Inc.</span></div>
+                            <div class="mb-2 text-sm text-gray-700">Number: <span class="font-semibold">GDB-T007</span></div>
+                            <div class="mb-2 text-sm text-gray-700">Revenue: <span class="font-semibold">$0</span></div>
+                            <div class="mb-2 text-sm text-gray-700">Assigned: <span class="font-semibold">Emily Clark</span></div>
+                            <div class="flex space-x-2 mt-auto">
+                                <button class="hover:text-blue-600" title="Edit"><i class="fas fa-pencil-alt"></i></button>
+                            </div>
+                        </div>
+                <!-- Task Block 8 -->
+                        <div class="bg-blue-100 rounded-xl shadow-lg p-6 flex flex-col task-block" data-status="pending" data-name="Schedule team consultation" data-client="Bright Smiles LLC" data-type="Consultation">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-bold text-lg text-blue-900">Schedule team consultation</span>
+                                <span class="px-3 py-1 text-xs font-semibold rounded-full bg-blue-200 text-blue-800">Scheduled</span>
+                            </div>
+                            <div class="mb-2 text-sm text-gray-700">Type: <span class="font-semibold">Consultation</span></div>
+                            <div class="mb-2 text-sm text-gray-700">Client: <span class="font-semibold">Bright Smiles LLC</span></div>
+                            <div class="mb-2 text-sm text-gray-700">Number: <span class="font-semibold">GDB-T008</span></div>
+                            <div class="mb-2 text-sm text-gray-700">Revenue: <span class="font-semibold">$0</span></div>
+                            <div class="mb-2 text-sm text-gray-700">Assigned: <span class="font-semibold">Michael Brown</span></div>
+                            <div class="flex space-x-2 mt-auto">
+                                <button class="hover:text-indigo-600" title="View"><i class="fas fa-eye"></i></button>
+                            </div>
+                        </div>
+                <!-- Task Block 9 -->
+                        <div class="bg-green-100 rounded-xl shadow-lg p-6 flex flex-col task-block" data-status="completed" data-name="Prepare monthly payment posting report" data-client="Dental Care Inc." data-type="Payment Posting">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-bold text-lg text-green-900">Prepare monthly payment posting report</span>
+                                <span class="px-3 py-1 text-xs font-semibold rounded-full bg-green-200 text-green-800">Completed</span>
+                            </div>
+                            <div class="mb-2 text-sm text-gray-700">Type: <span class="font-semibold">Payment Posting</span></div>
+                            <div class="mb-2 text-sm text-gray-700">Client: <span class="font-semibold">Dental Care Inc.</span></div>
+                            <div class="mb-2 text-sm text-gray-700">Number: <span class="font-semibold">GDB-T009</span></div>
+                            <div class="mb-2 text-sm text-gray-700">Revenue: <span class="font-semibold">$300</span></div>
+                            <div class="mb-2 text-sm text-gray-700">Assigned: <span class="font-semibold">Olivia Turner</span></div>
+                            <div class="flex space-x-2 mt-auto">
+                                <button class="hover:text-indigo-600" title="View"><i class="fas fa-eye"></i></button>
+                            </div>
+                        </div>
+                <!-- Task Block 10 -->
+                        <div class="bg-orange-100 rounded-xl shadow-lg p-6 flex flex-col task-block" data-status="overdue" data-name="Call insurance for update" data-client="Dental Experts" data-type="AR">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-bold text-lg text-orange-900">Call insurance for update</span>
+                                <span class="px-3 py-1 text-xs font-semibold rounded-full bg-orange-200 text-orange-800">Pending</span>
+                            </div>
+                            <div class="mb-2 text-sm text-gray-700">Type: <span class="font-semibold">AR</span></div>
+                            <div class="mb-2 text-sm text-gray-700">Client: <span class="font-semibold">Dental Experts</span></div>
+                            <div class="mb-2 text-sm text-gray-700">Number: <span class="font-semibold">GDB-T010</span></div>
+                            <div class="mb-2 text-sm text-gray-700">Revenue: <span class="font-semibold">$0</span></div>
+                            <div class="mb-2 text-sm text-gray-700">Assigned: <span class="font-semibold">David Wilson</span></div>
+                            <div class="flex space-x-2 mt-auto">
+                                <button class="hover:text-blue-600" title="Edit"><i class="fas fa-pencil-alt"></i></button>
+                            </div>
+                        </div>
+                <!-- Task Block 11 -->
+                        <div class="bg-gray-50 rounded-xl shadow-lg p-6 flex flex-col task-block" data-status="previous" data-name="Update billing software" data-client="Smile Dental Group" data-type="Credentialing">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-bold text-lg text-gray-900">Update billing software</span>
+                                <span class="px-3 py-1 text-xs font-semibold rounded-full bg-gray-200 text-gray-800">Low</span>
+                            </div>
+                            <div class="mb-2 text-sm text-gray-700">Type: <span class="font-semibold">Credentialing</span></div>
+                            <div class="mb-2 text-sm text-gray-700">Client: <span class="font-semibold">Smile Dental Group</span></div>
+                            <div class="mb-2 text-sm text-gray-700">Number: <span class="font-semibold">GDB-T011</span></div>
+                            <div class="mb-2 text-sm text-gray-700">Revenue: <span class="font-semibold">$0</span></div>
+                            <div class="mb-2 text-sm text-gray-700">Assigned: <span class="font-semibold">Sofia Martinez</span></div>
+                            <div class="flex space-x-2 mt-auto">
+                                <button class="hover:text-blue-600" title="Edit"><i class="fas fa-pencil-alt"></i></button>
+                            </div>
+                        </div>
+            </div>
+        </div>
+                <script>
+                    function filterTasks() {
+                        const filterValue = document.getElementById('taskFilter').value;
+                        const query = document.getElementById('taskSearch').value.toLowerCase();
+                        document.querySelectorAll('.task-block').forEach(function(block) {
+                            const name = block.getAttribute('data-name').toLowerCase();
+                            const client = block.getAttribute('data-client').toLowerCase();
+                            const type = block.getAttribute('data-type').toLowerCase();
+                            const status = block.getAttribute('data-status');
+                            const matchesSearch = !query || name.includes(query) || client.includes(query) || type.includes(query);
+                            const matchesFilter = (filterValue === 'all') || (status === filterValue);
+                            block.style.display = (matchesSearch && matchesFilter) ? '' : 'none';
+                        });
+                    }
+
+                    document.getElementById('taskFilter').addEventListener('change', filterTasks);
+                    document.getElementById('taskSearch').addEventListener('input', filterTasks);
+                    // Initial filter on page load
+                    filterTasks();
+                </script>

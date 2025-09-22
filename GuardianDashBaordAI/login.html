@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign In • Guardian Dental Billing</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+    body { background: radial-gradient(circle at 30% 20%, #1A3464 0%, #0d1b2e 60%, #08111d 100%); }
+    .glass { backdrop-filter: blur(14px); background: rgba(255,255,255,0.08); }
+    .input { transition: all .2s; }
+    .input:focus { box-shadow: 0 0 0 3px rgba(99,102,241,.35); }
+    .brand-gradient { background: linear-gradient(90deg,#F46425,#ff8a4c); -webkit-background-clip: text; color: transparent; }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center px-4 py-10 text-white">
+  <div class="w-full max-w-6xl grid lg:grid-cols-2 gap-10 items-center">
+    <!-- Left Promo / Brand -->
+    <div class="hidden lg:flex flex-col space-y-8">
+      <div>
+        <img id="hero-logo" src="https://guardiandentalbilling.com/wp-content/uploads/2025/02/Logo-250-x-150-px-1.png" alt="Guardian Dental Billing" class="h-24 w-auto drop-shadow-xl transition-all duration-300" />
+      </div>
+      <h1 class="text-4xl xl:text-5xl font-extrabold leading-tight" id="welcome-heading">
+        Welcome Back to <span class="brand-gradient">Guardian Time & Workforce</span>
+      </h1>
+      <div class="space-y-5">
+        <p class="text-sm text-indigo-200/90 leading-relaxed max-w-md">
+          Securely manage your workforce—employees, time, tasks and operations—in one unified platform. Sign in with your email or username to get started.
+        </p>
+        <ul class="space-y-2 text-gray-200 text-sm max-w-md">
+          <li class="flex items-start"><i class="fas fa-shield-halved text-indigo-400 mt-0.5 mr-2"></i><span>Enterprise Security with encryption & role controls</span></li>
+          <li class="flex items-start"><i class="fas fa-user-check text-indigo-400 mt-0.5 mr-2"></i><span>Smart Attendance with real-time tracking</span></li>
+          <li class="flex items-start"><i class="fas fa-chart-line text-indigo-400 mt-0.5 mr-2"></i><span>Performance Dashboards with instant insights</span></li>
+          <li class="flex items-start"><i class="fas fa-file-shield text-indigo-400 mt-0.5 mr-2"></i><span>HIPAA-Ready Data protection for sensitive info</span></li>
+          <li class="flex items-start"><i class="fas fa-brain text-indigo-400 mt-0.5 mr-2"></i><span>Guardian AI Suite for faster decisions</span></li>
+          <li class="flex items-start"><i class="fas fa-comments text-indigo-400 mt-0.5 mr-2"></i><span>Team Collaboration with secure chat & sharing</span></li>
+          <li class="flex items-start"><i class="fas fa-headset text-indigo-400 mt-0.5 mr-2"></i><span>24/7 Support for continuous operations</span></li>
+        </ul>
+      </div>
+      <div class="pt-4 text-xs text-gray-500">© <span id="year"></span> Guardian Dental Billing LLC. All rights reserved.</div>
+    </div>
+
+    <!-- Right Auth Card -->
+    <div class="glass rounded-3xl p-8 md:p-10 shadow-2xl border border-white/10 w-full relative overflow-hidden">
+      <div class="absolute -top-20 -right-20 w-72 h-72 bg-gradient-to-br from-indigo-600/30 to-fuchsia-500/30 rounded-full blur-3xl opacity-40"></div>
+      <!-- API Status Badge -->
+      <div id="api-status" class="absolute top-4 right-4 text-[11px] pl-2 pr-1 py-1 rounded bg-white/10 border border-white/20 text-gray-300 flex items-center gap-1 backdrop-blur-sm select-none">
+        <span id="api-status-dot" class="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></span>
+        <span id="api-status-text">API: probing...</span>
+        <button id="api-reprobe" type="button" aria-label="Reconnect / Reprobe" title="Re-probe API bases" class="ml-0.5 px-1.5 py-0.5 rounded bg-white/5 hover:bg-white/20 active:scale-95 transition text-[10px] font-semibold tracking-wide text-indigo-200 focus:outline-none focus:ring-1 focus:ring-indigo-400">↻</button>
+      </div>
+      <div class="relative">
+        <div class="flex items-center justify-center mb-8 lg:hidden">
+          <img src="https://guardiandentalbilling.com/wp-content/uploads/2025/02/Logo-250-x-150-px-1.png" alt="Guardian Logo" class="h-20 w-auto" />
+        </div>
+        <h2 class="text-3xl font-bold mb-2">Sign In</h2>
+        <p class="text-gray-300 text-sm mb-8">Access your dashboard with your credentials.</p>
+        <form id="login-form" class="space-y-6">
+          <div>
+            <label class="text-sm font-medium text-gray-200 mb-1 block">Email or Username</label>
+            <div class="relative">
+              <input id="identifier" type="text" autocomplete="username" required placeholder="You@guardian or guardian123" class="input w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-sm placeholder-gray-400 focus:bg-white/15 outline-none" />
+              <i class="fas fa-user text-gray-400 absolute right-4 top-3.5"></i>
+            </div>
+          </div>
+          <div>
+            <label class="text-sm font-medium text-gray-200 mb-1 block">Password</label>
+            <div class="relative">
+              <input id="password" type="password" autocomplete="current-password" required placeholder="••••••••" class="input w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-sm placeholder-gray-400 focus:bg-white/15 outline-none" />
+              <button type="button" id="toggle-pass" class="absolute right-3 top-2.5 text-gray-400 hover:text-gray-200"><i class="fas fa-eye"></i></button>
+            </div>
+          </div>
+          <!-- Math Verification -->
+          <div id="login-math-wrapper" class="space-y-2">
+            <div class="flex items-center justify-between text-xs text-gray-300">
+              <span class="font-medium flex items-center gap-1"><i class="fas fa-robot text-indigo-300"></i> Verification</span>
+              <span id="login-math-timer" class="text-[10px] bg-white/10 px-2 py-0.5 rounded">10s</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <div id="login-math-question" class="flex-1 bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-sm font-mono tracking-wide"></div>
+              <input id="login-math-answer" type="text" inputmode="numeric" pattern="[0-9]*" class="w-24 bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-sm placeholder-gray-400 focus:bg-white/15 outline-none" placeholder="Answer" />
+            </div>
+            <p id="login-math-feedback" class="text-[11px] h-4"></p>
+          </div>
+          <div class="flex items-center justify-between text-xs">
+            <label class="flex items-center space-x-2 cursor-pointer select-none">
+              <input type="checkbox" id="remember" class="h-4 w-4 rounded border-white/30 bg-white/10 text-indigo-500 focus:ring-indigo-500" />
+              <span class="text-gray-300">Remember me</span>
+            </label>
+            <button type="button" id="forgot-btn" class="text-indigo-300 hover:text-indigo-200 font-medium">Forgot password?</button>
+          </div>
+          <div>
+            <button id="login-btn" type="submit" class="w-full bg-gradient-to-r from-indigo-600 via-indigo-500 to-violet-500 hover:from-indigo-500 hover:to-violet-400 focus:ring-4 focus:ring-indigo-600/40 transition-all rounded-xl py-3 font-semibold shadow-lg shadow-indigo-900/40 flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed" disabled>
+              <i class="fas fa-sign-in-alt"></i>
+              <span>Sign In</span>
+            </button>
+          </div>
+          <div id="alert" class="hidden text-sm rounded-lg px-4 py-3"></div>
+        </form>
+        <div class="mt-8 text-[11px] text-gray-300 leading-relaxed space-y-2">
+          <p class="text-xs">Use your assigned corporate email or username. If you have forgotten your password or your account is locked, please contact your department administrator or direct manager for assistance.</p>
+          <p class="text-xs">For general platform support or to report an access issue, submit a secure request via our <a href="https://guardiandentalbilling.com/contact/" target="_blank" class="underline decoration-dotted hover:text-indigo-300">Helpdesk Contact Form</a>. Include your full name, role, and a brief description of the issue.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Forgot Password Modal -->
+  <div id="forgot-modal" class="fixed inset-0 hidden items-center justify-center bg-black/80 backdrop-blur-sm z-50 p-4">
+    <div class="rounded-2xl max-w-md w-full p-8 relative shadow-2xl border border-white/10 bg-gradient-to-br from-slate-800 via-slate-850 to-slate-900 text-slate-100">
+      <button class="absolute top-3 right-3 text-gray-400 hover:text-gray-600" id="close-forgot"><i class="fas fa-times"></i></button>
+      <h3 class="text-xl font-semibold mb-2 text-white">Reset Password</h3>
+      <p class="text-sm text-slate-300 mb-5 leading-relaxed">Enter your email or username. If it matches a valid account, a reset link will be issued. If you no longer have access or did not receive an email, contact your administrator or submit a request through the <a href="https://guardiandentalbilling.com/contact/" target="_blank" class="text-indigo-400 hover:text-indigo-300 underline">official helpdesk form</a>.</p>
+      <form id="forgot-form" class="space-y-5">
+        <div>
+          <label class="text-xs font-medium text-slate-300">Email or Username</label>
+          <input id="forgot-identifier" type="text" required class="mt-1 w-full rounded-lg px-3 py-2 text-sm bg-slate-700/60 border border-slate-600 focus:ring-indigo-500 focus:border-indigo-400 placeholder-slate-400" placeholder="You@guardian or guardian123" />
+        </div>
+        <!-- Forgot Math Verification -->
+        <div id="forgot-math-wrapper" class="space-y-2">
+          <div class="flex items-center justify-between text-[11px] text-slate-300">
+            <span class="font-medium flex items-center gap-1"><i class="fas fa-robot text-indigo-400"></i> Verification</span>
+            <span id="forgot-math-timer" class="text-[10px] bg-slate-700/70 border border-slate-600 px-2 py-0.5 rounded">10s</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <div id="forgot-math-question" class="flex-1 bg-slate-700/60 border border-slate-600 rounded-lg px-3 py-2 text-sm font-mono text-indigo-200"></div>
+            <input id="forgot-math-answer" type="text" inputmode="numeric" pattern="[0-9]*" class="w-24 rounded-lg px-3 py-2 text-sm bg-slate-700/60 border border-slate-600 focus:ring-indigo-500 focus:border-indigo-400 placeholder-slate-400" placeholder="Answer" />
+          </div>
+          <p id="forgot-math-feedback" class="text-[11px] h-4"></p>
+        </div>
+        <div class="flex justify-end gap-3">
+          <button type="button" id="cancel-forgot" class="px-4 py-2 text-sm rounded-lg bg-slate-600 hover:bg-slate-500 text-slate-200">Cancel</button>
+          <button id="forgot-submit" type="submit" class="px-5 py-2 text-sm rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-semibold disabled:opacity-40 disabled:cursor-not-allowed" disabled>Send Link</button>
+        </div>
+        <div id="forgot-alert" class="hidden text-xs rounded-md px-3 py-2 bg-slate-700/60 border border-slate-600"></div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Year
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    const identifierEl = document.getElementById('identifier');
+    const passwordEl = document.getElementById('password');
+    const loginBtn = document.getElementById('login-btn');
+    const alertBox = document.getElementById('alert');
+    const togglePass = document.getElementById('toggle-pass');
+    const forgotBtn = document.getElementById('forgot-btn');
+    const forgotModal = document.getElementById('forgot-modal');
+    const closeForgot = document.getElementById('close-forgot');
+    const cancelForgot = document.getElementById('cancel-forgot');
+    const forgotForm = document.getElementById('forgot-form');
+    const forgotAlert = document.getElementById('forgot-alert');
+
+    togglePass.addEventListener('click', () => {
+      const icon = togglePass.querySelector('i');
+      if (passwordEl.type === 'password') { passwordEl.type = 'text'; icon.className = 'fas fa-eye-slash'; }
+      else { passwordEl.type = 'password'; icon.className = 'fas fa-eye'; }
+    });
+
+    function showAlert(type, msg) {
+      alertBox.className = 'mt-4 text-sm rounded-lg px-4 py-3 border ';
+      if (type === 'error') {
+        alertBox.classList.add('bg-red-50','border-red-300','text-red-700');
+      } else if (type === 'success') {
+        alertBox.classList.add('bg-green-50','border-green-300','text-green-700');
+      } else {
+        alertBox.classList.add('bg-indigo-50','border-indigo-300','text-indigo-700');
+      }
+      alertBox.textContent = msg;
+      alertBox.classList.remove('hidden');
+    }
+
+    function hideAlert(){ alertBox.classList.add('hidden'); }
+
+    // Forgot password modal controls
+    function openForgot(){ forgotModal.classList.remove('hidden'); forgotModal.classList.add('flex'); }
+    function closeForgotModal(){ forgotModal.classList.add('hidden'); forgotModal.classList.remove('flex'); forgotForm.reset(); forgotAlert.className='hidden'; }
+    forgotBtn.addEventListener('click', openForgot);
+    closeForgot.addEventListener('click', closeForgotModal);
+    cancelForgot.addEventListener('click', closeForgotModal);
+    forgotModal.addEventListener('click', e => { if (e.target === forgotModal) closeForgotModal(); });
+
+    forgotForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const idVal = document.getElementById('forgot-identifier').value.trim();
+      if(!idVal){ return; }
+      forgotAlert.className='mt-3 px-3 py-2 rounded-md text-xs bg-indigo-50 text-indigo-700';
+      forgotAlert.textContent='If the account exists, a reset link has been queued (demo).';
+      setTimeout(closeForgotModal, 2200);
+    });
+
+    // Helper: attempt health on a base
+    async function probeBase(baseUrl){
+      try {
+        const r = await fetch(baseUrl + '/api/health', { cache:'no-store' });
+        if(!r.ok) return { ok:false, status:r.status };
+        return { ok:true };
+      } catch(err){ return { ok:false, error: err.message }; }
+    }
+
+    async function findWorkingBase(initial){
+      const origin = window.location.origin;
+      const qs = new URLSearchParams(window.location.search);
+      const forced = qs.get('api');
+      const candidates = [];
+      if(forced) candidates.push(forced.replace(/\/$/,''));
+      if(initial) candidates.push(initial.replace(/\/$/,''));
+      if(origin && origin.startsWith('http')) candidates.push(origin.replace(/\/$/,''));
+      candidates.push('http://localhost:5000','http://127.0.0.1:5000');
+      const seen = new Set();
+      for(const c of candidates){
+        if(seen.has(c)) continue; seen.add(c);
+        const probe = await probeBase(c);
+        if(probe.ok){ console.info('[LOGIN] Using API base:', c); return c; }
+        else console.warn('[LOGIN] Base probe failed', c, probe);
+      }
+      return initial || origin || '';
+    }
+
+    // Preflight & Re-probe API status indicator
+    async function runApiStatusProbe(){
+      const statusEl = document.getElementById('api-status');
+      const dotEl = document.getElementById('api-status-dot');
+      const textEl = document.getElementById('api-status-text');
+      const btn = document.getElementById('api-reprobe');
+      if(!statusEl || !dotEl || !textEl) return;
+      const setState = (colorClass, text, pulse=false) => {
+        dotEl.className = 'w-2 h-2 rounded-full ' + colorClass + (pulse ? ' animate-pulse' : '');
+        textEl.textContent = text;
+      };
+      try {
+        setState('bg-yellow-400','API: probing...', true);
+        if(btn) btn.disabled = true;
+        let base = window.location.origin;
+        if(base === 'null' || base === 'file://') base = 'http://localhost:5000';
+        base = await findWorkingBase(base);
+        if(!base){
+          setState('bg-red-500','API: offline (no base)', true);
+          return;
+        }
+        window.__API_BASE = base;
+        let healthJson = null; let healthOk = false;
+        try {
+          const r = await fetch(base + '/api/health', { cache:'no-store' });
+          if(r.ok){
+            healthOk = true;
+            try { healthJson = await r.json(); } catch{/* ignore */}
+          }
+        } catch(err){ /* swallow */ }
+        if(!healthOk){
+          setState('bg-red-500','API: unreachable ('+ base +')', true);
+          return;
+        }
+        const mongo = !!(healthJson && healthJson.mongoConnected);
+        if(mongo){
+          setState('bg-green-400','API: live ('+ base +')');
+          statusEl.title = 'Live mode (database connected)';
+        } else {
+          setState('bg-amber-400','API: demo ('+ base +')');
+          statusEl.title = 'Demo mode (DB offline)';
+        }
+      } catch(err){
+        console.warn('[API_STATUS] probe failed', err);
+        setState('bg-red-500','API: error', true);
+      } finally { if(btn) btn.disabled = false; }
+    }
+    window.__probeApiStatus = runApiStatusProbe;
+    const reprobeBtn = document.getElementById('api-reprobe');
+    if(reprobeBtn){ reprobeBtn.addEventListener('click', () => { runApiStatusProbe(); }); }
+    runApiStatusProbe();
+
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault(); hideAlert();
+      const identifier = identifierEl.value.trim();
+      const password = passwordEl.value.trim();
+      if(!identifier || !password) { showAlert('error','Please fill all fields.'); return; }
+      loginBtn.disabled = true; loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Authenticating...</span>';
+      let base = window.location.origin;
+      if(base === 'null' || base === 'file://'){ base = 'http://localhost:5000'; }
+      try {
+        let healthOk = false;
+        // Find a working base (first pass quick probe). If first probe fails we'll still cycle inside logic.
+        base = await findWorkingBase(base);
+        try {
+          const healthRes = await fetch(base + '/api/health', { cache:'no-store' });
+          if(healthRes.ok) healthOk = true; else console.warn('[LOGIN] Health non-OK', healthRes.status);
+        } catch(healthErr){ console.warn('[LOGIN] Health check failed (continuing):', healthErr.message); }
+
+  let resp; let data = {}; let apiUrl = base + '/api/users/login';
+        try {
+          resp = await fetch(apiUrl, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ identifier, password }) });
+        } catch(netErr){
+          console.warn('[LOGIN] Primary base login network error, cycling alternatives');
+          // cycle alternatives if not already
+          const alt = await findWorkingBase(null);
+          if(alt && alt !== base){
+            base = alt; apiUrl = base + '/api/users/login';
+            try { resp = await fetch(apiUrl, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ identifier, password }) }); }
+            catch(secondErr){ throw secondErr; }
+          } else throw netErr;
+        }
+  try { data = await resp.json(); } catch(jsonErr){ console.warn('Non-JSON login response'); }
+
+        if(resp.ok) {
+          if(!data.token){ console.warn('No token in response payload'); }
+          localStorage.setItem('authToken', data.token || 'missing-token');
+          localStorage.setItem('userData', JSON.stringify({ id: data._id, name: data.name, email: data.email, role: data.role || 'employee' }));
+          showAlert('success','Login successful. Redirecting...');
+          setTimeout(()=> { window.location.href = (data.role === 'admin') ? '/admin.html' : '/index.html'; }, 700);
+          return;
+        }
+
+        // Attempt demo fallback only if server unreachable OR explicit invalid credentials
+        const demoCombos = [
+          { id:'demo-admin', identifier:'admin@test.com', password:'admin123', role:'admin', name:'Demo Admin' },
+          { id:'demo-admin', identifier:'admin', password:'admin123', role:'admin', name:'Demo Admin' },
+          { id:'admin-shakeel', identifier:'shakeel', password:'shakeel123', role:'admin', name:'Shakeel Admin', email:'shakeel@guardiandental.com' },
+          { id:'demo-employee', identifier:'employee@test.com', password:'emp123', role:'employee', name:'Demo Employee' },
+          { id:'demo-employee', identifier:'employee', password:'emp123', role:'employee', name:'Demo Employee' }
+        ];
+        const matched = demoCombos.find(c => c.identifier === identifier && c.password === password);
+        if(matched){
+          localStorage.setItem('authToken', 'demo-token');
+          localStorage.setItem('userData', JSON.stringify({ id: matched.id, name: matched.name, email: matched.email || matched.identifier, role: matched.role }));
+            showAlert('success', healthOk ? 'Demo login (DB offline). Redirecting...' : 'Demo mode (server unreachable). Redirecting...');
+          setTimeout(()=> { window.location.href = matched.role === 'admin' ? '/admin.html' : '/index.html'; }, 600);
+          return;
+        }
+
+        const msg = data.message || data.msg || (!healthOk ? 'Server unreachable on tested bases & no demo credentials matched.' : 'Invalid credentials.');
+        showAlert('error', msg);
+      } catch(err){
+        console.error('Login fatal error', err);
+        showAlert('error','Network failure: could not reach any API base. Start server (node server.js) at http://localhost:5000 or supply ?api=http://host:port in URL.');
+      } finally {
+        loginBtn.disabled = false; loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i><span>Sign In</span>';
+      }
+    });
+
+    // Auto redirect if already authenticated
+    if(localStorage.getItem('authToken')) { window.location.href = '/index.html'; }
+
+    // Dynamic logo width to match heading width (desktop hero section)
+    (function(){
+      const logo = document.getElementById('hero-logo');
+      const heading = document.getElementById('welcome-heading');
+      if(!logo || !heading) return;
+      function syncWidth(){
+        if(window.matchMedia('(min-width: 1024px)').matches){
+          const rect = heading.getBoundingClientRect();
+          const target = rect.width * 0.5; // 50% of heading width as requested
+          const clamped = Math.min(target, 420); // prevent over-large stretching
+          logo.style.width = clamped + 'px';
+        } else {
+          logo.style.width = '';
+        }
+      }
+      const ro = new ResizeObserver(syncWidth);
+      ro.observe(heading);
+      window.addEventListener('resize', syncWidth);
+      window.addEventListener('DOMContentLoaded', syncWidth);
+      syncWidth();
+    })();
+
+    // Math Verification shared logic
+    (function(){
+      function genProblem(){
+        const ops = ['+','-','/'];
+        const a = Math.floor(Math.random()*40)+10; // 10-49
+        const b = Math.floor(Math.random()*40)+1;  // 1-40
+        const op = ops[Math.floor(Math.random()*ops.length)];
+        let displayA = a, displayB = b, answer;
+        if(op === '+'){ answer = a + b; }
+        else if(op === '-') { answer = a - b; }
+        else { // division ensure integer result
+          answer = Math.floor(a / b);
+          displayA = answer * b; // adjust to make exact integer division
+          displayB = b;
+        }
+        return { q: `${displayA} ${op} ${displayB} = ?`, answer: answer };
+      }
+
+      function attach(set){
+        const {questionEl, answerEl, feedbackEl, timerEl, submitButton} = set;
+        let current = genProblem();
+        let solved = false;
+        let remaining = 10;
+        function render(){ questionEl.textContent = current.q; answerEl.value=''; feedbackEl.textContent=''; feedbackEl.className='text-[11px] h-4'; submitButton.disabled = true; solved=false; remaining=10; timerEl.textContent='10s'; }
+        function tick(){
+          if(solved) return; // keep showing until next rotation time
+          remaining--; timerEl.textContent = remaining + 's';
+          if(remaining<=0){ current = genProblem(); render(); }
+        }
+        const interval = setInterval(tick,1000);
+        answerEl.addEventListener('input', ()=>{
+          const val = answerEl.value.trim();
+            if(val !== '' && Number(val) === current.answer){
+              solved = true; submitButton.disabled = false; feedbackEl.textContent='✓ Verified';
+              feedbackEl.className='text-[11px] h-4 text-green-400 font-medium';
+            } else {
+              submitButton.disabled = true; if(val!==''){ feedbackEl.textContent='Incorrect'; feedbackEl.className='text-[11px] h-4 text-red-400'; } else { feedbackEl.textContent=''; feedbackEl.className='text-[11px] h-4'; }
+            }
+        });
+        render();
+        return () => clearInterval(interval);
+      }
+
+      // Login form math
+      const loginSet = {
+        questionEl: document.getElementById('login-math-question'),
+        answerEl: document.getElementById('login-math-answer'),
+        feedbackEl: document.getElementById('login-math-feedback'),
+        timerEl: document.getElementById('login-math-timer'),
+        submitButton: document.getElementById('login-btn')
+      };
+      // Forgot form math
+      const forgotSet = {
+        questionEl: document.getElementById('forgot-math-question'),
+        answerEl: document.getElementById('forgot-math-answer'),
+        feedbackEl: document.getElementById('forgot-math-feedback'),
+        timerEl: document.getElementById('forgot-math-timer'),
+        submitButton: document.getElementById('forgot-submit')
+      };
+      attach(loginSet);
+      attach(forgotSet);
+    })();
+  </script>
+</body>
+</html>

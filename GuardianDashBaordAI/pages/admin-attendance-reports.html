@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Analytics & Reports</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-4 py-6">
+        <!-- Header with Filters -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
+                <h1 class="text-2xl font-bold text-gray-900 mb-4 md:mb-0">Attendance Analytics & Reports</h1>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <select id="departmentFilter" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">All Departments</option>
+                    </select>
+                    <input type="date" id="startDate" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="date" id="endDate" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button onclick="generateReport()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-chart-bar mr-2"></i>Generate Report
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Average Attendance</p>
+                        <p class="text-3xl font-bold text-green-600" id="avgAttendance">0%</p>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-percentage text-green-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Total Overtime</p>
+                        <p class="text-3xl font-bold text-orange-600" id="totalOvertime">0h</p>
+                    </div>
+                    <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-clock text-orange-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Late Arrivals</p>
+                        <p class="text-3xl font-bold text-red-600" id="lateArrivals">0</p>
+                    </div>
+                    <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Perfect Attendance</p>
+                        <p class="text-3xl font-bold text-blue-600" id="perfectAttendance">0</p>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-star text-blue-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Daily Attendance Trend</h3>
+                <canvas id="attendanceTrendChart" width="400" height="200"></canvas>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Department Attendance Comparison</h3>
+                <canvas id="departmentAttendanceChart" width="400" height="200"></canvas>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Overtime Distribution</h3>
+                <canvas id="overtimeChart" width="400" height="200"></canvas>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Attendance Heatmap</h3>
+                <div id="attendanceHeatmap" class="grid grid-cols-7 gap-1 text-xs">
+                    <!-- Heatmap will be generated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Table -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Detailed Attendance Records</h3>
+                <div class="flex gap-2">
+                    <button onclick="exportToCSV()" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors">
+                        <i class="fas fa-download mr-2"></i>Export CSV
+                    </button>
+                    <button onclick="printReport()" class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors">
+                        <i class="fas fa-print mr-2"></i>Print
+                    </button>
+                </div>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200" id="attendanceTable">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employee</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Check In</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Check Out</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hours</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Overtime</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="attendanceTableBody" class="bg-white divide-y divide-gray-200">
+                        <tr>
+                            <td colspan="8" class="px-6 py-4 text-center text-gray-500">
+                                <i class="fas fa-spinner fa-spin mr-2"></i>Loading attendance data...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Employee Performance Section -->
+        <div class="bg-white rounded-lg shadow-md p-6 mt-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Employee Performance Analysis</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="employeePerformance">
+                <!-- Performance cards will be generated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:5000/api';
+        let attendanceTrendChart, departmentAttendanceChart, overtimeChart;
+        let attendanceData = [];
+
+        // Set default date range (last 30 days)
+        function setDefaultDates() {
+            const endDate = new Date();
+            const startDate = new Date();
+            startDate.setDate(endDate.getDate() - 30);
+            
+            document.getElementById('endDate').value = endDate.toISOString().split('T')[0];
+            document.getElementById('startDate').value = startDate.toISOString().split('T')[0];
+        }
+
+        async function loadDepartments() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/employees`);
+                const employees = await response.json();
+                
+                const departments = [...new Set(employees.map(emp => emp.department).filter(dept => dept))];
+                const select = document.getElementById('departmentFilter');
+                
+                departments.forEach(dept => {
+                    const option = document.createElement('option');
+                    option.value = dept;
+                    option.textContent = dept;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading departments:', error);
+            }
+        }
+
+        async function generateReport() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const department = document.getElementById('departmentFilter').value;
+
+            if (!startDate || !endDate) {
+                alert('Please select both start and end dates');
+                return;
+            }
+
+            showLoadingState();
+
+            try {
+                // Load attendance data for the date range
+                const attendancePromises = [];
+                const currentDate = new Date(startDate);
+                const endDateObj = new Date(endDate);
+
+                while (currentDate <= endDateObj) {
+                    const dateStr = currentDate.toISOString().split('T')[0];
+                    attendancePromises.push(
+                        fetch(`${API_BASE_URL}/attendance/date/${dateStr}`)
+                            .then(res => res.json())
+                            .catch(() => [])
+                    );
+                    currentDate.setDate(currentDate.getDate() + 1);
+                }
+
+                const allAttendanceData = await Promise.all(attendancePromises);
+                attendanceData = allAttendanceData.flat();
+
+                // Filter by department if selected
+                if (department) {
+                    attendanceData = attendanceData.filter(record => record.department === department);
+                }
+
+                // Load employees for additional context
+                const employeesResponse = await fetch(`${API_BASE_URL}/employees`);
+                const employees = await employeesResponse.json();
+
+                // Update summary cards
+                updateSummaryCards(attendanceData, employees);
+                
+                // Generate charts
+                generateAttendanceTrendChart(attendanceData, startDate, endDate);
+                generateDepartmentChart(attendanceData);
+                generateOvertimeChart(attendanceData);
+                generateAttendanceHeatmap(attendanceData, startDate, endDate);
+                
+                // Update table
+                updateAttendanceTable(attendanceData);
+                
+                // Update employee performance
+                updateEmployeePerformance(attendanceData, employees);
+
+            } catch (error) {
+                console.error('Error generating report:', error);
+                showErrorState();
+            }
+        }
+
+        function updateSummaryCards(data, employees) {
+            const totalDays = [...new Set(data.map(record => record.date))].length;
+            const totalEmployees = employees.length;
+            
+            // Average attendance
+            const presentRecords = data.filter(record => record.status === 'present').length;
+            const avgAttendance = totalDays > 0 ? Math.round((presentRecords / (totalEmployees * totalDays)) * 100) : 0;
+            document.getElementById('avgAttendance').textContent = `${avgAttendance}%`;
+            
+            // Total overtime
+            const totalOvertimeMinutes = data.reduce((sum, record) => sum + (record.overtimeHours || 0), 0) * 60;
+            const totalOvertimeHours = Math.round(totalOvertimeMinutes / 60 * 10) / 10;
+            document.getElementById('totalOvertime').textContent = `${totalOvertimeHours}h`;
+            
+            // Late arrivals (assuming 9:00 AM standard time)
+            const standardTime = 9 * 60; // 9:00 AM in minutes
+            const lateArrivals = data.filter(record => {
+                if (!record.checkInTime) return false;
+                const checkInTime = new Date(record.checkInTime);
+                const checkInMinutes = checkInTime.getHours() * 60 + checkInTime.getMinutes();
+                return checkInMinutes > standardTime;
+            }).length;
+            document.getElementById('lateArrivals').textContent = lateArrivals;
+            
+            // Perfect attendance (employees with 100% attendance)
+            const employeeAttendance = {};
+            data.forEach(record => {
+                if (!employeeAttendance[record.employeeId]) {
+                    employeeAttendance[record.employeeId] = { present: 0, total: 0 };
+                }
+                employeeAttendance[record.employeeId].total++;
+                if (record.status === 'present') {
+                    employeeAttendance[record.employeeId].present++;
+                }
+            });
+            
+            const perfectAttendance = Object.values(employeeAttendance)
+                .filter(emp => emp.total > 0 && emp.present === emp.total).length;
+            document.getElementById('perfectAttendance').textContent = perfectAttendance;
+        }
+
+        function generateAttendanceTrendChart(data, startDate, endDate) {
+            const dates = [];
+            const presentCounts = [];
+            
+            const currentDate = new Date(startDate);
+            const endDateObj = new Date(endDate);
+
+            while (currentDate <= endDateObj) {
+                const dateStr = currentDate.toISOString().split('T')[0];
+                dates.push(currentDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+                
+                const dayData = data.filter(record => record.date === dateStr);
+                const presentCount = dayData.filter(record => record.status === 'present').length;
+                presentCounts.push(presentCount);
+                
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+
+            const ctx = document.getElementById('attendanceTrendChart').getContext('2d');
+            if (attendanceTrendChart) attendanceTrendChart.destroy();
+            
+            attendanceTrendChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: 'Present Employees',
+                        data: presentCounts,
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function generateDepartmentChart(data) {
+            const departments = {};
+            data.forEach(record => {
+                const dept = record.department || 'Unassigned';
+                if (!departments[dept]) departments[dept] = { present: 0, total: 0 };
+                departments[dept].total++;
+                if (record.status === 'present') departments[dept].present++;
+            });
+
+            const labels = Object.keys(departments);
+            const attendanceRates = labels.map(dept => 
+                Math.round((departments[dept].present / departments[dept].total) * 100)
+            );
+
+            const ctx = document.getElementById('departmentAttendanceChart').getContext('2d');
+            if (departmentAttendanceChart) departmentAttendanceChart.destroy();
+            
+            departmentAttendanceChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Attendance Rate (%)',
+                        data: attendanceRates,
+                        backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                        borderColor: 'rgb(59, 130, 246)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        function generateOvertimeChart(data) {
+            const overtimeData = data.filter(record => record.overtimeHours > 0);
+            const overtimeRanges = {
+                '0-2h': 0,
+                '2-4h': 0,
+                '4-6h': 0,
+                '6h+': 0
+            };
+
+            overtimeData.forEach(record => {
+                const hours = record.overtimeHours;
+                if (hours <= 2) overtimeRanges['0-2h']++;
+                else if (hours <= 4) overtimeRanges['2-4h']++;
+                else if (hours <= 6) overtimeRanges['4-6h']++;
+                else overtimeRanges['6h+']++;
+            });
+
+            const ctx = document.getElementById('overtimeChart').getContext('2d');
+            if (overtimeChart) overtimeChart.destroy();
+            
+            overtimeChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(overtimeRanges),
+                    datasets: [{
+                        data: Object.values(overtimeRanges),
+                        backgroundColor: [
+                            '#10B981',
+                            '#F59E0B', 
+                            '#EF4444',
+                            '#8B5CF6'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        function generateAttendanceHeatmap(data, startDate, endDate) {
+            const container = document.getElementById('attendanceHeatmap');
+            const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+            
+            // Create header
+            container.innerHTML = days.map(day => 
+                `<div class="text-center font-medium text-gray-600 p-2">${day}</div>`
+            ).join('');
+
+            // Calculate attendance rates for each day of week
+            const dayData = Array(7).fill(0).map(() => ({ present: 0, total: 0 }));
+            
+            data.forEach(record => {
+                const date = new Date(record.date);
+                const dayOfWeek = (date.getDay() + 6) % 7; // Adjust for Monday start
+                dayData[dayOfWeek].total++;
+                if (record.status === 'present') {
+                    dayData[dayOfWeek].present++;
+                }
+            });
+
+            // Add colored cells based on attendance rate
+            dayData.forEach((day, index) => {
+                const rate = day.total > 0 ? day.present / day.total : 0;
+                let bgColor = 'bg-gray-100';
+                if (rate > 0.8) bgColor = 'bg-green-500';
+                else if (rate > 0.6) bgColor = 'bg-green-300';
+                else if (rate > 0.4) bgColor = 'bg-yellow-300';
+                else if (rate > 0.2) bgColor = 'bg-red-300';
+                else if (rate > 0) bgColor = 'bg-red-500';
+                
+                const cell = document.createElement('div');
+                cell.className = `${bgColor} h-12 rounded flex items-center justify-center text-white text-xs font-bold`;
+                cell.textContent = `${Math.round(rate * 100)}%`;
+                cell.title = `${days[index]}: ${Math.round(rate * 100)}% attendance`;
+                container.appendChild(cell);
+            });
+        }
+
+        function updateAttendanceTable(data) {
+            const tbody = document.getElementById('attendanceTableBody');
+            
+            if (data.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="px-6 py-4 text-center text-gray-500">
+                            No attendance records found for the selected criteria
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = data.map(record => {
+                const checkInTime = record.checkInTime ? 
+                    new Date(record.checkInTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : '-';
+                const checkOutTime = record.checkOutTime ? 
+                    new Date(record.checkOutTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : '-';
+                
+                const statusColor = {
+                    'present': 'bg-green-100 text-green-800',
+                    'absent': 'bg-red-100 text-red-800',
+                    'late': 'bg-yellow-100 text-yellow-800'
+                }[record.status] || 'bg-gray-100 text-gray-800';
+
+                return `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900">${record.employeeName || 'Unknown'}</div>
+                            <div class="text-sm text-gray-500">${record.employeeId}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.department || '-'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${new Date(record.date).toLocaleDateString()}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${checkInTime}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${checkOutTime}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.totalHours?.toFixed(2) || '0.00'}h</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.overtimeHours?.toFixed(2) || '0.00'}h</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColor}">
+                                ${record.status}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function updateEmployeePerformance(attendanceData, employees) {
+            const container = document.getElementById('employeePerformance');
+            
+            // Calculate performance metrics for each employee
+            const employeeMetrics = {};
+            
+            employees.forEach(emp => {
+                employeeMetrics[emp._id] = {
+                    name: `${emp.firstName} ${emp.lastName}`,
+                    department: emp.department,
+                    totalDays: 0,
+                    presentDays: 0,
+                    totalHours: 0,
+                    overtimeHours: 0,
+                    lateCount: 0
+                };
+            });
+
+            attendanceData.forEach(record => {
+                if (employeeMetrics[record.employeeId]) {
+                    const metrics = employeeMetrics[record.employeeId];
+                    metrics.totalDays++;
+                    if (record.status === 'present') metrics.presentDays++;
+                    metrics.totalHours += record.totalHours || 0;
+                    metrics.overtimeHours += record.overtimeHours || 0;
+                    
+                    // Check if late (assuming 9:00 AM standard)
+                    if (record.checkInTime) {
+                        const checkInTime = new Date(record.checkInTime);
+                        const checkInMinutes = checkInTime.getHours() * 60 + checkInTime.getMinutes();
+                        if (checkInMinutes > 9 * 60) metrics.lateCount++;
+                    }
+                }
+            });
+
+            // Generate performance cards
+            const performanceCards = Object.values(employeeMetrics)
+                .filter(metrics => metrics.totalDays > 0)
+                .sort((a, b) => (b.presentDays / b.totalDays) - (a.presentDays / a.totalDays))
+                .slice(0, 6) // Top 6 performers
+                .map(metrics => {
+                    const attendanceRate = Math.round((metrics.presentDays / metrics.totalDays) * 100);
+                    const avgHoursPerDay = metrics.totalDays > 0 ? (metrics.totalHours / metrics.totalDays).toFixed(1) : 0;
+                    
+                    return `
+                        <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg border border-blue-200">
+                            <div class="flex items-center justify-between mb-3">
+                                <h4 class="font-semibold text-gray-900">${metrics.name}</h4>
+                                <div class="text-2xl font-bold text-blue-600">${attendanceRate}%</div>
+                            </div>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Department:</span>
+                                    <span class="font-medium">${metrics.department || 'N/A'}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Present Days:</span>
+                                    <span class="font-medium">${metrics.presentDays}/${metrics.totalDays}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Avg Hours/Day:</span>
+                                    <span class="font-medium">${avgHoursPerDay}h</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Overtime:</span>
+                                    <span class="font-medium">${metrics.overtimeHours.toFixed(1)}h</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Late Count:</span>
+                                    <span class="font-medium ${metrics.lateCount > 0 ? 'text-red-600' : 'text-green-600'}">${metrics.lateCount}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+            container.innerHTML = performanceCards || `
+                <div class="col-span-3 text-center py-8 text-gray-500">
+                    No employee performance data available
+                </div>
+            `;
+        }
+
+        function showLoadingState() {
+            document.getElementById('attendanceTableBody').innerHTML = `
+                <tr>
+                    <td colspan="8" class="px-6 py-4 text-center text-gray-500">
+                        <i class="fas fa-spinner fa-spin mr-2"></i>Generating report...
+                    </td>
+                </tr>
+            `;
+        }
+
+        function showErrorState() {
+            document.getElementById('attendanceTableBody').innerHTML = `
+                <tr>
+                    <td colspan="8" class="px-6 py-4 text-center text-red-500">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>Error loading attendance data
+                    </td>
+                </tr>
+            `;
+        }
+
+        function exportToCSV() {
+            if (attendanceData.length === 0) {
+                alert('No data to export');
+                return;
+            }
+
+            const headers = ['Employee', 'Department', 'Date', 'Check In', 'Check Out', 'Hours', 'Overtime', 'Status'];
+            const csvContent = [
+                headers.join(','),
+                ...attendanceData.map(record => [
+                    `"${record.employeeName || 'Unknown'}"`,
+                    `"${record.department || ''}"`,
+                    record.date,
+                    record.checkInTime ? new Date(record.checkInTime).toLocaleTimeString() : '',
+                    record.checkOutTime ? new Date(record.checkOutTime).toLocaleTimeString() : '',
+                    record.totalHours?.toFixed(2) || '0.00',
+                    record.overtimeHours?.toFixed(2) || '0.00',
+                    record.status
+                ].join(','))
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `attendance-report-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        function printReport() {
+            window.print();
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            setDefaultDates();
+            loadDepartments();
+            generateReport(); // Generate initial report
+        });
+    </script>
+</body>
+</html>

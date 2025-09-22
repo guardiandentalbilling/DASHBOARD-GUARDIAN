@@ -1,0 +1,1081 @@
+<!-- Admin Activity & Time Tracking Dashboard -->
+<div class="space-y-6">
+    <!-- Header Section -->
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h2 class="text-3xl font-bold text-gray-800">Employee Activity & Time Tracking</h2>
+                <p class="text-gray-600 mt-2">Monitor and analyze employee time tracking activities across all projects</p>
+            </div>
+            <div class="flex space-x-3">
+                <button id="refresh-data" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
+                    <i class="fas fa-sync-alt mr-2"></i>Refresh Data
+                </button>
+                <button id="debug-storage" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors">
+                    <i class="fas fa-bug mr-2"></i>Debug Storage
+                </button>
+                <button id="export-data" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors">
+                    <i class="fas fa-download mr-2"></i>Export CSV
+                </button>
+            </div>
+        </div>
+
+        <!-- Quick Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+            <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-blue-100 text-sm">Total Employees</p>
+                        <p class="text-2xl font-bold" id="total-employees">--</p>
+                    </div>
+                    <i class="fas fa-users text-3xl text-blue-200"></i>
+                </div>
+            </div>
+            <div class="bg-gradient-to-r from-green-500 to-green-600 text-white p-6 rounded-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-green-100 text-sm">Currently Active</p>
+                        <p class="text-2xl font-bold" id="active-employees">--</p>
+                    </div>
+                    <i class="fas fa-play-circle text-3xl text-green-200"></i>
+                </div>
+            </div>
+            <div class="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-6 rounded-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-orange-100 text-sm">Today's Hours</p>
+                        <p class="text-2xl font-bold" id="total-hours-today">--</p>
+                    </div>
+                    <i class="fas fa-clock text-3xl text-orange-200"></i>
+                </div>
+            </div>
+            <div class="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-6 rounded-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-purple-100 text-sm">This Week's Hours</p>
+                        <p class="text-2xl font-bold" id="total-hours-week">--</p>
+                    </div>
+                    <i class="fas fa-calendar-week text-3xl text-purple-200"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters and Search -->
+        <div class="flex flex-wrap gap-4 mb-6">
+            <div class="flex-1 min-w-60">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Search Employee</label>
+                <input type="text" id="employee-search" placeholder="Search by name or ID..." 
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+            <div class="min-w-40">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
+                <select id="date-filter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    <option value="today">Today</option>
+                    <option value="yesterday">Yesterday</option>
+                    <option value="this-week">This Week</option>
+                    <option value="last-week">Last Week</option>
+                    <option value="this-month">This Month</option>
+                    <option value="custom">Custom Range</option>
+                </select>
+            </div>
+            <div class="min-w-40">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                <select id="status-filter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    <option value="all">All Status</option>
+                    <option value="active">Currently Active</option>
+                    <option value="paused">Paused</option>
+                    <option value="completed">Completed</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Custom Date Range (Hidden by default) -->
+        <div id="custom-date-range" class="hidden flex gap-4 mb-6">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">From Date</label>
+                <input type="date" id="date-from" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">To Date</label>
+                <input type="date" id="date-to" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+            </div>
+        </div>
+    </div>
+
+    <!-- Real-time Activity Monitor -->
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+            <i class="fas fa-broadcast-tower text-blue-600 mr-2"></i>
+            Real-time Activity Monitor
+        </h3>
+        <div id="real-time-activities" class="space-y-3">
+            <!-- Real-time activities will be populated here -->
+        </div>
+    </div>
+
+    <!-- Employee Time Tracking Table -->
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+            <i class="fas fa-table text-green-600 mr-2"></i>
+            Employee Time Tracking Records
+        </h3>
+        
+        <!-- Table Controls -->
+        <div class="flex justify-between items-center mb-4">
+            <div class="flex items-center space-x-2">
+                <label class="text-sm text-gray-600">Show:</label>
+                <select id="rows-per-page" class="px-3 py-1 border border-gray-300 rounded text-sm">
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+                <span class="text-sm text-gray-600">entries</span>
+            </div>
+            <div class="text-sm text-gray-600">
+                Showing <span id="showing-from">0</span> to <span id="showing-to">0</span> of <span id="total-records">0</span> records
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" data-sort="employee">
+                            Employee <i class="fas fa-sort text-gray-400 ml-1"></i>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" data-sort="status">
+                            Status <i class="fas fa-sort text-gray-400 ml-1"></i>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" data-sort="task">
+                            Current Task <i class="fas fa-sort text-gray-400 ml-1"></i>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" data-sort="start-time">
+                            Start Time <i class="fas fa-sort text-gray-400 ml-1"></i>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" data-sort="duration">
+                            Duration <i class="fas fa-sort text-gray-400 ml-1"></i>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" data-sort="today-total">
+                            Today's Total <i class="fas fa-sort text-gray-400 ml-1"></i>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="activity-table-body" class="bg-white divide-y divide-gray-200">
+                    <!-- Table rows will be populated here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="flex items-center justify-between mt-4">
+            <button id="prev-page" class="px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                Previous
+            </button>
+            <div class="flex space-x-1" id="pagination-numbers">
+                <!-- Pagination numbers will be populated here -->
+            </div>
+            <button id="next-page" class="px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                Next
+            </button>
+        </div>
+    </div>
+
+    <!-- Employee Details Modal -->
+    <div id="employee-details-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-90vh overflow-y-auto">
+            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-gray-800" id="modal-employee-name">Employee Details</h3>
+                <button id="close-modal" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="p-6" id="modal-content">
+                <!-- Modal content will be populated here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Admin Activity Tracker JavaScript
+class AdminActivityTracker {
+    constructor() {
+        this.currentPage = 1;
+        this.rowsPerPage = 25;
+        this.sortField = 'start-time';
+        this.sortDirection = 'desc';
+        this.filters = {
+            search: '',
+            dateRange: 'today',
+            status: 'all',
+            dateFrom: '',
+            dateTo: ''
+        };
+        this.employees = [];
+        this.sessions = [];
+        this.realTimeInterval = null;
+        this.init();
+    }
+
+    init() {
+        this.bindEvents();
+        this.loadData();
+        this.startRealTimeUpdates();
+    }
+
+    bindEvents() {
+        // Search and filters
+        document.getElementById('employee-search')?.addEventListener('input', (e) => {
+            this.filters.search = e.target.value;
+            this.applyFilters();
+        });
+
+        document.getElementById('date-filter')?.addEventListener('change', (e) => {
+            this.filters.dateRange = e.target.value;
+            const customRange = document.getElementById('custom-date-range');
+            if (e.target.value === 'custom') {
+                customRange?.classList.remove('hidden');
+            } else {
+                customRange?.classList.add('hidden');
+                this.applyFilters();
+            }
+        });
+
+        document.getElementById('status-filter')?.addEventListener('change', (e) => {
+            this.filters.status = e.target.value;
+            this.applyFilters();
+        });
+
+        // Custom date range
+        document.getElementById('date-from')?.addEventListener('change', (e) => {
+            this.filters.dateFrom = e.target.value;
+            if (this.filters.dateRange === 'custom') this.applyFilters();
+        });
+
+        document.getElementById('date-to')?.addEventListener('change', (e) => {
+            this.filters.dateTo = e.target.value;
+            if (this.filters.dateRange === 'custom') this.applyFilters();
+        });
+
+        // Table controls
+        document.getElementById('rows-per-page')?.addEventListener('change', (e) => {
+            this.rowsPerPage = parseInt(e.target.value);
+            this.currentPage = 1;
+            this.renderTable();
+        });
+
+        // Sorting
+        document.querySelectorAll('[data-sort]').forEach(header => {
+            header.addEventListener('click', () => {
+                const field = header.dataset.sort;
+                if (this.sortField === field) {
+                    this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+                } else {
+                    this.sortField = field;
+                    this.sortDirection = 'asc';
+                }
+                this.renderTable();
+            });
+        });
+
+        // Pagination
+        document.getElementById('prev-page')?.addEventListener('click', () => {
+            if (this.currentPage > 1) {
+                this.currentPage--;
+                this.renderTable();
+            }
+        });
+
+        document.getElementById('next-page')?.addEventListener('click', () => {
+            const totalPages = Math.ceil(this.getFilteredSessions().length / this.rowsPerPage);
+            if (this.currentPage < totalPages) {
+                this.currentPage++;
+                this.renderTable();
+            }
+        });
+
+        // Buttons
+        document.getElementById('refresh-data')?.addEventListener('click', () => {
+            console.log('Manual refresh triggered');
+            this.loadData();
+        });
+
+        document.getElementById('debug-storage')?.addEventListener('click', () => {
+            console.log('=== DEBUGGING LOCALSTORAGE ===');
+            
+            // Check all guardian-related localStorage keys
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('guardian_')) {
+                    console.log(`${key}:`, localStorage.getItem(key));
+                }
+            }
+            
+            // Specifically check time tracking state
+            const state = localStorage.getItem('guardian_time_tracking_state');
+            console.log('Time tracking state:', state);
+            
+            // Show alert with info
+            const stateObj = state ? JSON.parse(state) : null;
+            alert(`Debug Info:
+Time Tracking State: ${state ? 'Found' : 'Not found'}
+Is Tracking: ${stateObj?.isTracking || false}
+Current Session: ${stateObj?.currentSession ? 'Yes' : 'No'}
+Employee ID: ${stateObj?.employeeId || 'None'}
+Total localStorage keys: ${Array.from({length: localStorage.length}, (_, i) => localStorage.key(i)).filter(k => k?.startsWith('guardian_')).length}`);
+        });
+
+        document.getElementById('export-data')?.addEventListener('click', () => {
+            this.exportToCSV();
+        });
+
+        // Modal
+        document.getElementById('close-modal')?.addEventListener('click', () => {
+            document.getElementById('employee-details-modal')?.classList.add('hidden');
+        });
+    }
+
+    async loadData() {
+        try {
+            // Load real employee time tracking data from localStorage
+            this.employees = this.loadRealEmployees();
+            this.sessions = this.loadRealSessions();
+            
+            console.log('Admin Dashboard - Loaded employees:', this.employees);
+            console.log('Admin Dashboard - Loaded sessions:', this.sessions);
+            
+            this.updateQuickStats();
+            this.renderTable();
+            this.updateRealTimeActivities();
+        } catch (error) {
+            console.error('Error loading data:', error);
+            // Fallback to demo data if real data not available
+            console.log('Falling back to demo data due to error');
+            this.employees = this.generateDemoEmployees();
+            this.sessions = this.generateDemoSessions();
+            this.updateQuickStats();
+            this.renderTable();
+            this.updateRealTimeActivities();
+        }
+    }
+
+    generateDemoEmployees() {
+        return [
+            { id: 'emp_001', name: 'John Smith', email: 'john.smith@company.com', role: 'Developer' },
+            { id: 'emp_002', name: 'Sarah Johnson', email: 'sarah.johnson@company.com', role: 'Designer' },
+            { id: 'emp_003', name: 'Michael Brown', email: 'michael.brown@company.com', role: 'Manager' },
+            { id: 'emp_004', name: 'Emily Davis', email: 'emily.davis@company.com', role: 'Analyst' },
+            { id: 'emp_005', name: 'Robert Wilson', email: 'robert.wilson@company.com', role: 'Developer' },
+            { id: 'emp_006', name: 'Lisa Anderson', email: 'lisa.anderson@company.com', role: 'QA Engineer' },
+            { id: 'emp_007', name: 'David Martinez', email: 'david.martinez@company.com', role: 'DevOps' },
+            { id: 'emp_008', name: 'Jennifer Taylor', email: 'jennifer.taylor@company.com', role: 'Designer' }
+        ];
+    }
+
+    generateDemoSessions() {
+        const sessions = [];
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        
+        this.employees.forEach(employee => {
+            // Generate sessions for the last 7 days
+            for (let day = 0; day < 7; day++) {
+                const sessionDate = new Date(today.getTime() - (day * 24 * 60 * 60 * 1000));
+                const numSessions = Math.floor(Math.random() * 3) + 1; // 1-3 sessions per day
+                
+                for (let i = 0; i < numSessions; i++) {
+                    const startHour = 9 + Math.floor(Math.random() * 8); // 9 AM to 5 PM
+                    const startMinute = Math.floor(Math.random() * 60);
+                    const duration = (2 + Math.random() * 4) * 60 * 60 * 1000; // 2-6 hours
+                    
+                    const startTime = new Date(sessionDate.getTime() + (startHour * 60 * 60 * 1000) + (startMinute * 60 * 1000));
+                    const endTime = new Date(startTime.getTime() + duration);
+                    
+                    // Only show current session as active if it's today
+                    const isActive = day === 0 && i === numSessions - 1 && Math.random() > 0.6;
+                    
+                    sessions.push({
+                        id: `session_${employee.id}_${day}_${i}`,
+                        employeeId: employee.id,
+                        employeeName: employee.name,
+                        task: this.getRandomTask(),
+                        startTime: startTime.getTime(),
+                        endTime: isActive ? null : endTime.getTime(),
+                        duration: isActive ? null : duration,
+                        status: isActive ? 'active' : 'completed',
+                        date: sessionDate.toISOString().split('T')[0]
+                    });
+                }
+            }
+        });
+        
+        return sessions.sort((a, b) => b.startTime - a.startTime);
+    }
+
+    getRandomTask() {
+        const tasks = [
+            'Frontend Development',
+            'Backend API Development',
+            'Database Design',
+            'UI/UX Design',
+            'Code Review',
+            'Testing & QA',
+            'Client Meeting',
+            'Project Planning',
+            'Bug Fixes',
+            'Documentation',
+            'Research & Analysis',
+            'System Maintenance'
+        ];
+        return tasks[Math.floor(Math.random() * tasks.length)];
+    }
+
+    loadRealEmployees() {
+        // Try to get real employee data from various sources
+        const employees = [];
+        
+        // Check for stored employees or create default for current user
+        try {
+            // First check if we have employee data stored
+            const storedEmployees = localStorage.getItem('guardian_employees');
+            if (storedEmployees) {
+                return JSON.parse(storedEmployees);
+            }
+            
+            // If no stored employees, create from current tracking session
+            const currentState = localStorage.getItem('guardian_time_tracking_state');
+            if (currentState) {
+                const state = JSON.parse(currentState);
+                if (state.employeeId) {
+                    employees.push({
+                        id: state.employeeId,
+                        name: 'Current User',
+                        email: 'user@company.com',
+                        role: 'Employee'
+                    });
+                }
+            }
+            
+            // Add default employee if none found
+            if (employees.length === 0) {
+                employees.push({
+                    id: '64a7c8b2c3d4e5f6789012ab',
+                    name: 'Current User',
+                    email: 'user@company.com',
+                    role: 'Employee'
+                });
+            }
+            
+        } catch (error) {
+            console.warn('Error loading real employees:', error);
+            // Return default employee
+            employees.push({
+                id: '64a7c8b2c3d4e5f6789012ab',
+                name: 'Current User',
+                email: 'user@company.com',
+                role: 'Employee'
+            });
+        }
+        
+        return employees;
+    }
+
+    loadRealSessions() {
+        const sessions = [];
+        
+        try {
+            console.log('Loading real sessions...');
+            
+            // Get current active session
+            const currentState = localStorage.getItem('guardian_time_tracking_state');
+            console.log('Current state from localStorage:', currentState);
+            
+            if (currentState) {
+                const state = JSON.parse(currentState);
+                console.log('Parsed state:', state);
+                
+                if (state.isTracking && state.currentSession) {
+                    const session = state.currentSession;
+                    const now = Date.now();
+                    const startTime = new Date(session.startTime).getTime();
+                    
+                    const sessionData = {
+                        id: session.id,
+                        employeeId: session.employeeId || '64a7c8b2c3d4e5f6789012ab',
+                        employeeName: 'Current User',
+                        task: session.taskDescription || 'Working on tasks',
+                        startTime: startTime,
+                        endTime: null,
+                        duration: session.isActive ? null : session.totalElapsed,
+                        status: session.isActive ? 'active' : 'paused',
+                        date: new Date(startTime).toISOString().split('T')[0]
+                    };
+                    
+                    console.log('Found active session:', sessionData);
+                    sessions.push(sessionData);
+                }
+            }
+            
+            // Get completed sessions from session index
+            const allEmployeeIds = this.loadRealEmployees().map(emp => emp.id);
+            
+            allEmployeeIds.forEach(employeeId => {
+                try {
+                    const indexKey = `guardian_session_index_${employeeId}`;
+                    const sessionIndex = JSON.parse(localStorage.getItem(indexKey) || '[]');
+                    
+                    sessionIndex.forEach(sessionRef => {
+                        // Skip if this session is already added as current session
+                        const isDuplicate = sessions.some(s => s.id === sessionRef.id);
+                        if (isDuplicate) return;
+                        
+                        const startTime = new Date(sessionRef.startTime).getTime();
+                        const endTime = sessionRef.endTime ? new Date(sessionRef.endTime).getTime() : null;
+                        
+                        sessions.push({
+                            id: sessionRef.id,
+                            employeeId: employeeId,
+                            employeeName: 'Current User',
+                            task: sessionRef.taskDescription || 'Working on tasks',
+                            startTime: startTime,
+                            endTime: endTime,
+                            duration: sessionRef.totalElapsed,
+                            status: endTime ? 'completed' : 'active',
+                            date: new Date(startTime).toISOString().split('T')[0]
+                        });
+                    });
+                } catch (error) {
+                    console.warn(`Error loading sessions for employee ${employeeId}:`, error);
+                }
+            });
+            
+            // Also check for work day sessions (backup method)
+            const today = new Date().toISOString().split('T')[0];
+            for (let i = 0; i < 7; i++) {
+                const checkDate = new Date();
+                checkDate.setDate(checkDate.getDate() - i);
+                const dateKey = checkDate.toISOString().split('T')[0];
+                
+                try {
+                    const workDayKey = `guardian_sessions_${dateKey}`;
+                    const workDaySessions = JSON.parse(localStorage.getItem(workDayKey) || '[]');
+                    
+                    workDaySessions.forEach(session => {
+                        // Skip if already added
+                        const isDuplicate = sessions.some(s => s.id === session.id);
+                        if (isDuplicate) return;
+                        
+                        const startTime = new Date(session.startTime).getTime();
+                        const endTime = session.endTime ? new Date(session.endTime).getTime() : null;
+                        
+                        sessions.push({
+                            id: session.id,
+                            employeeId: session.employeeId || '64a7c8b2c3d4e5f6789012ab',
+                            employeeName: 'Current User',
+                            task: session.taskDescription || 'Working on tasks',
+                            startTime: startTime,
+                            endTime: endTime,
+                            duration: session.totalElapsed,
+                            status: endTime ? 'completed' : 'active',
+                            date: dateKey
+                        });
+                    });
+                } catch (error) {
+                    console.warn(`Error loading work day sessions for ${dateKey}:`, error);
+                }
+            }
+            
+        } catch (error) {
+            console.error('Error loading real sessions:', error);
+        }
+        
+        console.log('Total sessions loaded:', sessions.length);
+        console.log('Sessions:', sessions);
+        
+        // Sort by start time (newest first)
+        return sessions.sort((a, b) => b.startTime - a.startTime);
+    }
+
+    updateQuickStats() {
+        const today = new Date().toISOString().split('T')[0];
+        const thisWeekStart = new Date();
+        thisWeekStart.setDate(thisWeekStart.getDate() - thisWeekStart.getDay());
+        
+        // Total employees
+        document.getElementById('total-employees').textContent = this.employees.length;
+        
+        // Currently active
+        const activeEmployees = this.sessions.filter(s => s.status === 'active').length;
+        document.getElementById('active-employees').textContent = activeEmployees;
+        
+        // Today's hours
+        const todaySessions = this.sessions.filter(s => s.date === today);
+        const todayHours = this.calculateTotalHours(todaySessions);
+        document.getElementById('total-hours-today').textContent = this.formatHours(todayHours);
+        
+        // This week's hours
+        const weekSessions = this.sessions.filter(s => new Date(s.startTime) >= thisWeekStart);
+        const weekHours = this.calculateTotalHours(weekSessions);
+        document.getElementById('total-hours-week').textContent = this.formatHours(weekHours);
+    }
+
+    calculateTotalHours(sessions) {
+        return sessions.reduce((total, session) => {
+            if (session.status === 'completed' && session.duration) {
+                return total + session.duration;
+            } else if (session.status === 'active') {
+                return total + (Date.now() - session.startTime);
+            }
+            return total;
+        }, 0) / (1000 * 60 * 60); // Convert to hours
+    }
+
+    formatHours(hours) {
+        const h = Math.floor(hours);
+        const m = Math.floor((hours - h) * 60);
+        return `${h}h ${m}m`;
+    }
+
+    getFilteredSessions() {
+        return this.sessions.filter(session => {
+            // Search filter
+            if (this.filters.search) {
+                const searchTerm = this.filters.search.toLowerCase();
+                if (!session.employeeName.toLowerCase().includes(searchTerm) &&
+                    !session.employeeId.toLowerCase().includes(searchTerm)) {
+                    return false;
+                }
+            }
+            
+            // Status filter
+            if (this.filters.status !== 'all' && session.status !== this.filters.status) {
+                return false;
+            }
+            
+            // Date filter
+            const sessionDate = new Date(session.startTime);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            switch (this.filters.dateRange) {
+                case 'today':
+                    const todayStr = today.toISOString().split('T')[0];
+                    return session.date === todayStr;
+                case 'yesterday':
+                    const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+                    const yesterdayStr = yesterday.toISOString().split('T')[0];
+                    return session.date === yesterdayStr;
+                case 'this-week':
+                    const weekStart = new Date(today);
+                    weekStart.setDate(today.getDate() - today.getDay());
+                    return sessionDate >= weekStart;
+                case 'last-week':
+                    const lastWeekStart = new Date(today);
+                    lastWeekStart.setDate(today.getDate() - today.getDay() - 7);
+                    const lastWeekEnd = new Date(lastWeekStart);
+                    lastWeekEnd.setDate(lastWeekStart.getDate() + 6);
+                    return sessionDate >= lastWeekStart && sessionDate <= lastWeekEnd;
+                case 'this-month':
+                    return sessionDate.getMonth() === today.getMonth() && 
+                           sessionDate.getFullYear() === today.getFullYear();
+                case 'custom':
+                    if (this.filters.dateFrom && this.filters.dateTo) {
+                        const fromDate = new Date(this.filters.dateFrom);
+                        const toDate = new Date(this.filters.dateTo);
+                        toDate.setHours(23, 59, 59, 999);
+                        return sessionDate >= fromDate && sessionDate <= toDate;
+                    }
+                    return true;
+                default:
+                    return true;
+            }
+        });
+    }
+
+    renderTable() {
+        const filteredSessions = this.getFilteredSessions();
+        
+        // Sort sessions
+        filteredSessions.sort((a, b) => {
+            let aVal, bVal;
+            
+            switch (this.sortField) {
+                case 'employee':
+                    aVal = a.employeeName;
+                    bVal = b.employeeName;
+                    break;
+                case 'status':
+                    aVal = a.status;
+                    bVal = b.status;
+                    break;
+                case 'task':
+                    aVal = a.task;
+                    bVal = b.task;
+                    break;
+                case 'start-time':
+                    aVal = a.startTime;
+                    bVal = b.startTime;
+                    break;
+                case 'duration':
+                    aVal = a.duration || (Date.now() - a.startTime);
+                    bVal = b.duration || (Date.now() - b.startTime);
+                    break;
+                default:
+                    aVal = a.startTime;
+                    bVal = b.startTime;
+            }
+            
+            if (typeof aVal === 'string') {
+                aVal = aVal.toLowerCase();
+                bVal = bVal.toLowerCase();
+            }
+            
+            if (this.sortDirection === 'asc') {
+                return aVal > bVal ? 1 : -1;
+            } else {
+                return aVal < bVal ? 1 : -1;
+            }
+        });
+        
+        // Pagination
+        const totalRecords = filteredSessions.length;
+        const startIndex = (this.currentPage - 1) * this.rowsPerPage;
+        const endIndex = Math.min(startIndex + this.rowsPerPage, totalRecords);
+        const paginatedSessions = filteredSessions.slice(startIndex, endIndex);
+        
+        // Update pagination info
+        document.getElementById('showing-from').textContent = totalRecords > 0 ? startIndex + 1 : 0;
+        document.getElementById('showing-to').textContent = endIndex;
+        document.getElementById('total-records').textContent = totalRecords;
+        
+        // Render table body
+        const tbody = document.getElementById('activity-table-body');
+        tbody.innerHTML = paginatedSessions.map(session => {
+            const duration = session.duration || (Date.now() - session.startTime);
+            const todayTotal = this.calculateEmployeeTodayTotal(session.employeeId);
+            
+            return `
+                <tr class="hover:bg-gray-50" data-session-id="${session.id}">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10">
+                                <div class="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
+                                    <span class="text-sm font-medium text-gray-700">${session.employeeName.split(' ').map(n => n[0]).join('')}</span>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">${session.employeeName}</div>
+                                <div class="text-sm text-gray-500">${session.employeeId}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${this.getStatusBadgeClass(session.status)}">
+                            ${session.status.charAt(0).toUpperCase() + session.status.slice(1)}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${session.task}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        ${new Date(session.startTime).toLocaleString()}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 duration-cell">
+                        ${this.formatDuration(duration)}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        ${this.formatHours(todayTotal)}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button onclick="adminTracker.viewEmployeeDetails('${session.employeeId}')" 
+                                class="text-blue-600 hover:text-blue-900 mr-3">View Details</button>
+                        ${session.status === 'active' ? 
+                            `<button onclick="adminTracker.stopEmployeeSession('${session.id}')" 
+                                     class="text-red-600 hover:text-red-900">Stop</button>` : ''}
+                    </td>
+                </tr>
+            `;
+        }).join('');
+        
+        // Update pagination
+        this.renderPagination(totalRecords);
+    }
+
+    calculateEmployeeTodayTotal(employeeId) {
+        const today = new Date().toISOString().split('T')[0];
+        const todaySessions = this.sessions.filter(s => s.employeeId === employeeId && s.date === today);
+        return this.calculateTotalHours(todaySessions);
+    }
+
+    getStatusBadgeClass(status) {
+        switch (status) {
+            case 'active':
+                return 'bg-green-100 text-green-800';
+            case 'paused':
+                return 'bg-yellow-100 text-yellow-800';
+            case 'completed':
+                return 'bg-gray-100 text-gray-800';
+            default:
+                return 'bg-gray-100 text-gray-800';
+        }
+    }
+
+    formatDuration(milliseconds) {
+        const hours = Math.floor(milliseconds / (1000 * 60 * 60));
+        const minutes = Math.floor((milliseconds % (1000 * 60 * 60)) / (1000 * 60));
+        return `${hours}h ${minutes}m`;
+    }
+
+    renderPagination(totalRecords) {
+        const totalPages = Math.ceil(totalRecords / this.rowsPerPage);
+        const numbersContainer = document.getElementById('pagination-numbers');
+        
+        numbersContainer.innerHTML = '';
+        
+        for (let i = 1; i <= totalPages; i++) {
+            if (i === 1 || i === totalPages || (i >= this.currentPage - 2 && i <= this.currentPage + 2)) {
+                const button = document.createElement('button');
+                button.textContent = i;
+                button.className = `px-3 py-2 text-sm font-medium ${
+                    i === this.currentPage 
+                        ? 'text-blue-600 bg-blue-50 border border-blue-300' 
+                        : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
+                } rounded-lg`;
+                button.addEventListener('click', () => {
+                    this.currentPage = i;
+                    this.renderTable();
+                });
+                numbersContainer.appendChild(button);
+            } else if (i === this.currentPage - 3 || i === this.currentPage + 3) {
+                const span = document.createElement('span');
+                span.textContent = '...';
+                span.className = 'px-3 py-2 text-sm text-gray-500';
+                numbersContainer.appendChild(span);
+            }
+        }
+        
+        // Update prev/next buttons
+        document.getElementById('prev-page').disabled = this.currentPage === 1;
+        document.getElementById('next-page').disabled = this.currentPage === totalPages;
+    }
+
+    updateRealTimeActivities() {
+        const activeSessions = this.sessions.filter(s => s.status === 'active');
+        const container = document.getElementById('real-time-activities');
+        
+        if (activeSessions.length === 0) {
+            container.innerHTML = '<p class="text-gray-500 text-center py-4">No active sessions currently running</p>';
+            return;
+        }
+        
+        container.innerHTML = activeSessions.map(session => {
+            const duration = Date.now() - session.startTime;
+            return `
+                <div class="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <div class="flex items-center">
+                        <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse mr-3"></div>
+                        <div>
+                            <span class="font-medium text-gray-900">${session.employeeName}</span>
+                            <span class="text-gray-600 ml-2">working on</span>
+                            <span class="font-medium text-gray-900 ml-1">${session.task}</span>
+                        </div>
+                    </div>
+                    <div class="text-sm text-gray-600">
+                        ${this.formatDuration(duration)}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    startRealTimeUpdates() {
+        // Listen for time tracking events from other frames/windows
+        window.addEventListener('message', (event) => {
+            if (event.data.source === 'time_tracking_service') {
+                console.log('Admin received time tracking event:', event.data.event, event.data.data);
+                this.loadData(); // Reload data when time tracking events occur
+            }
+        });
+        
+        // Listen for localStorage changes
+        window.addEventListener('storage', (event) => {
+            if (event.key && event.key.startsWith('guardian_')) {
+                console.log('Admin detected localStorage change:', event.key);
+                this.loadData(); // Reload data when localStorage changes
+            }
+        });
+        
+        // Listen for custom events in same page
+        window.addEventListener('timeTrackingEvent', (event) => {
+            console.log('Admin received time tracking custom event:', event.detail);
+            this.loadData(); // Reload data when time tracking events occur
+        });
+        
+        // Update real-time activities every 30 seconds
+        this.realTimeInterval = setInterval(() => {
+            this.updateRealTimeActivities();
+            this.updateQuickStats();
+            
+            // Update table if showing active sessions
+            if (this.filters.status === 'active' || this.filters.status === 'all') {
+                this.renderTable();
+            }
+        }, 30000);
+        
+        // More frequent updates for active sessions (every 5 seconds)
+        setInterval(() => {
+            // Only update if there are active sessions
+            const activeSessions = this.sessions.filter(s => s.status === 'active');
+            if (activeSessions.length > 0) {
+                this.updateRealTimeActivities();
+                // Update just the active rows instead of full table reload
+                this.updateActiveSessionRows();
+            }
+        }, 5000);
+    }
+
+    updateActiveSessionRows() {
+        // Update only the active session rows in the table to show current duration
+        const activeSessions = this.sessions.filter(s => s.status === 'active');
+        
+        activeSessions.forEach(session => {
+            const row = document.querySelector(`tr[data-session-id="${session.id}"]`);
+            if (row) {
+                const duration = Date.now() - session.startTime;
+                const durationCell = row.querySelector('.duration-cell');
+                if (durationCell) {
+                    durationCell.textContent = this.formatDuration(duration);
+                }
+            }
+        });
+    }
+
+    applyFilters() {
+        this.currentPage = 1;
+        this.renderTable();
+    }
+
+    viewEmployeeDetails(employeeId) {
+        const employee = this.employees.find(e => e.id === employeeId);
+        const employeeSessions = this.sessions.filter(s => s.employeeId === employeeId);
+        
+        if (!employee) return;
+        
+        document.getElementById('modal-employee-name').textContent = `${employee.name} - Activity Details`;
+        
+        const modalContent = document.getElementById('modal-content');
+        modalContent.innerHTML = `
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-blue-800">Total Sessions</h4>
+                    <p class="text-2xl font-bold text-blue-600">${employeeSessions.length}</p>
+                </div>
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-green-800">Total Hours</h4>
+                    <p class="text-2xl font-bold text-green-600">${this.formatHours(this.calculateTotalHours(employeeSessions))}</p>
+                </div>
+                <div class="bg-orange-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-orange-800">Avg Session</h4>
+                    <p class="text-2xl font-bold text-orange-600">${this.formatHours(this.calculateTotalHours(employeeSessions) / employeeSessions.length)}</p>
+                </div>
+            </div>
+            
+            <h4 class="text-lg font-semibold mb-4">Recent Sessions</h4>
+            <div class="space-y-3 max-h-96 overflow-y-auto">
+                ${employeeSessions.slice(0, 20).map(session => `
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h5 class="font-medium">${session.task}</h5>
+                                <p class="text-sm text-gray-600">Started: ${new Date(session.startTime).toLocaleString()}</p>
+                                ${session.endTime ? `<p class="text-sm text-gray-600">Ended: ${new Date(session.endTime).toLocaleString()}</p>` : ''}
+                            </div>
+                            <div class="text-right">
+                                <span class="px-2 py-1 text-xs rounded-full ${this.getStatusBadgeClass(session.status)}">
+                                    ${session.status}
+                                </span>
+                                <p class="text-sm font-medium mt-1">${this.formatDuration(session.duration || (Date.now() - session.startTime))}</p>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+        
+        document.getElementById('employee-details-modal').classList.remove('hidden');
+    }
+
+    stopEmployeeSession(sessionId) {
+        if (confirm('Are you sure you want to stop this session?')) {
+            const session = this.sessions.find(s => s.id === sessionId);
+            if (session) {
+                session.status = 'completed';
+                session.endTime = Date.now();
+                session.duration = session.endTime - session.startTime;
+                
+                this.updateQuickStats();
+                this.renderTable();
+                this.updateRealTimeActivities();
+            }
+        }
+    }
+
+    exportToCSV() {
+        const filteredSessions = this.getFilteredSessions();
+        
+        const headers = ['Employee Name', 'Employee ID', 'Task', 'Start Time', 'End Time', 'Duration (Hours)', 'Status', 'Date'];
+        
+        const csvContent = [
+            headers.join(','),
+            ...filteredSessions.map(session => [
+                `"${session.employeeName}"`,
+                session.employeeId,
+                `"${session.task}"`,
+                `"${new Date(session.startTime).toLocaleString()}"`,
+                session.endTime ? `"${new Date(session.endTime).toLocaleString()}"` : 'Active',
+                (session.duration || (Date.now() - session.startTime)) / (1000 * 60 * 60),
+                session.status,
+                session.date
+            ].join(','))
+        ].join('\n');
+        
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `employee-activity-report-${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+    }
+}
+
+// Initialize the admin activity tracker when the page loads
+let adminTracker;
+document.addEventListener('DOMContentLoaded', () => {
+    adminTracker = new AdminActivityTracker();
+});
+</script>
+
+<style>
+.max-h-90vh {
+    max-height: 90vh;
+}
+
+.animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: .5;
+    }
+}
+</style>

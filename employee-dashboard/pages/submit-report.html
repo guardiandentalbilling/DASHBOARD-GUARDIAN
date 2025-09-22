@@ -1,0 +1,949 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <script>(function(){if(!document.getElementById('sidebar')){if(!location.search.includes('page=submit-report'))location.replace('/index.html?page=submit-report');}})();</script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Guardian Dental Billing — Daily Progress Report</title>
+    <meta name="description" content="Daily Progress Report form for Guardian Dental Billing with updated branding. No frameworks. Client-side validation, autosave, PDF preview & generation." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        :root {
+            --max-width: 980px;
+            --primary-blue: #1B356A;
+            --primary-orange: #F46425;
+            --accent-danger: #e53e3e;
+            --muted: #666;
+            --border-color: #d7e0ea;
+            --background-light: #f5f7fa;
+            --background-section: #fdfdff;
+            --text-light: #fff;
+            --text-dark: #14202b;
+            /* Updated colors for the PDF report */
+            --pdf-dark-blue: #193565;
+            --pdf-orange: #F46425;
+        }
+        body {
+            font-family: 'Roboto', Inter, system-ui, Segoe UI, Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: var(--background-light);
+            color: var(--text-dark);
+        }
+        .container {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            background: var(--text-light);
+            padding: 20px 30px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 6px 18px rgba(10, 20, 30, 0.08);
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+        }
+        .logo {
+            height: 50px;
+            width: auto;
+        }
+        h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: var(--primary-blue);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+        }
+        p.lead {
+            margin: 0 0 24px;
+            color: var(--muted);
+            max-width: 80ch;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            margin: 12px 0 6px;
+        }
+        .label-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        input[type=text],
+        input[type=date],
+        input[type=time],
+        input[type=email],
+        input[type=tel],
+        input[type=number],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+            box-sizing: border-box;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background-color: #fdfdff;
+        }
+        input[type=text]:focus,
+        input[type=date]:focus,
+        input[type=time]:focus,
+        input[type=email]:focus,
+        input[type=tel]:focus,
+        input[type=number]:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(27, 53, 106, 0.15);
+        }
+        textarea {
+            min-height: 60px;
+            resize: vertical;
+        }
+        #signature {
+            font-family: 'Dancing Script', cursive;
+            font-size: 28px;
+            padding-bottom: 5px;
+            border: none;
+            border-bottom: 2px solid var(--border-color);
+            border-radius: 0;
+            box-shadow: none !important; /* Override focus styles */
+            transition: border-bottom-color 0.2s;
+        }
+        #signature:focus {
+            border-bottom-color: var(--primary-blue);
+        }
+        .row { display: flex; gap: 12px; }
+        .col { flex: 1; }
+        .muted { color: var(--muted); font-size: 13px; font-weight: normal; }
+        .small { font-size: 13px; }
+        .btn {
+            display: inline-block;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 0;
+            background: var(--primary-blue);
+            color: var(--text-light);
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        .btn:hover { background-color: #14284d; transform: translateY(-1px); }
+        .btn:disabled { background-color: #a0aec0; cursor: not-allowed; transform: none; }
+        .btn.secondary { background: var(--primary-orange); color: var(--text-light); }
+        .btn.secondary:hover { background-color: #d8541c; }
+        .btn.danger { background: var(--accent-danger); }
+        .btn.danger:hover { background-color: #c53030; }
+        .btn-small { padding: 4px 8px; font-size: 12px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        
+        .form-section {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-top: 24px;
+            background-color: var(--background-section);
+        }
+        .form-section > .label-group, 
+        .form-section > label:first-child {
+            font-size: 18px;
+            color: var(--primary-blue);
+            margin-top: 0;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+        .form-section > p.instructions {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 13px;
+        }
+        .repeatable {
+            border: 1px solid #e1e8ef;
+            border-left: 4px solid var(--primary-orange);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            background-color: #fff;
+            transition: box-shadow 0.2s;
+        }
+        .repeatable:hover {
+            box-shadow: 0 4px 8px rgba(10, 20, 30, 0.05);
+        }
+        .add-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            font-size: 14px;
+        }
+        .note { background: #eef2ff; border-left: 4px solid var(--primary-blue); padding: 10px; border-radius: 6px; font-size: 13px; color: #334155;}
+        .invalid { border-color: var(--accent-danger); }
+        footer { margin-top: 24px; color: var(--muted); font-size: 13px; }
+        hr { display: none; }
+        
+        .print-only { 
+            display: none;
+            position: absolute;
+            left: -9999px;
+            top: auto;
+            width: 850px; /* Slightly wider to give padding around report-container */
+            padding: 25px 0;
+            background-color: #ccc;
+        }
+        @media (max-width: 700px) {
+            .grid { grid-template-columns: 1fr; }
+            .row { flex-direction: column; }
+            .header { flex-direction: column; align-items: flex-start; }
+            .container { padding: 15px; }
+        }
+        
+        /* CSS for the new PDF report template */
+       #print-output {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #ffffff;
+            color: #333;
+            -webkit-print-color-adjust: exact;
+        }
+       #print-output .report-container {
+            width: 800px;
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 0 auto; /* Center the report */
+        }
+       #print-output .logo-container {
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+       #print-output .logo {
+            height: 70px;
+        }
+        .logo-text {
+            font-size: 34px;
+            font-weight: 600;
+            color: var(--pdf-dark-blue);
+            text-transform: uppercase;
+        }
+        #print-output .report-header {
+            background-color: var(--pdf-dark-blue) !important;
+            color: #ffffff !important;
+            padding: 20px;
+            text-align: center;
+        }
+        #print-output .report-header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 500;
+            color: white !important; /* Fix for unreadable text in PDF */
+        }
+       #print-output .report-body {
+            padding: 30px;
+        }
+        #print-output .section {
+            margin-bottom: 30px;
+        }
+        #print-output .section:last-child {
+            margin-bottom: 0;
+        }
+        #print-output .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--pdf-orange) !important;
+            border-bottom: 2px solid var(--pdf-orange) !important;
+            padding-bottom: 8px;
+            margin-bottom: 20px;
+        }
+        #print-output .info-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        #print-output .info-table td {
+            padding: 12px 5px;
+            font-size: 15px;
+        }
+        #print-output .info-table .label {
+            font-weight: 600;
+            color: var(--pdf-dark-blue);
+            width: 150px;
+        }
+        #print-output .task-list {
+            list-style-type: none;
+            padding-left: 0;
+            margin: 0;
+        }
+        #print-output .task-list li {
+            background-color: #f9f9f9 !important;
+            border-left: 4px solid var(--pdf-orange) !important;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        #print-output .notes-box {
+            background-color: #f9f9f9 !important;
+            border: 1px solid #e0e0e0;
+            border-left: 4px solid var(--pdf-orange) !important;
+            padding: 15px;
+            min-height: 80px;
+            border-radius: 4px;
+        }
+        #print-output .signature-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 20px;
+       }
+       #print-output .signature-block {
+            width: 250px;
+       }
+       #print-output .signature-line {
+            border-bottom: 1px solid #333;
+            margin-bottom: 8px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-family: 'Dancing Script', cursive;
+            font-size: 24px;
+       }
+       #print-output .signature-block p {
+            margin: 0;
+            text-align: center;
+            font-size: 14px;
+            color: #555;
+        }
+        #print-output .report-footer {
+            background-color: var(--pdf-dark-blue) !important;
+            text-align: center;
+            padding: 15px;
+            font-size: 12px;
+            color: #ffffff !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container no-print" id="app">
+        <div class="header">
+            <img src="https://guardiandentalbilling.com/wp-content/uploads/2024/01/Logo-250-x-150-px-1.png" alt="Guardian Dental Billing Logo" class="logo">
+            <h1>Daily Progress Report</h1>
+        </div>
+        <p class="lead">Fill this form daily. It autosaves your progress. Use the buttons at the bottom to Print or Email the report.</p>
+
+        <form id="reportForm" novalidate>
+            <div class="form-section">
+                <label>Basic Information</label>
+                <p class="muted small instructions">Please fill in your personal and client details for the day.</p>
+                <div class="grid">
+                    <div>
+                        <label for="date" class="muted small">Date</label>
+                        <input id="date" name="date" type="date" required />
+                    </div>
+                     <div>
+                        <label for="employee" class="muted small">Employee Name</label>
+                        <select id="employee" name="employee" required>
+                            <option value="">-- Select employee --</option>
+                        </select>
+                    </div>
+                     <div>
+                        <label for="employeeEmail" class="muted small">Employee Email</label>
+                        <input id="employeeEmail" name="employeeEmail" type="email" placeholder="Enter your email" />
+                    </div>
+                    <div>
+                        <label for="employeeMobile" class="muted small">Employee Mobile</label>
+                        <input id="employeeMobile" name="employeeMobile" type="tel" placeholder="Enter your mobile number" />
+                    </div>
+                     <div>
+                        <label for="role" class="muted small">Role / Position</label>
+                        <select id="role" name="role" required>
+                            <option value="">-- Select role --</option>
+                        </select>
+                    </div>
+                     <div>
+                        <label for="clinic" class="muted small">Clinic / Client <span class="muted">(optional)</span></label>
+                        <select id="clinic" name="clinic">
+                            <option value="">-- Select clinic --</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <label>Shift Details</label>
+                <p class="muted small instructions">Enter your shift start and end times. Total hours and overtime will be calculated automatically.</p>
+                <div class="row">
+                     <div style="flex-basis:180px;">
+                        <label for="day" class="muted small">Day</label>
+                        <input id="day" name="day" type="text" readonly placeholder="Auto-calculated" />
+                    </div>
+                    <div class="col">
+                        <label for="startHour" class="muted small">Start Time</label>
+                        <div style="display: flex; gap: 5px;">
+                            <input id="startHour" name="startHour" type="number" min="1" max="12" placeholder="HH" required style="flex: 1;" />
+                            <input id="startMinute" name="startMinute" type="number" min="0" max="59" placeholder="MM" required style="flex: 1;" />
+                            <select id="startAmPm" name="startAmPm" required style="flex-basis: 70px;">
+                                <option>AM</option> <option>PM</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <label for="endHour" class="muted small">End Time</label>
+                         <div style="display: flex; gap: 5px;">
+                            <input id="endHour" name="endHour" type="number" min="1" max="12" placeholder="HH" required style="flex: 1;" />
+                            <input id="endMinute" name="endMinute" type="number" min="0" max="59" placeholder="MM" required style="flex: 1;" />
+                            <select id="endAmPm" name="endAmPm" required style="flex-basis: 70px;">
+                                <option>AM</option> <option>PM</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="flex-basis:160px;">
+                        <label for="hours" class="muted small">Total Hours</label>
+                        <input id="hours" name="hours" type="text" readonly placeholder="Auto-calculated" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <label>Tasks Assigned</label>
+                <p class="muted small instructions">List all tasks that were assigned to you for this shift.</p>
+                <div id="assignedTasks"></div>
+                <button type="button" class="btn secondary add-btn" id="addAssignedTask">+ Add Assigned Task</button>
+            </div>
+            
+            <div class="form-section">
+                <label>Key Tasks Completed <span class="muted">(at least one is required)</span></label>
+                <p class="muted small instructions">List all significant tasks you completed during your shift.</p>
+                <div id="tasks"></div>
+                <button type="button" class="btn secondary add-btn" id="addTask">+ Add Completed Task</button>
+            </div>
+
+            <div class="form-section" id="seoSection">
+                <label>SEO and Website Designing</label>
+                <p class="muted small instructions">Add details about any SEO or web design tasks performed.</p>
+                <div id="seoBlocks"></div>
+                <button type="button" class="btn secondary add-btn" id="addSeoBlock">+ Add SEO Block</button>
+            </div>
+            
+            <div class="form-section">
+                <label for="suggestions">Improvement Suggestions / Notes</label>
+                 <p class="muted small instructions">Provide any suggestions for improvement or other notes.</p>
+                <textarea id="suggestions" name="suggestions" maxlength="2000" placeholder="Ideas or notes (max 2000 chars)"></textarea>
+            </div>
+
+            <div class="form-section">
+                <label for="signature">Electronic Signature (type full name) <span class="muted">(required)</span></label>
+                <p class="muted small instructions">Type your full name and check the box to confirm the report's accuracy.</p>
+                <input id="signature" name="signature" type="text" required placeholder="Type your full name to sign" />
+                <label style="margin-top:8px; font-weight: normal; cursor: pointer;"><input id="confirm" name="confirm" type="checkbox" required /> I confirm this information is accurate</label>
+            </div>
+
+            <div style="margin-top:20px; display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:10px;" class="no-print">
+                <button id="downloadPdfBtn" type="button" class="btn">1. Download Report (PDF)</button>
+                <button id="whatsappBtn" type="button" class="btn secondary">2. Share on WhatsApp</button>
+                <button id="emailBtn" type="button" class="btn secondary">3. Share via Email</button>
+                <div id="status" class="muted small" style="grid-column: 1 / -1; margin-top: 5px;"></div>
+            </div>
+        </form>
+
+        <footer class="no-print">
+            <div class="note">
+                <strong>New Workflow:</strong><br/>
+                1. Click <strong>"Download Report (PDF)"</strong> to save the report file.<br/>
+                2. Click <strong>"Share on WhatsApp"</strong> or <strong>"Share via Email"</strong>.<br/>
+                3. Manually attach the downloaded PDF file in WhatsApp or Gmail.
+            </div>
+        </footer>
+    </div>
+    
+    <div id="print-output" class="print-only">
+         <div class="report-container">
+            <div class="logo-container">
+                <img src="https://guardiandentalbilling.com/wp-content/uploads/2024/01/Logo-250-x-150-px-1.png" alt="Guardian Dental Billing Logo" class="logo">
+                <span class="logo-text">GUARDIAN DENTAL BILLING</span>
+            </div>
+            <div class="report-header">
+                <h1 id="pdf-report-title">Daily Progress Report</h1>
+            </div>
+            <div class="report-body">
+                <div class="section">
+                    <div class="section-title">Employee Information</div>
+                    <table class="info-table">
+                        <tr>
+                            <td class="label">Full Name:</td>
+                            <td id="pdf-employee-name"></td>
+                            <td class="label">Date:</td>
+                            <td id="pdf-current-date"></td>
+                        </tr>
+                        <tr>
+                            <td class="label">Role:</td>
+                            <td id="pdf-role"></td>
+                            <td class="label">Shift Hours:</td>
+                            <td id="pdf-shift-hours"></td>
+                        </tr>
+                         <tr>
+                            <td class="label">Day:</td>
+                            <td id="pdf-day"></td>
+                            <td class="label">Total Hours:</td>
+                            <td id="pdf-total-hours"></td>
+                        </tr>
+                        <tr>
+                            <td class="label">Client:</td>
+                            <td id="pdf-client-name" colspan="3"></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="section">
+                    <div class="section-title">Assigned Tasks</div>
+                    <ul class="task-list" id="pdf-assigned-tasks"></ul>
+                </div>
+                <div class="section">
+                    <div class="section-title">Key Tasks Completed Today</div>
+                    <ul class="task-list" id="pdf-completed-tasks"></ul>
+                </div>
+                <div class="section">
+                    <div class="section-title">Suggestions / Notes</div>
+                    <div class="notes-box" id="pdf-suggestions"></div>
+                </div>
+                <div class="section signature-section">
+                    <div class="signature-block">
+                        <div class="signature-line" id="pdf-signature-line"></div>
+                        <p>Employee Signature</p>
+                    </div>
+                    <div class="signature-block">
+                         <div class="signature-line"></div>
+                         <p>Manager's Signature</p>
+                    </div>
+                </div>
+                 <div class="section">
+                    <div class="section-title">Manager's Remarks & Approval</div>
+                    <div class="notes-box">
+                        <p style="color: #888;">[Manager ke remarks yahan likhein...]</p>
+                    </div>
+                </div>
+            </div>
+            <div class="report-footer">
+                This is a confidential document of Guardian Dental Billing.<br>
+                All Rights Reserved © 2019 - 2025 Guardian Dental Billing LLC.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const $ = id => document.getElementById(id);
+        const form = $('reportForm');
+        const status = $('status');
+
+        const listData = {
+            employee: [ { id: 'emp_0', name: 'Shakeel Ahmad' }, { id: 'emp_1', name: 'Teskeen Naaz' }, { id: 'emp_2', name: 'Tehmina Shakeel' }, { id: 'emp_3', name: 'Aisha Ahmed' }, { id: 'emp_4', name: 'Masaud Khan' }, { id: 'emp_5', name: 'Rahid Kamal' }, { id: 'emp_6', name: 'Hifza Hameed' }, { id: 'emp_7', name: 'Saba Gul' }, { id: 'emp_8', name: 'Sana Khna' }, { id: 'emp_9', name: 'Iqra Aziz' }, { id: 'emp_10', name: 'Haleem Shah' }, { id: 'emp_11', name: 'Muhammad Asif' }, { id: 'emp_12', name: 'Muhammad Adil' } ],
+            role: [ { id: 'role_1', name: 'CEO' }, { id: 'role_2', name: 'Manager- HR' }, { id: 'role_3', name: 'Manager- Operations' }, { id: 'role_4', name: 'Manager- Marketing' }, { id: 'role_5', name: 'Manager- Admin' }, { id: 'role_6', name: 'Manager- Accounting' }, { id: 'role_7', name: 'Supervisor- Operations' }, { id: 'role_8', name: 'Supervisor- Marketing' }, { id: 'role_9', name: 'Supervisor-Admin' }, { id: 'role_10', name: 'Supervisor- Accounting' }, { id: 'role_11', name: 'AR Specialist' }, { id: 'role_12', name: 'Denial Management Expert' }, { id: 'role_13', name: 'Canva Designer' }, { id: 'role_14', name: 'SEO Expert' }, { id: 'role_15', name: 'Billing Coordinator' }, { id: 'role_16', name: 'Insurance Verification Specialist' }, { id: 'role_17', name: 'Payment Posting Expert' }, { id: 'role_18', name: 'Digital Marketing Expert' } ],
+            clinic: [ { id: 'cli_1', name: 'Aspen Dental' }, { id: 'cli_2', name: 'Pacific Dental Services' }, { id: 'cli_3', name: 'Cedar Drive Dental' }, { id: 'cli_4', name: 'Dr. Dental ~ Sally' }, { id: 'cli_5', name: 'Dr. Dental ~ Melissa' }, { id: 'cli_6', name: 'Dental Quest of Lowell' }, { id: 'cli_7', name: 'Erinwood Dental' }, { id: 'cli_8', name: 'Milk Tooth Dentistry' }, { id: 'cli_9', name: 'Dr. James R Stamper' } ],
+            assignedTask: [ { id: 'at_1', name: 'Client Follow-up' }, { id: 'at_2', name: 'Office Reporting' }, { id: 'at_3', name: 'Claims Follow Up' }, { id: 'at_4', name: 'Payment Posting' }, { id: 'at_5', name: 'Denials Management' }, { id: 'at_6', name: 'Insurance Verification' }, { id: 'at_7', name: 'Credentialing / Re-Credentialing' }, { id: 'at_8', name: 'Cold Calling' }, { id: 'at_9', name: 'Email Marketing' }, { id: 'at_10', name: 'Social Media Marketing' }, { id: 'at_11', name: 'SEO - Keyword Research' }, { id: 'at_12', name: 'SEO - Content Writing' }, { id: 'at_13', name: 'SEO - Strategy / Planning' }, { id: 'at_14', name: 'Graphics Designing' }, { id: 'at_15', name: 'Content Writing - Graphics / Videos Editing' }, { id: 'at_16', name: 'Website Designing' }, { id: 'at_17', name: 'AR Report Modification' }, { id: 'at_18', name: 'Other - Explain in Description' } ],
+            keyTask: [ { id: 'kt_1', name: 'Client Follow-up' }, { id: 'kt_2', name: 'Office Reporting' }, { id: 'kt_3', name: 'Claims Follow Up' }, { id: 'kt_4', name: 'Payment Posting' }, { id: 'kt_5', name: 'Denials Management' }, { id: 'kt_6', name: 'Insurance Verification' }, { id: 'kt_7', name: 'Credentialing / Re-Credentialing' }, { id: 'kt_8', name: 'Cold Calling' }, { id: 'kt_9', name: 'Email Marketing' }, { id: 'kt_10', name: 'Social Media Marketing' }, { id: 'kt_11', name: 'SEO - Keyword Research' }, { id: 'kt_12', name: 'SEO - Content Writing' }, { id: 'kt_13', name: 'SEO - Strategy / Planning' }, { id: 'kt_14', name: 'Graphics Designing' }, { id: 'kt_15', name: 'Content Writing - Graphics / Videos Editing' }, { id: 'kt_16', name: 'Website Designing' }, { id: 'kt_17', name: 'AR Report Modification' }, { id: 'kt_18', name: 'Other - Explain in Description' } ],
+            seoTask: [ { id: 'seo_1', name: 'Keyword Research' }, { id: 'seo_2', name: 'On-page Optimization' }, { id: 'seo_3', name: 'Content Creation' }, { id: 'seo_4', name: 'Link Building' } ]
+        };
+
+        const listPopulators = {
+            employee: () => populateDropdown('employee', listData.employee, 'Select employee'),
+            role: () => populateDropdown('role', listData.role, 'Select role'),
+            clinic: () => populateDropdown('clinic', listData.clinic, 'Select clinic'),
+        };
+        
+        function populateDropdown(select, items, defaultOptionText) {
+            const selectEl = (typeof select === 'string') ? $(select) : select;
+            selectEl.innerHTML = `<option value="">-- ${defaultOptionText} --</option>`;
+            items.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item.id;
+                option.textContent = item.name;
+                selectEl.appendChild(option);
+            });
+        }
+        
+        function setToday() {
+            if ($('date')) {
+                const today = new Date();
+                $('date').value = today.toISOString().slice(0, 10);
+            }
+        }
+        
+        function updateDay() {
+            const dateVal = $('date').value;
+            if (!dateVal) { $('day').value = ''; return; }
+            const dateObj = new Date(dateVal + 'T00:00:00');
+            $('day').value = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
+        }
+
+        function calcHours() {
+            const sH = parseInt($('startHour').value, 10), sM = parseInt($('startMinute').value, 10) || 0, sAP = $('startAmPm').value;
+            const eH = parseInt($('endHour').value, 10), eM = parseInt($('endMinute').value, 10) || 0, eAP = $('endAmPm').value;
+            if (isNaN(sH) || isNaN(eH)) { $('hours').value = ''; return; }
+            let sH24 = sH; if (sAP === 'PM' && sH !== 12) sH24 += 12; else if (sAP === 'AM' && sH === 12) sH24 = 0;
+            let eH24 = eH; if (eAP === 'PM' && eH !== 12) eH24 += 12; else if (eAP === 'AM' && eH === 12) eH24 = 0;
+            let startMins = sH24 * 60 + sM, endMins = eH24 * 60 + eM;
+            if (endMins < startMins) endMins += 24 * 60;
+            $('hours').value = ((endMins - startMins) / 60).toFixed(2);
+        }
+
+        function createAssignedTaskBlock(data={}) { createTaskBlock('assignedTasks', listData.assignedTask, 'assigned', data); }
+        function createCompletedTask(data={}) { createTaskBlock('tasks', listData.keyTask, '', data); }
+        
+        function createTaskBlock(containerId, taskList, prefix, data = {}) {
+            const wrap = document.createElement('div');
+            wrap.className = 'repeatable';
+            const titleName = prefix ? `${prefix}TaskTitle` : 'taskTitle';
+            const unitsName = prefix ? `${prefix}TaskUnits` : 'taskUnits';
+            const remarksName = prefix ? `${prefix}TaskRemarks` : 'taskRemarks';
+
+            wrap.innerHTML = `
+                <div class="row">
+                    <div class="col"><label class="muted small">Select Task</label><select name="${titleName}" required></select></div>
+                    <div style="flex-basis:120px"><label class="muted small">Units</label><input name="${unitsName}" type="number" placeholder="Units" value="${data.units||''}" /></div>
+                    <div style="width:40px; align-self: end;"><button type="button" class="btn danger" data-action="remove">×</button></div>
+                </div>
+                <div style="margin-top:8px"><label class="muted small">Remarks</label><textarea name="${remarksName}" placeholder="Short description">${data.remarks||''}</textarea></div>`;
+            const select = wrap.querySelector(`[name=${titleName}]`);
+            populateDropdown(select, taskList, `Select ${prefix} task`);
+            if (data.title) select.value = data.title;
+            wrap.querySelector('[data-action="remove"]').addEventListener('click', () => { wrap.remove(); saveDraft(); });
+            $(containerId).appendChild(wrap);
+        }
+
+        function createSeoBlock(data = {}) {
+            const wrap = document.createElement('div');
+            wrap.className = 'repeatable';
+            wrap.innerHTML = `
+                <div class="row">
+                    <div class="col"><select name="seoTask" required></select></div>
+                    <div class="col"><input name="seoLink" type="text" placeholder="Link" value="${data.link||''}" /></div>
+                    <div style="width:40px"><button type="button" class="btn danger" data-action="remove">×</button></div>
+                </div>
+                <div style="margin-top:8px"><input name="seoRemarks" type="text" placeholder="Remarks" value="${data.remarks||''}" /></div>`;
+            populateDropdown(wrap.querySelector('[name=seoTask]'), listData.seoTask, 'Select SEO task');
+            if (data.task) wrap.querySelector('[name=seoTask]').value = data.task;
+            wrap.querySelector('[data-action="remove"]').addEventListener('click', () => { wrap.remove(); saveDraft(); });
+            $('seoBlocks').appendChild(wrap);
+        }
+
+        function getFormState() {
+            const data = {};
+            new FormData(form).forEach((v, k) => { if (!data[k]) data[k] = v; });
+            data.assignedTasks = Array.from(document.querySelectorAll('#assignedTasks .repeatable')).map(r => ({ title: r.querySelector('[name=assignedTaskTitle]').value, units: r.querySelector('[name=assignedTaskUnits]').value, remarks: r.querySelector('[name=assignedTaskRemarks]').value }));
+            data.tasks = Array.from(document.querySelectorAll('#tasks .repeatable')).map(r => ({ title: r.querySelector('[name=taskTitle]').value, units: r.querySelector('[name=taskUnits]').value, remarks: r.querySelector('[name=taskRemarks]').value }));
+            data.seo = Array.from(document.querySelectorAll('#seoBlocks .repeatable')).map(r => ({ task: r.querySelector('[name=seoTask]').value, link: r.querySelector('[name=seoLink]').value, remarks: r.querySelector('[name=seoRemarks]').value }));
+            return data;
+        }
+
+        let saveTimeout;
+        function saveDraft() {
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(() => {
+                try {
+                    localStorage.setItem('dpr_draft', JSON.stringify(getFormState()));
+                    status.textContent = `Draft saved at ${new Date().toLocaleTimeString()}`;
+                } catch (e) { console.warn('Draft save failed', e); }
+            }, 500);
+        }
+
+        function loadDraft() {
+            const raw = localStorage.getItem('dpr_draft');
+            if (!raw) return;
+            try {
+                const data = JSON.parse(raw);
+                for (const key in data) {
+                    const el = form.elements[key];
+                    if (el) {
+                       if (el.type === 'checkbox') el.checked = data[key] === 'on' || data[key] === true;
+                       else el.value = data[key];
+                    }
+                }
+                if (data.assignedTasks) { $('assignedTasks').innerHTML = ''; data.assignedTasks.forEach(t => createAssignedTaskBlock(t)); }
+                if (data.tasks) { $('tasks').innerHTML = ''; data.tasks.forEach(t => createCompletedTask(t)); }
+                if (data.seo) { $('seoBlocks').innerHTML = ''; data.seo.forEach(p => createSeoBlock(p)); }
+                calcHours(); 
+                updateDay();
+                toggleSeoSection(); // Update visibility based on loaded role
+                status.textContent = 'Draft loaded.';
+            } catch (e) { console.warn('Load draft failed', e) }
+        }
+
+        function generateReportText() {
+            let text = `*Guardian Dental Billing - Daily Progress Report*\n`;
+            text += `-----------------------------------\n\n`;
+            
+            const empName = $('employee').options[$('employee').selectedIndex].text;
+            const dateVal = $('date').value ? new Date($('date').value + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'N/A';
+            const roleName = $('role').options[$('role').selectedIndex].text;
+            const startTime = `${$('startHour').value}:${String($('startMinute').value).padStart(2,'0')} ${$('startAmPm').value}`;
+            const endTime = `${$('endHour').value}:${String($('endMinute').value).padStart(2,'0')} ${$('endAmPm').value}`;
+            const clinicSelect = $('clinic');
+            const clinicName = clinicSelect.selectedIndex > 0 ? clinicSelect.options[clinicSelect.selectedIndex].text : 'N/A';
+
+            text += `*Employee Information*\n`;
+            text += `*Full Name:* ${empName}\n`;
+            text += `*Date:* ${dateVal}\n`;
+            text += `*Role:* ${roleName}\n`;
+            text += `*Client:* ${clinicName}\n`;
+            text += `*Shift Hours:* ${startTime} - ${endTime}\n\n`;
+            
+            const taskToText = (containerId, header) => {
+                let sectionText = `*${header}*\n`;
+                const tasks = document.querySelectorAll(`#${containerId} .repeatable`);
+                if (tasks.length === 0 || !tasks[0].querySelector('select').value) return sectionText + `No tasks reported.\n\n`;
+                tasks.forEach(taskEl => {
+                    const select = taskEl.querySelector('select');
+                    if (!select.value) return; 
+                    const taskName = select.options[select.selectedIndex].text;
+                    const units = taskEl.querySelector('[type="number"]').value;
+                    const remarks = taskEl.querySelector('textarea, input[type="text"]:not([name="seoLink"])').value;
+                    sectionText += `- ${taskName}`;
+                    if(units) sectionText += ` (${units} units)`;
+                    if(remarks) sectionText += `: ${remarks}`;
+                    sectionText += `\n`;
+                });
+                return sectionText + `\n`;
+            };
+
+            text += taskToText('assignedTasks', 'Assigned Tasks');
+            text += taskToText('tasks', 'Key Tasks Completed Today');
+            
+            text += `*Suggestions / Notes*\n${$('suggestions').value || 'No suggestions provided.'}\n\n`;
+            text += `*Signature:*\n${$('signature').value}`;
+
+            return text;
+        }
+
+        function populatePrintLayout() {
+            const empName = $('employee').options[$('employee').selectedIndex].text;
+            const roleName = $('role').options[$('role').selectedIndex].text;
+            const dateVal = $('date').value;
+            const formattedDate = dateVal ? new Date(dateVal + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '';
+            
+            $('pdf-report-title').textContent = `Daily Progress Report - ${empName} - ${formattedDate}`;
+            $('pdf-employee-name').textContent = empName;
+            $('pdf-current-date').textContent = formattedDate;
+            $('pdf-role').textContent = roleName;
+            
+            const startTime = `${$('startHour').value}:${String($('startMinute').value).padStart(2,'0')} ${$('startAmPm').value}`;
+            const endTime = `${$('endHour').value}:${String($('endMinute').value).padStart(2,'0')} ${$('endAmPm').value}`;
+            $('pdf-shift-hours').textContent = `${startTime} - ${endTime}`;
+
+            const clinicSelect = $('clinic');
+            const clinicName = clinicSelect.selectedIndex > 0 ? clinicSelect.options[clinicSelect.selectedIndex].text : 'N/A';
+            $('pdf-client-name').textContent = clinicName;
+
+            $('pdf-day').textContent = $('day').value || 'N/A';
+            const totalHours = parseFloat($('hours').value) || 0;
+            let hoursText = `${totalHours.toFixed(2)} Hours`;
+            if (totalHours > 8) {
+                const overtime = totalHours - 8;
+                hoursText += ` (${overtime.toFixed(2)} hrs Overtime)`;
+            }
+            $('pdf-total-hours').textContent = hoursText;
+
+            const taskToHtml = (containerId, targetListId) => {
+                const listEl = $(targetListId);
+                listEl.innerHTML = '';
+                const tasks = document.querySelectorAll(`#${containerId} .repeatable`);
+                let taskCount = 0;
+                tasks.forEach(taskEl => {
+                    const select = taskEl.querySelector('select');
+                    if (!select.value) return;
+                    taskCount++;
+                    const taskName = select.options[select.selectedIndex].text;
+                    const units = taskEl.querySelector('[type="number"]').value;
+                    const remarks = taskEl.querySelector('textarea, input[type="text"]:not([name="seoLink"])').value;
+                    let text = `${taskName}`;
+                    if(units) text += ` (${units} units)`;
+                    if(remarks) text += `: ${remarks}`;
+                    
+                    const li = document.createElement('li');
+                    li.textContent = text;
+                    listEl.appendChild(li);
+                });
+                if (taskCount === 0) {
+                     const li = document.createElement('li');
+                     li.textContent = 'No tasks reported for this section.';
+                     listEl.appendChild(li);
+                }
+            };
+
+            taskToHtml('assignedTasks', 'pdf-assigned-tasks');
+            taskToHtml('tasks', 'pdf-completed-tasks');
+            
+            $('pdf-suggestions').textContent = $('suggestions').value || 'No suggestions provided.';
+            $('pdf-signature-line').textContent = $('signature').value || '';
+        }
+
+        async function generateAndDownloadPdf() {
+            try {
+                // Check if required libraries are loaded
+                if (typeof html2canvas === 'undefined') {
+                    status.textContent = 'Error: html2canvas library not loaded. Please refresh the page.';
+                    return;
+                }
+                if (typeof window.jspdf === 'undefined') {
+                    status.textContent = 'Error: jsPDF library not loaded. Please refresh the page.';
+                    return;
+                }
+
+                status.textContent = 'Preparing report... Please wait.';
+                
+                populatePrintLayout();
+                
+                const { jsPDF } = window.jspdf;
+                const printContent = $('print-output');
+                printContent.style.display = 'block';
+
+                await new Promise(resolve => setTimeout(resolve, 100));
+
+                const canvas = await html2canvas(printContent, {
+                    scale: 2, 
+                    useCORS: true,
+                    logging: false,
+                    width: 850
+                });
+
+                printContent.style.display = 'none';
+
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF({
+                    orientation: 'p',
+                    unit: 'px',
+                    format: [canvas.width, canvas.height]
+                });
+                
+                pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+                
+                const empName = $('employee').options[$('employee').selectedIndex].text.replace(/ /g, '_');
+                const reportDate = $('date').value;
+                pdf.save(`DPR_${empName}_${reportDate}.pdf`);
+                
+                status.textContent = 'PDF downloaded successfully! You can now attach it.';
+            } catch (error) {
+                console.error('PDF generation error:', error);
+                status.textContent = 'Error generating PDF: ' + error.message;
+            }
+        }
+        
+        function toggleSeoSection() {
+            const roleSelect = $('role');
+            const seoSection = $('seoSection');
+            if (!roleSelect || !seoSection) return;
+
+            const selectedRole = roleSelect.value;
+            // Role IDs for 'SEO Expert' and 'Digital Marketing Expert'
+            const seoRoles = ['role_14', 'role_18'];
+
+            if (seoRoles.includes(selectedRole)) {
+                seoSection.style.display = 'block';
+            } else {
+                seoSection.style.display = 'none';
+            }
+        }
+
+        $('downloadPdfBtn').addEventListener('click', () => {
+            console.log('Download PDF button clicked');
+            generateAndDownloadPdf();
+        });
+        
+        $('emailBtn').addEventListener('click', () => {
+            console.log('Email button clicked');
+            try {
+                const empName = $('employee').options[$('employee').selectedIndex].text;
+                const reportDate = $('date').value;
+                const subject = `${empName} progress report - ${reportDate}`;
+                const body = generateReportText() + "\n\n(Please attach the downloaded PDF report)";
+                const gmailLink = `https://mail.google.com/mail/?view=cm&fs=1&to=shilmani.444@gmail.com&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                window.open(gmailLink, '_blank');
+                status.textContent = 'Gmail opened. Please attach the downloaded PDF file.';
+            } catch (error) {
+                console.error('Email button error:', error);
+                status.textContent = 'Error opening email: ' + error.message;
+            }
+        });
+
+        $('whatsappBtn').addEventListener('click', () => {
+            console.log('WhatsApp button clicked');
+            try {
+                const body = generateReportText() + "\n\n(Please attach the downloaded PDF report)";
+                const whatsappLink = `https://wa.me/?text=${encodeURIComponent(body)}`;
+                window.open(whatsappLink, '_blank');
+                status.textContent = 'WhatsApp opened. Please attach the downloaded PDF file.';
+            } catch (error) {
+                console.error('WhatsApp button error:', error);
+                status.textContent = 'Error opening WhatsApp: ' + error.message;
+            }
+        });
+        
+        $('addAssignedTask').addEventListener('click', () => { createAssignedTaskBlock(); saveDraft(); });
+        $('addTask').addEventListener('click', () => { createCompletedTask(); saveDraft(); });
+        $('addSeoBlock').addEventListener('click', () => { createSeoBlock(); saveDraft(); });
+
+        const timeInputs = ['startHour', 'startMinute', 'startAmPm', 'endHour', 'endMinute', 'endAmPm'];
+        timeInputs.forEach(id => $(id).addEventListener('change', () => { calcHours(); saveDraft(); }));
+        
+        $('date').addEventListener('change', () => { updateDay(); saveDraft(); });
+        
+        // Add event listener for role change
+        $('role').addEventListener('change', () => {
+            toggleSeoSection();
+            saveDraft();
+        });
+
+        form.addEventListener('input', (e) => { 
+            if(!timeInputs.includes(e.target.id) && e.target.id !== 'date' && e.target.id !== 'role') saveDraft(); 
+        });
+        setInterval(saveDraft, 30000);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Page loaded, initializing...');
+            
+            // Check if required elements exist
+            if (!$('downloadPdfBtn') || !$('emailBtn') || !$('whatsappBtn')) {
+                console.error('Required button elements not found');
+                return;
+            }
+            
+            // Check if libraries are loaded
+            if (typeof html2canvas === 'undefined') {
+                console.error('html2canvas library not loaded');
+                status.textContent = 'Warning: PDF generation may not work (html2canvas missing)';
+            }
+            if (typeof window.jspdf === 'undefined') {
+                console.error('jsPDF library not loaded');
+                status.textContent = 'Warning: PDF generation may not work (jsPDF missing)';
+            }
+            
+            Object.values(listPopulators).forEach(populate => populate());
+            setToday();
+            loadDraft();
+            updateDay();
+            toggleSeoSection(); // Set initial state on page load
+            if (!$('assignedTasks').hasChildNodes()) createAssignedTaskBlock();
+            if (!$('tasks').hasChildNodes()) createCompletedTask();
+            if (!$('seoBlocks').hasChildNodes()) createSeoBlock();
+            
+            console.log('Page initialization complete');
+        });
+
+    </script>
+</body>
+</html>

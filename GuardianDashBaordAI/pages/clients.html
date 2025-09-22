@@ -1,0 +1,551 @@
+<div class="max-w-7xl mx-auto">
+    <div class="flex flex-col md:flex-row items-center justify-between mb-8">
+        <h2 class="text-3xl font-bold text-gray-800">Clients</h2>
+        <button id="addClientBtn" class="px-6 py-3 bg-[#1A3464] text-white font-semibold rounded-lg shadow-md hover:bg-opacity-90 transition-transform hover:scale-105 flex items-center justify-center">
+            <i class="fas fa-plus mr-2"></i> Add New Client
+        </button>
+    </div>
+    
+    <!-- Search and Filter Section -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <input id="clientSearch" type="text" placeholder="Search clients by name, contact, or type..." class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <select id="statusFilter" class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="">All Statuses</option>
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+            <option value="Pending">Pending</option>
+            <option value="Suspended">Suspended</option>
+        </select>
+        <select id="practiceTypeFilter" class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="">All Practice Types</option>
+            <option value="General Dentistry">General Dentistry</option>
+            <option value="Pediatric Dentistry">Pediatric Dentistry</option>
+            <option value="Orthodontics">Orthodontics</option>
+            <option value="Oral Surgery">Oral Surgery</option>
+            <option value="Endodontics">Endodontics</option>
+            <option value="Periodontics">Periodontics</option>
+            <option value="Prosthodontics">Prosthodontics</option>
+            <option value="Cosmetic Dentistry">Cosmetic Dentistry</option>
+            <option value="Other">Other</option>
+        </select>
+    </div>
+    
+    <!-- Clients Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" id="clientsGrid">
+        <!-- Clients will be loaded here dynamically -->
+    </div>
+    
+    <!-- Loading indicator -->
+    <div id="loadingIndicator" class="flex justify-center items-center py-8">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1A3464]"></div>
+        <span class="ml-2 text-gray-600">Loading clients...</span>
+    </div>
+</div>
+
+<!-- Add/Edit Client Modal -->
+<div id="clientModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-medium text-gray-900" id="modalTitle">Add New Client</h3>
+                <button id="closeModal" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <form id="clientForm" class="space-y-4">
+                <input type="hidden" id="clientId" name="clientId">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-700">Business Name *</label>
+                        <input type="text" id="name" name="name" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label for="contactPerson" class="block text-sm font-medium text-gray-700">Contact Person *</label>
+                        <input type="text" id="contactPerson" name="contactPerson" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700">Email *</label>
+                        <input type="email" id="email" name="email" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label for="phone" class="block text-sm font-medium text-gray-700">Phone *</label>
+                        <input type="tel" id="phone" name="phone" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="practiceType" class="block text-sm font-medium text-gray-700">Practice Type *</label>
+                        <select id="practiceType" name="practiceType" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                            <option value="General Dentistry">General Dentistry</option>
+                            <option value="Pediatric Dentistry">Pediatric Dentistry</option>
+                            <option value="Orthodontics">Orthodontics</option>
+                            <option value="Oral Surgery">Oral Surgery</option>
+                            <option value="Endodontics">Endodontics</option>
+                            <option value="Periodontics">Periodontics</option>
+                            <option value="Prosthodontics">Prosthodontics</option>
+                            <option value="Cosmetic Dentistry">Cosmetic Dentistry</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
+                        <select id="status" name="status" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Suspended">Suspended</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="street" class="block text-sm font-medium text-gray-700">Street Address</label>
+                    <input type="text" id="street" name="street" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label for="city" class="block text-sm font-medium text-gray-700">City</label>
+                        <input type="text" id="city" name="city" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label for="state" class="block text-sm font-medium text-gray-700">State</label>
+                        <input type="text" id="state" name="state" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label for="zipCode" class="block text-sm font-medium text-gray-700">ZIP Code</label>
+                        <input type="text" id="zipCode" name="zipCode" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="website" class="block text-sm font-medium text-gray-700">Website</label>
+                    <input type="url" id="website" name="website" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+                
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" id="cancelBtn" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-[#1A3464] rounded-md hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <i class="fas fa-save mr-1"></i> Save Client
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Success/Error Notification -->
+<div id="notification" class="fixed top-4 right-4 p-4 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300 ease-in-out z-50">
+    <div class="flex items-center">
+        <div id="notificationIcon" class="flex-shrink-0 mr-3"></div>
+        <div id="notificationMessage" class="text-sm font-medium"></div>
+        <button id="closeNotification" class="ml-4 text-gray-400 hover:text-gray-600">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+</div>
+
+<script>
+let clients = [];
+let editingClientId = null;
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadClients();
+    setupEventListeners();
+});
+
+function setupEventListeners() {
+    // Add client button
+    document.getElementById('addClientBtn').addEventListener('click', openAddClientModal);
+    
+    // Modal controls
+    document.getElementById('closeModal').addEventListener('click', closeModal);
+    document.getElementById('cancelBtn').addEventListener('click', closeModal);
+    
+    // Form submission
+    document.getElementById('clientForm').addEventListener('submit', handleFormSubmit);
+    
+    // Search and filters
+    document.getElementById('clientSearch').addEventListener('input', filterClients);
+    document.getElementById('statusFilter').addEventListener('change', filterClients);
+    document.getElementById('practiceTypeFilter').addEventListener('change', filterClients);
+    
+    // Close notification
+    document.getElementById('closeNotification').addEventListener('click', hideNotification);
+    
+    // Close modal when clicking outside
+    document.getElementById('clientModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeModal();
+        }
+    });
+}
+
+async function loadClients() {
+    try {
+        document.getElementById('loadingIndicator').style.display = 'flex';
+        
+        const response = await fetch('/api/clients');
+        const data = await response.json();
+        
+        // Handle different response formats (demo vs production)
+        clients = Array.isArray(data) ? data : (data.clients || []);
+        
+        renderClients(clients);
+        document.getElementById('loadingIndicator').style.display = 'none';
+    } catch (error) {
+        console.error('Error loading clients:', error);
+        showNotification('Error loading clients. Please try again.', 'error');
+        document.getElementById('loadingIndicator').style.display = 'none';
+    }
+}
+
+function renderClients(clientsToRender) {
+    const grid = document.getElementById('clientsGrid');
+    
+    if (clientsToRender.length === 0) {
+        grid.innerHTML = `
+            <div class="col-span-full text-center py-8">
+                <i class="fas fa-users text-gray-400 text-4xl mb-4"></i>
+                <p class="text-gray-600">No clients found matching your criteria.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    grid.innerHTML = clientsToRender.map(client => createClientCard(client)).join('');
+    
+    // Add event listeners to action buttons
+    clientsToRender.forEach(client => {
+        addClientActionListeners(client._id);
+    });
+}
+
+function createClientCard(client) {
+    const statusColors = {
+        'Active': 'bg-green-200 text-green-800',
+        'Inactive': 'bg-red-200 text-red-800',
+        'Pending': 'bg-yellow-200 text-yellow-800',
+        'Suspended': 'bg-gray-200 text-gray-800'
+    };
+    
+    const cardColors = {
+        'Active': 'bg-green-50',
+        'Inactive': 'bg-red-50',
+        'Pending': 'bg-yellow-50',
+        'Suspended': 'bg-gray-50'
+    };
+    
+    const billing = client.billing || { totalBilled: 0, totalPaid: 0, outstandingBalance: 0 };
+    
+    return `
+        <div class="${cardColors[client.status] || 'bg-blue-50'} rounded-xl shadow-lg p-6 flex flex-col client-block" 
+             data-name="${client.name}" 
+             data-contact="${client.contactPerson}" 
+             data-type="${client.practiceType}"
+             data-status="${client.status}">
+            <div class="flex flex-col items-center mb-2">
+                <img src="${client.logoUrl || 'https://guardiandentalbilling.com/wp-content/uploads/2025/02/Logo-250-x-150-px-1.png'}" 
+                     alt="Client Logo" 
+                     class="w-32 h-16 object-cover border border-gray-300 mb-2">
+            </div>
+            
+            <div class="flex justify-between items-center mb-2">
+                <span class="font-bold text-lg text-gray-900">${client.name}</span>
+                <select class="status-select px-2 py-1 text-xs font-semibold rounded-full ${statusColors[client.status]}" 
+                        data-client-id="${client._id}" data-current-status="${client.status}">
+                    <option value="Active" ${client.status === 'Active' ? 'selected' : ''}>Active</option>
+                    <option value="Inactive" ${client.status === 'Inactive' ? 'selected' : ''}>Inactive</option>
+                    <option value="Pending" ${client.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                    <option value="Suspended" ${client.status === 'Suspended' ? 'selected' : ''}>Suspended</option>
+                </select>
+            </div>
+            
+            <div class="mb-2 text-sm text-gray-700">Contact: <span class="font-semibold">${client.contactPerson}</span></div>
+            <div class="mb-2 text-sm text-gray-700">Type: <span class="font-semibold">${client.practiceType}</span></div>
+            <div class="mb-2 text-sm text-gray-700">Phone: <span class="font-semibold">${client.phone}</span></div>
+            <div class="mb-2 text-sm text-gray-700">Email: <span class="font-semibold">${client.email}</span></div>
+            <div class="mb-2 text-sm text-gray-700">Client #: <span class="font-semibold">${client.clientNumber || 'N/A'}</span></div>
+            <div class="mb-2 text-sm text-gray-700">Total Billed: <span class="font-semibold">$${billing.totalBilled?.toLocaleString() || '0.00'}</span></div>
+            <div class="mb-2 text-sm text-gray-700">Outstanding: <span class="font-semibold ${billing.outstandingBalance > 0 ? 'text-red-600' : 'text-gray-800'}">$${billing.outstandingBalance?.toLocaleString() || '0.00'}</span></div>
+            
+            <div class="flex space-x-2 mt-auto">
+                <button class="view-btn hover:text-indigo-600" title="View Details" data-client-id="${client._id}">
+                    <i class="fas fa-eye"></i>
+                </button>
+                <button class="edit-btn hover:text-blue-600" title="Edit Client" data-client-id="${client._id}">
+                    <i class="fas fa-pencil-alt"></i>
+                </button>
+                <button class="delete-btn hover:text-red-600" title="Delete Client" data-client-id="${client._id}">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+function addClientActionListeners(clientId) {
+    // Status change
+    const statusSelect = document.querySelector(`[data-client-id="${clientId}"].status-select`);
+    if (statusSelect) {
+        statusSelect.addEventListener('change', function(e) {
+            e.stopPropagation();
+            updateClientStatus(clientId, this.value);
+        });
+    }
+    
+    // Edit button
+    const editBtn = document.querySelector(`[data-client-id="${clientId}"].edit-btn`);
+    if (editBtn) {
+        editBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            openEditClientModal(clientId);
+        });
+    }
+    
+    // Delete button
+    const deleteBtn = document.querySelector(`[data-client-id="${clientId}"].delete-btn`);
+    if (deleteBtn) {
+        deleteBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            deleteClient(clientId);
+        });
+    }
+    
+    // View button
+    const viewBtn = document.querySelector(`[data-client-id="${clientId}"].view-btn`);
+    if (viewBtn) {
+        viewBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            // Implement view details functionality if needed
+            showNotification('View details functionality coming soon!', 'info');
+        });
+    }
+}
+
+function openAddClientModal() {
+    editingClientId = null;
+    document.getElementById('modalTitle').textContent = 'Add New Client';
+    document.getElementById('clientForm').reset();
+    document.getElementById('clientId').value = '';
+    document.getElementById('status').value = 'Active';
+    document.getElementById('clientModal').classList.remove('hidden');
+}
+
+function openEditClientModal(clientId) {
+    const client = clients.find(c => c._id === clientId);
+    if (!client) {
+        showNotification('Client not found', 'error');
+        return;
+    }
+    
+    editingClientId = clientId;
+    document.getElementById('modalTitle').textContent = 'Edit Client';
+    
+    // Populate form
+    document.getElementById('clientId').value = client._id;
+    document.getElementById('name').value = client.name;
+    document.getElementById('contactPerson').value = client.contactPerson;
+    document.getElementById('email').value = client.email;
+    document.getElementById('phone').value = client.phone;
+    document.getElementById('practiceType').value = client.practiceType;
+    document.getElementById('status').value = client.status;
+    document.getElementById('website').value = client.website || '';
+    
+    // Address fields
+    if (client.address) {
+        document.getElementById('street').value = client.address.street || '';
+        document.getElementById('city').value = client.address.city || '';
+        document.getElementById('state').value = client.address.state || '';
+        document.getElementById('zipCode').value = client.address.zipCode || '';
+    }
+    
+    document.getElementById('clientModal').classList.remove('hidden');
+}
+
+function closeModal() {
+    document.getElementById('clientModal').classList.add('hidden');
+    editingClientId = null;
+}
+
+async function handleFormSubmit(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(e.target);
+    const clientData = {
+        name: formData.get('name'),
+        contactPerson: formData.get('contactPerson'),
+        email: formData.get('email'),
+        phone: formData.get('phone'),
+        practiceType: formData.get('practiceType'),
+        status: formData.get('status'),
+        website: formData.get('website'),
+        address: {
+            street: formData.get('street'),
+            city: formData.get('city'),
+            state: formData.get('state'),
+            zipCode: formData.get('zipCode')
+        }
+    };
+    
+    try {
+        let response;
+        if (editingClientId) {
+            response = await fetch(`/api/clients/${editingClientId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(clientData)
+            });
+        } else {
+            response = await fetch('/api/clients', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(clientData)
+            });
+        }
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+            showNotification(result.msg, 'success');
+            closeModal();
+            loadClients(); // Reload clients
+        } else {
+            showNotification(result.msg || 'Error saving client', 'error');
+        }
+    } catch (error) {
+        console.error('Error saving client:', error);
+        showNotification('Error saving client. Please try again.', 'error');
+    }
+}
+
+async function updateClientStatus(clientId, newStatus) {
+    try {
+        const response = await fetch(`/api/clients/${clientId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ status: newStatus })
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+            showNotification(`Client status updated to ${newStatus}`, 'success');
+            loadClients(); // Reload clients
+        } else {
+            showNotification(result.msg || 'Error updating status', 'error');
+            loadClients(); // Reload to reset status
+        }
+    } catch (error) {
+        console.error('Error updating status:', error);
+        showNotification('Error updating status. Please try again.', 'error');
+        loadClients(); // Reload to reset status
+    }
+}
+
+async function deleteClient(clientId) {
+    const client = clients.find(c => c._id === clientId);
+    if (!client) return;
+    
+    if (!confirm(`Are you sure you want to delete "${client.name}"? This action cannot be undone.`)) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/clients/${clientId}`, {
+            method: 'DELETE'
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+            showNotification(result.msg, 'success');
+            loadClients(); // Reload clients
+        } else {
+            showNotification(result.msg || 'Error deleting client', 'error');
+        }
+    } catch (error) {
+        console.error('Error deleting client:', error);
+        showNotification('Error deleting client. Please try again.', 'error');
+    }
+}
+
+function filterClients() {
+    const searchQuery = document.getElementById('clientSearch').value.toLowerCase();
+    const statusFilter = document.getElementById('statusFilter').value;
+    const practiceTypeFilter = document.getElementById('practiceTypeFilter').value;
+    
+    const filteredClients = clients.filter(client => {
+        const matchesSearch = 
+            client.name.toLowerCase().includes(searchQuery) ||
+            client.contactPerson.toLowerCase().includes(searchQuery) ||
+            client.practiceType.toLowerCase().includes(searchQuery) ||
+            client.email.toLowerCase().includes(searchQuery);
+        
+        const matchesStatus = !statusFilter || client.status === statusFilter;
+        const matchesPracticeType = !practiceTypeFilter || client.practiceType === practiceTypeFilter;
+        
+        return matchesSearch && matchesStatus && matchesPracticeType;
+    });
+    
+    renderClients(filteredClients);
+}
+
+function showNotification(message, type = 'info') {
+    const notification = document.getElementById('notification');
+    const icon = document.getElementById('notificationIcon');
+    const messageEl = document.getElementById('notificationMessage');
+    
+    // Set message
+    messageEl.textContent = message;
+    
+    // Set colors and icon based on type
+    notification.className = 'fixed top-4 right-4 p-4 rounded-lg shadow-lg transform transition-transform duration-300 ease-in-out z-50';
+    
+    switch (type) {
+        case 'success':
+            notification.classList.add('bg-green-500', 'text-white');
+            icon.innerHTML = '<i class="fas fa-check-circle text-white"></i>';
+            break;
+        case 'error':
+            notification.classList.add('bg-red-500', 'text-white');
+            icon.innerHTML = '<i class="fas fa-exclamation-circle text-white"></i>';
+            break;
+        case 'warning':
+            notification.classList.add('bg-yellow-500', 'text-white');
+            icon.innerHTML = '<i class="fas fa-exclamation-triangle text-white"></i>';
+            break;
+        default:
+            notification.classList.add('bg-blue-500', 'text-white');
+            icon.innerHTML = '<i class="fas fa-info-circle text-white"></i>';
+    }
+    
+    // Show notification
+    notification.classList.remove('translate-x-full');
+    
+    // Auto hide after 5 seconds
+    setTimeout(() => {
+        hideNotification();
+    }, 5000);
+}
+
+function hideNotification() {
+    const notification = document.getElementById('notification');
+    notification.classList.add('translate-x-full');
+}
+</script>

@@ -1,0 +1,204 @@
+<script>(function(){if(!document.getElementById('sidebar')){if(!location.search.includes('page=ar-comment'))location.replace('/index.html?page=ar-comment');}})();</script>
+<style>
+    .form-label { @apply block mb-2 text-sm font-medium text-gray-700; }
+    .form-input { @apply w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block p-2.5 transition-all duration-300; }
+    .btn { @apply w-full text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center transition-transform duration-200; }
+    .btn-primary { @apply bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600 transform hover:scale-105; }
+    .btn-secondary { @apply bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-800 hover:to-gray-900 transform hover:scale-105; }
+    .btn-add { @apply bg-green-500 hover:bg-green-600; }
+    .section-card { @apply bg-white/80 p-6 rounded-xl border border-gray-200 shadow-sm mb-6; }
+    .section-title { @apply text-xl font-bold text-gray-800 mb-4 pb-2 uppercase; }
+</style>
+
+<div class="container max-w-4xl w-full mx-auto bg-white/90 backdrop-blur-sm p-8 rounded-2xl shadow-2xl">
+    <div class="text-center mb-8">
+        <h2 class="text-3xl font-bold text-gray-800 uppercase">AR Comment Generator</h2>
+        <p class="text-gray-500">Enter the details below to generate a comment.</p>
+    </div>
+
+    <div class="section-card">
+         <h3 class="section-title text-purple-700 border-b-2 border-purple-500">PATIENT AND CLAIM DETAILS</h3>
+         <div class="grid md:grid-cols-3 gap-x-6 gap-y-5">
+            <div><label for="patient" class="form-label">Patient Name</label><input type="text" id="patient" class="form-input" placeholder="John Doe"></div>
+            <div><label for="dos" class="form-label">Date of Service (DOS)</label><input type="date" id="dos" class="form-input"></div>
+            <div><label for="claim" class="form-label">Claim Number</label><input type="text" id="claim" class="form-input" placeholder="CLM123456"></div>
+        </div>
+    </div>
+
+    <div class="section-card">
+        <h3 class="section-title text-blue-700 border-b-2 border-blue-500">BILLING DETAILS</h3>
+        <div class="grid md:grid-cols-3 gap-x-6 gap-y-5">
+             <div><label for="billed" class="form-label">Total Billed Amount</label><input type="number" id="billed" class="form-input" placeholder="1000"></div>
+            <div><label for="paid" class="form-label">Paid Amount</label><input type="number" id="paid" class="form-input" placeholder="800"></div>
+            <div><label for="patientResp" class="form-label">Patient Responsibility (PR)</label><input type="number" id="patientResp" class="form-input" placeholder="100"></div>
+            <div><label for="secondary" class="form-label">Secondary Insurance</label><input type="number" id="secondary" class="form-input" placeholder="0"></div>
+            <div><label for="writeoff" class="form-label">Write-off Amount</label><input type="number" id="writeoff" class="form-input bg-gray-200" placeholder="100" readonly></div>
+        </div>
+    </div>
+    
+    <div class="section-card">
+        <h3 class="section-title text-green-700 border-b-2 border-green-500">PAYMENT INFORMATION</h3>
+        <div class="grid md:grid-cols-3 gap-x-6 gap-y-5">
+            <div>
+                <label for="method" class="form-label">Payment Method</label>
+                <select id="method" class="form-input">
+                    <option value="Check">Check</option><option value="Credit Card">Credit Card</option><option value="EFT">EFT</option>
+                </select>
+            </div>
+            <div><label for="checkno" class="form-label">Check / Transaction #</label><input type="text" id="checkno" class="form-input" placeholder="CHK98765"></div>
+            <div><label for="paydate" class="form-label">Payment Date</label><input type="date" id="paydate" class="form-input"></div>
+        </div>
+    </div>
+
+    <div class="section-card">
+        <h3 class="section-title text-yellow-700 border-b-2 border-yellow-500">ADA CODES</h3>
+        <div id="adaCodesContainer" class="space-y-3"></div>
+        <button id="addAdaCodeBtn" type="button" class="btn btn-add mt-3 w-auto px-4 py-2 text-sm">+ Add ADA Code</button>
+    </div>
+
+    <div class="section-card">
+        <h3 class="section-title text-orange-700 border-b-2 border-orange-500">CALL SUMMARY</h3>
+        <div class="grid md:grid-cols-3 gap-x-6 gap-y-5">
+            <div><label for="repName" class="form-label">Rep Name</label><input type="text" id="repName" class="form-input" placeholder="Jane Smith"></div>
+            <div><label for="callref" class="form-label">Call Reference #</label><input type="text" id="callref" class="form-input" placeholder="REF54321"></div>
+            <div><label for="callDate" class="form-label">Date of Call</label><input type="date" id="callDate" class="form-input"></div>
+        </div>
+    </div>
+    
+    <div class="grid sm:grid-cols-2 gap-4 mb-6">
+        <button id="generateCommentBtn" class="btn btn-primary">Generate Comment</button>
+        <button id="copyCommentBtn" class="btn btn-secondary">Copy to Clipboard</button>
+    </div>
+    
+    <div id="result-container" class="hidden">
+        <h3 class="text-xl font-semibold text-gray-700 mb-3">Generated Comment</h3>
+        <div id="result" class="p-4 border-l-4 border-purple-500 bg-gray-50 text-gray-800 rounded-r-lg whitespace-pre-wrap font-mono text-sm leading-relaxed"></div>
+    </div>
+</div>
+
+<div id="toast" class="hidden fixed top-24 right-5 bg-green-500 text-white py-2 px-4 rounded-lg shadow-md transition-opacity duration-300">
+  Comment copied to clipboard!
+</div>
+
+<script>
+    // This script runs as soon as this HTML is loaded into the main page.
+    (function() {
+        // --- Get references to all the elements ---
+        const billedInput = document.getElementById('billed');
+        const paidInput = document.getElementById('paid');
+        const patientRespInput = document.getElementById('patientResp');
+        const secondaryInput = document.getElementById('secondary');
+        const writeoffInput = document.getElementById('writeoff');
+
+        const addAdaCodeBtn = document.getElementById('addAdaCodeBtn');
+        const adaCodesContainer = document.getElementById('adaCodesContainer');
+
+        const generateCommentBtn = document.getElementById('generateCommentBtn');
+        const copyCommentBtn = document.getElementById('copyCommentBtn');
+        const resultContainer = document.getElementById('result-container');
+        const resultDiv = document.getElementById('result');
+        const toastDiv = document.getElementById('toast');
+        
+        // --- Define all functions for this page ---
+
+        const addAdaCode = () => {
+            const div = document.createElement('div');
+            div.className = "flex items-center gap-3";
+            div.innerHTML = `
+                <input type="text" placeholder="ADA Code (e.g. D0120)" class="form-input flex-grow ada-code-input">
+                <select class="form-input flex-grow ada-code-status">
+                    <option value="Paid in full">Paid in full</option>
+                    <option value="Paid">Paid</option>
+                    <option value="Paid with Patient Responsibility">Paid with PR</option>
+                    <option value="Denied">Denied</option>
+                    <option value="Other">Other</option>
+                </select>
+                <button type="button" class="text-red-500 hover:text-red-700 font-bold p-2 rounded-full transition-colors remove-ada-btn">X</button>
+            `;
+            adaCodesContainer.appendChild(div);
+        };
+
+        const calculateWriteoff = () => {
+            const billed = parseFloat(billedInput.value) || 0;
+            const paid = parseFloat(paidInput.value) || 0;
+            const pr = parseFloat(patientRespInput.value) || 0;
+            const secondary = parseFloat(secondaryInput.value) || 0;
+            const writeoff = billed - (paid + pr + secondary);
+            writeoffInput.value = (writeoff >= 0 ? writeoff : 0).toFixed(2);
+        };
+
+        const generateComment = () => {
+            const patient = document.getElementById('patient').value;
+            const dos = document.getElementById('dos').value;
+            // ... (get all other input values) ...
+            const callref = document.getElementById('callref').value;
+            const repName = document.getElementById('repName').value;
+            const callDate = document.getElementById('callDate').value;
+            
+            let comment = `Patient ${patient}, DOS ${dos}, Claim #${claim.value}. Billed: $${billedInput.value}, Ins Paid: $${paidInput.value}, PR: $${patientRespInput.value}, Sec Ins: $${secondaryInput.value}, W/O: $${writeoffInput.value}. Pmt via ${method.value} (${checkno.value}) on ${paydate.value}.`;
+
+            const adaEntries = adaCodesContainer.querySelectorAll('div');
+            const adaTexts = [];
+            adaEntries.forEach(entry => {
+                const code = entry.querySelector('.ada-code-input').value;
+                const status = entry.querySelector('.ada-code-status').value;
+                if (code) adaTexts.push(`ADA ${code} (${status})`);
+            });
+
+            if (adaTexts.length > 0) comment += ` Procedure codes: ${adaTexts.join(', ')}.`;
+
+            const callSummaryParts = [];
+            if (repName.trim()) callSummaryParts.push(`Spoke with ${repName}`);
+            if (callDate.trim()) callSummaryParts.push(`on ${callDate}`);
+            if (callref.trim()) callSummaryParts.push(`Ref# ${callref}`);
+            
+            if(callSummaryParts.length > 0) comment += ` Call Summary: ${callSummaryParts.join(' ')}.`;
+
+            resultDiv.textContent = comment.trim().replace(/\s+/g, ' ');
+            resultContainer.classList.remove('hidden');
+        };
+
+        const copyComment = () => {
+            const commentText = resultDiv.textContent;
+            if (!commentText || !navigator.clipboard) return;
+
+            navigator.clipboard.writeText(commentText).then(() => {
+                showToast();
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+            });
+        };
+        
+        const showToast = () => {
+            if (!toastDiv) return;
+            toastDiv.classList.remove('hidden');
+            setTimeout(() => {
+                toastDiv.classList.add('hidden');
+            }, 2500);
+        };
+
+        // --- Attach Event Listeners ---
+        
+        // Listeners for auto-calculation
+        [billedInput, paidInput, patientRespInput, secondaryInput].forEach(input => {
+            input.addEventListener('input', calculateWriteoff);
+        });
+
+        // Listener for the "Add ADA Code" button
+        addAdaCodeBtn.addEventListener('click', addAdaCode);
+
+        // Listener for removing an ADA code row (uses event delegation)
+        adaCodesContainer.addEventListener('click', function(event) {
+            if (event.target.classList.contains('remove-ada-btn')) {
+                event.target.parentElement.remove();
+            }
+        });
+        
+        // Listeners for action buttons
+        generateCommentBtn.addEventListener('click', generateComment);
+        copyCommentBtn.addEventListener('click', copyComment);
+
+        // --- Initial setup ---
+        addAdaCode(); // Start with one ADA code row by default
+    })();
+</script>

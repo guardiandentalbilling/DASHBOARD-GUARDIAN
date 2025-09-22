@@ -1,0 +1,1415 @@
+<div class="space-y-8">
+    <div class="relative">
+        <div class="h-32 bg-gradient-to-r from-blue-500 to-purple-500 rounded-t-lg shadow-md"></div>
+        
+        <div class="bg-white p-6 rounded-b-lg shadow-md">
+            <div class="pt-20 text-center">
+                <h3 class="text-2xl font-bold text-gray-800">John Doe</h3>
+                <p class="text-gray-500">Billing Specialist</p>
+                <button class="mt-2 px-6 py-2 bg-orange-500 text-white rounded-full text-sm font-semibold hover:bg-orange-600 transition-colors">Edit Profile</button>
+            </div>
+        </div>
+
+        <div class="absolute top-12 left-1/2 -translate-x-1/2">
+            <img class="w-40 h-40 rounded-full border-4 border-white shadow-lg" src="https://placehold.co/160x160/F97316/FFFFFF?text=JD" alt="Profile Picture of John Doe">
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+            <h4 class="text-lg font-bold text-orange-600 mb-4 border-b pb-2">Contact Information</h4>
+            <ul class="space-y-4 text-sm">
+                <li class="flex items-center"><i class="fas fa-envelope w-5 text-center text-gray-400 mr-3"></i><span>john.doe@guardiandb.com</span></li>
+                <li class="flex items-center"><i class="fas fa-phone w-5 text-center text-gray-400 mr-3"></i><span>+1 (555) 123-4567</span></li>
+                <li class="flex items-start"><i class="fas fa-map-marker-alt w-5 text-center text-gray-400 mr-3 mt-1"></i><span>123 Wellness Ave, Suite 100, HealthCity, HC 54321</span></li>
+            </ul>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+            <h4 class="text-lg font-bold text-orange-600 mb-4 border-b pb-2">Employment Details</h4>
+            <div class="space-y-3 text-sm">
+                <div class="flex justify-between"><span class="text-gray-500">Employee ID:</span> <span class="font-semibold text-gray-800">GDB-0789</span></div>
+                <div class="flex justify-between"><span class="text-gray-500">Joining Date:</span> <span class="font-semibold text-gray-800">October 15, 2023</span></div>
+                <div class="flex justify-between"><span class="text-gray-500">Department:</span> <span class="font-semibold text-gray-800">AR Follow-Up</span></div>
+                <div class="flex justify-between"><span class="text-gray-500">Reports To:</span> <span class="font-semibold text-gray-800">Jane Smith</span></div>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+            <h4 class="text-lg font-bold text-orange-600 mb-4 border-b pb-2">Personal Information</h4>
+            <div class="space-y-3 text-sm">
+                <div class="flex justify-between"><span class="text-gray-500">Date of Birth:</span> <span class="font-semibold text-gray-800">January 25, 1995</span></div>
+                <div class="flex justify-between"><span class="text-gray-500">Marital Status:</span> <span class="font-semibold text-gray-800">Single</span></div>
+                <div class="flex justify-between"><span class="text-gray-500">Nationality:</span> <span class="font-semibold text-gray-800">American</span></div>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+            <h4 class="text-lg font-bold text-orange-600 mb-4 border-b pb-2">Documents</h4>
+            <div class="flex flex-col sm:flex-row gap-4">
+                <button class="w-full px-4 py-2 bg-blue-100 text-blue-700 rounded-lg text-sm font-semibold hover:bg-blue-200 transition-colors">View Resume</button>
+                <button class="w-full px-4 py-2 bg-green-100 text-green-700 rounded-lg text-sm font-semibold hover:bg-green-200 transition-colors">View Offer Letter</button>
+                <button class="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-200 transition-colors">View ID Proof</button>
+            </div>
+        </div>
+
+        <!-- Time Tracker (Real-time Sync) -->
+        <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200 lg:col-span-2">
+            <h4 class="text-lg font-bold text-orange-600 mb-4 border-b pb-2">Time Tracker</h4>
+            
+            <!-- Time Tracker Display Section -->
+            <div class="time-tracker-display-section" id="time-tracker-display-section">
+                <!-- Timer Display -->
+                <div class="timer-display-profile mb-6">
+                    <div class="timer-circle-profile bg-gradient-to-br from-purple-500 to-blue-600 mx-auto flex items-center justify-center text-white rounded-full shadow-lg" style="width: 120px; height: 120px;">
+                        <div class="text-center">
+                            <div class="timer-text-profile text-xl font-bold" id="timer-text-profile">00:00:00</div>
+                            <div class="status-text-profile text-xs" id="status-text-profile">⏹ STOPPED</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Current Session Info -->
+                <div class="session-info-profile" id="session-info-profile">
+                    <div class="bg-gray-50 rounded-lg p-4 border">
+                        <h5 class="text-sm font-semibold text-gray-700 mb-2">Current Session</h5>
+                        <p class="text-gray-600 text-sm" id="current-task-profile">No active session</p>
+                        <p class="text-xs text-gray-500 mt-1" id="session-start-time-profile">--</p>
+                    </div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="quick-stats-profile mt-4">
+                    <div class="grid grid-cols-2 gap-3 text-center">
+                        <div class="bg-blue-50 rounded-lg p-3 border border-blue-200">
+                            <div class="text-lg font-bold text-blue-600" id="today-total-profile">0h</div>
+                            <div class="text-xs text-gray-600">Today</div>
+                        </div>
+                        <div class="bg-green-50 rounded-lg p-3 border border-green-200">
+                            <div class="text-lg font-bold text-green-600" id="week-total-profile">0h</div>
+                            <div class="text-xs text-gray-600">This Week</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Link to Full Time Tracker -->
+                <div class="mt-4">
+                    <a href="/time-tracker/time-tracker.html" target="_blank" class="w-full inline-block text-center px-4 py-3 bg-gradient-to-r from-purple-500 to-blue-600 text-white rounded-lg hover:from-purple-600 hover:to-blue-700 transition-all duration-200 font-semibold">
+                        <i class="fas fa-external-link-alt mr-2"></i>Open Full Time Tracker
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enhanced Today's Statistics -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6 p-4 bg-gradient-to-r from-orange-50 to-blue-50 rounded-lg border">
+                <div class="text-center">
+                    <div id="total-time-today-profile" class="text-xl font-bold text-blue-600">00:00:00</div>
+                    <div class="text-xs text-gray-500">Total Time</div>
+                </div>
+                <div class="text-center">
+                    <div id="sessions-today-profile" class="text-xl font-bold text-green-600">0</div>
+                    <div class="text-xs text-gray-500">Sessions</div>
+                </div>
+                <div class="text-center">
+                    <div id="overtime-today-profile" class="text-xl font-bold text-orange-600">00:00:00</div>
+                    <div class="text-xs text-gray-500">Overtime</div>
+                </div>
+                <div class="text-center">
+                    <div id="work-status-profile" class="text-xl font-bold text-gray-800">Not Tracking</div>
+                    <div class="text-xs text-gray-500">Status</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Time Tracking Analytics Section -->
+        <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200 lg:col-span-2">
+            <div id="profile-analytics-container"></div>
+        </div>
+
+        <!-- Enhanced Details Section (Profile Only) -->
+        <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200 lg:col-span-2">
+            <h4 class="text-lg font-bold text-orange-600 mb-4 border-b pb-2">Detailed Work Statistics</h4>
+            
+            <!-- Weekly Performance Summary -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-200">
+                    <h5 class="text-sm font-semibold text-blue-700 mb-3 uppercase">This Week Performance</h5>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">Total Hours:</span>
+                            <span id="week-total-hours" class="font-bold text-blue-700">0:00</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">Average/Day:</span>
+                            <span id="week-avg-hours" class="font-bold text-blue-700">0:00</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">Work Days:</span>
+                            <span id="week-work-days" class="font-bold text-blue-700">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">Efficiency:</span>
+                            <span id="week-efficiency" class="font-bold text-blue-700">--</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border border-green-200">
+                    <h5 class="text-sm font-semibold text-green-700 mb-3 uppercase">This Month Performance</h5>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">Total Hours:</span>
+                            <span id="month-total-hours" class="font-bold text-green-700">0:00</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">Target Progress:</span>
+                            <span id="month-progress" class="font-bold text-green-700">0%</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">Work Days:</span>
+                            <span id="month-work-days" class="font-bold text-green-700">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">Overtime Days:</span>
+                            <span id="month-overtime-days" class="font-bold text-green-700">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Session Details -->
+            <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-6">
+                <h5 class="text-sm font-semibold text-gray-700 mb-3 uppercase">Session Analysis</h5>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="text-center">
+                        <div id="longest-session" class="text-lg font-bold text-purple-600">--:--</div>
+                        <div class="text-xs text-gray-500">Longest Session</div>
+                    </div>
+                    <div class="text-center">
+                        <div id="shortest-session" class="text-lg font-bold text-purple-600">--:--</div>
+                        <div class="text-xs text-gray-500">Shortest Session</div>
+                    </div>
+                    <div class="text-center">
+                        <div id="avg-session-length" class="text-lg font-bold text-purple-600">--:--</div>
+                        <div class="text-xs text-gray-500">Average Session</div>
+                    </div>
+                    <div class="text-center">
+                        <div id="break-time" class="text-lg font-bold text-purple-600">--:--</div>
+                        <div class="text-xs text-gray-500">Break Time</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Work Patterns -->
+            <div class="bg-orange-50 p-4 rounded-lg border border-orange-200">
+                <h5 class="text-sm font-semibold text-orange-700 mb-3 uppercase">Work Patterns & Insights</h5>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-sm text-gray-600">Most Productive Hour:</span>
+                            <span id="productive-hour" class="font-bold text-orange-700">--:--</span>
+                        </div>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-sm text-gray-600">Most Active Day:</span>
+                            <span id="active-day" class="font-bold text-orange-700">--</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">Work Consistency:</span>
+                            <span id="work-consistency" class="font-bold text-orange-700">--</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-sm text-gray-600">Late Night Work:</span>
+                            <span id="late-night-hours" class="font-bold text-orange-700">0:00</span>
+                        </div>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-sm text-gray-600">Weekend Work:</span>
+                            <span id="weekend-hours" class="font-bold text-orange-700">0:00</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">Overtime Frequency:</span>
+                            <span id="overtime-frequency" class="font-bold text-orange-700">--</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attendance History Section -->
+        <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200 lg:col-span-2">
+            <div class="flex justify-between items-center mb-4 border-b pb-2">
+                <h4 class="text-lg font-bold text-orange-600">Attendance History</h4>
+                <select id="attendance-filter" class="text-sm border border-gray-300 rounded-lg px-3 py-1">
+                    <option value="7">Last 7 days</option>
+                    <option value="30" selected>Last 30 days</option>
+                    <option value="90">Last 3 months</option>
+                </select>
+            </div>
+            
+            <div id="attendance-summary" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
+                <div class="text-center">
+                    <div class="text-xl font-bold text-gray-800" id="total-days">0</div>
+                    <div class="text-xs text-gray-500">Days Worked</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-xl font-bold text-blue-600" id="total-hours">0</div>
+                    <div class="text-xs text-gray-500">Total Hours</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-xl font-bold text-green-600" id="avg-hours">0</div>
+                    <div class="text-xs text-gray-500">Avg/Day</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-xl font-bold text-orange-600" id="total-overtime">0</div>
+                    <div class="text-xs text-gray-500">Overtime</div>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="p-3 text-left font-semibold text-gray-600">Date</th>
+                            <th class="p-3 text-left font-semibold text-gray-600">Check In</th>
+                            <th class="p-3 text-left font-semibold text-gray-600">Check Out</th>
+                            <th class="p-3 text-left font-semibold text-gray-600">Hours</th>
+                            <th class="p-3 text-left font-semibold text-gray-600">Overtime</th>
+                            <th class="p-3 text-left font-semibold text-gray-600">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="attendance-table-body">
+                        <tr>
+                            <td colspan="6" class="p-6 text-center text-gray-500">Loading attendance history...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200 lg:col-span-2">
+            <h4 class="text-lg font-bold text-orange-600 mb-4 border-b pb-2">Emergency Contact</h4>
+            <div class="space-y-3 text-sm">
+                <div class="flex justify-between"><span class="text-gray-500">Contact Name:</span> <span class="font-semibold text-gray-800">Sarah Doe</span></div>
+                <div class="flex justify-between"><span class="text-gray-500">Relationship:</span> <span class="font-semibold text-gray-800">Spouse</span></div>
+                <div class="flex justify-between"><span class="text-gray-500">Phone Number:</span> <span class="font-semibold text-gray-800">+1 (555) 765-4321</span></div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+(function() {
+    let attendanceTimer = null;
+    let checkInTime = null;
+
+    // Initialize profile attendance system
+    function initializeProfileAttendance() {
+        const employeeId = getCurrentEmployeeId();
+        
+        // Load current attendance status
+        loadAttendanceStatusProfile(employeeId);
+        loadAttendanceHistory(employeeId);
+
+        // Event listeners
+        document.getElementById('checkin-btn-profile').addEventListener('click', () => checkInProfile(employeeId));
+        document.getElementById('checkout-btn-profile').addEventListener('click', () => checkOutProfile(employeeId));
+        document.getElementById('attendance-filter').addEventListener('change', () => loadAttendanceHistory(employeeId));
+    }
+
+    function getCurrentEmployeeId() {
+        return localStorage.getItem('currentEmployeeId') || '64a7c8b2c3d4e5f6789012ab';
+    }
+
+    async function loadAttendanceStatusProfile(employeeId) {
+        try {
+            const response = await fetch(`http://localhost:5000/api/attendance/status/${employeeId}`);
+            if (response.ok) {
+                const data = await response.json();
+                updateAttendanceUIProfile(data);
+            }
+        } catch (error) {
+            console.error('Error loading attendance status:', error);
+            document.getElementById('attendance-status-profile').textContent = 'Unavailable';
+        }
+    }
+
+    async function checkInProfile(employeeId) {
+        try {
+            const response = await fetch('http://localhost:5000/api/attendance/checkin', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    employeeId: employeeId,
+                    checkInLocation: 'Office',
+                    ipAddress: await getClientIP()
+                })
+            });
+
+            const result = await response.json();
+            
+            if (response.ok) {
+                showNotificationProfile('Checked in successfully!', 'success');
+                loadAttendanceStatusProfile(employeeId);
+                loadAttendanceHistory(employeeId);
+            } else {
+                showNotificationProfile(result.msg, 'error');
+            }
+        } catch (error) {
+            console.error('Error checking in:', error);
+            showNotificationProfile('Error checking in. Please try again.', 'error');
+        }
+    }
+
+    async function checkOutProfile(employeeId) {
+        try {
+            const response = await fetch('http://localhost:5000/api/attendance/checkout', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    employeeId: employeeId,
+                    checkOutLocation: 'Office',
+                    ipAddress: await getClientIP()
+                })
+            });
+
+            const result = await response.json();
+            
+            if (response.ok) {
+                const overtimeMsg = result.overtimeHours > 0 ? 
+                    ` You worked ${result.overtimeHours.toFixed(2)} hours overtime today!` : '';
+                showNotificationProfile(`Checked out successfully! Total: ${result.totalHours.toFixed(2)} hours.${overtimeMsg}`, 'success');
+                loadAttendanceStatusProfile(employeeId);
+                loadAttendanceHistory(employeeId);
+            } else {
+                showNotificationProfile(result.msg, 'error');
+            }
+        } catch (error) {
+            console.error('Error checking out:', error);
+            showNotificationProfile('Error checking out. Please try again.', 'error');
+        }
+    }
+
+    function updateAttendanceUIProfile(data) {
+        const checkinBtn = document.getElementById('checkin-btn-profile');
+        const checkoutBtn = document.getElementById('checkout-btn-profile');
+        const statusElement = document.getElementById('attendance-status-profile');
+        const workingHoursElement = document.getElementById('working-hours-profile');
+        const overtimeElement = document.getElementById('overtime-hours-profile');
+
+        // Update button states
+        checkinBtn.disabled = !data.canCheckIn;
+        checkoutBtn.disabled = !data.canCheckOut;
+
+        // Update status
+        statusElement.textContent = data.status;
+        statusElement.className = `text-2xl font-bold ${
+            data.status === 'Checked In' ? 'text-green-600' : 
+            data.status === 'Checked Out' ? 'text-blue-600' : 'text-gray-800'
+        }`;
+
+        // Update working hours
+        if (data.status === 'Checked In' && data.checkInTime) {
+            checkInTime = new Date(data.checkInTime);
+            startTimerProfile();
+        } else {
+            stopTimerProfile();
+            
+            if (data.totalHours) {
+                workingHoursElement.textContent = formatHours(data.totalHours);
+                overtimeElement.textContent = formatHours(data.overtimeHours || 0);
+            } else {
+                workingHoursElement.textContent = '0:00';
+                overtimeElement.textContent = '0:00';
+            }
+        }
+    }
+
+    function startTimerProfile() {
+        stopTimerProfile();
+        
+        attendanceTimer = setInterval(() => {
+            if (checkInTime) {
+                const now = new Date();
+                const diff = now - checkInTime;
+                const totalHours = diff / (1000 * 60 * 60);
+                const regularHours = Math.min(totalHours, 8.5);
+                const overtimeHours = Math.max(totalHours - 8.5, 0);
+                
+                document.getElementById('working-hours-profile').textContent = formatHours(totalHours);
+                document.getElementById('overtime-hours-profile').textContent = formatHours(overtimeHours);
+            }
+        }, 1000);
+    }
+
+    function stopTimerProfile() {
+        if (attendanceTimer) {
+            clearInterval(attendanceTimer);
+            attendanceTimer = null;
+        }
+    }
+
+    async function loadAttendanceHistory(employeeId) {
+        try {
+            const days = document.getElementById('attendance-filter').value;
+            const response = await fetch(`http://localhost:5000/api/attendance/history/${employeeId}?limit=${days}`);
+            
+            if (response.ok) {
+                const data = await response.json();
+                updateAttendanceHistory(data);
+            }
+        } catch (error) {
+            console.error('Error loading attendance history:', error);
+        }
+    }
+
+    function updateAttendanceHistory(data) {
+        const tbody = document.getElementById('attendance-table-body');
+        const { attendance, summary } = data;
+
+        // Update summary
+        document.getElementById('total-days').textContent = summary.totalDays;
+        document.getElementById('total-hours').textContent = formatHours(summary.totalHours);
+        document.getElementById('avg-hours').textContent = formatHours(summary.averageHoursPerDay);
+        document.getElementById('total-overtime').textContent = formatHours(summary.totalOvertimeHours);
+
+        // Update table
+        tbody.innerHTML = '';
+
+        if (attendance.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-gray-500">No attendance records found</td></tr>';
+            return;
+        }
+
+        attendance.forEach(record => {
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-gray-50';
+            
+            const statusBadge = getStatusBadge(record.status);
+            const overtimeDisplay = record.overtimeHours > 0 ? formatHours(record.overtimeHours) : '-';
+            
+            row.innerHTML = `
+                <td class="p-3 border-t">${formatDate(record.date)}</td>
+                <td class="p-3 border-t">${record.checkInTime ? formatTime(record.checkInTime) : '-'}</td>
+                <td class="p-3 border-t">${record.checkOutTime ? formatTime(record.checkOutTime) : '-'}</td>
+                <td class="p-3 border-t">${record.totalHours ? formatHours(record.totalHours) : '-'}</td>
+                <td class="p-3 border-t">${overtimeDisplay}</td>
+                <td class="p-3 border-t">${statusBadge}</td>
+            `;
+            
+            tbody.appendChild(row);
+        });
+    }
+
+    function formatHours(hours) {
+        const h = Math.floor(hours);
+        const m = Math.floor((hours - h) * 60);
+        return `${h}:${m.toString().padStart(2, '0')}`;
+    }
+
+    function formatDate(dateString) {
+        return new Date(dateString).toLocaleDateString();
+    }
+
+    function formatTime(timeString) {
+        return new Date(timeString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function getStatusBadge(status) {
+        const badges = {
+            'Checked In': '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Checked In</span>',
+            'Checked Out': '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">Complete</span>',
+            'Incomplete': '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Incomplete</span>'
+        };
+        return badges[status] || '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">Unknown</span>';
+    }
+
+    async function getClientIP() {
+        try {
+            const response = await fetch('https://api.ipify.org?format=json');
+            const data = await response.json();
+            return data.ip;
+        } catch (error) {
+            return 'Unknown';
+        }
+    }
+
+    function showNotificationProfile(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 transition-all duration-300 ${
+            type === 'success' ? 'bg-green-500 text-white' : 
+            type === 'error' ? 'bg-red-500 text-white' : 
+            'bg-blue-500 text-white'
+        }`;
+        notification.textContent = message;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    document.body.removeChild(notification);
+                }
+            }, 300);
+        }, 5000);
+    }
+
+    // Initialize when page loads
+    initializeProfileAttendance();
+})();
+</script>
+
+<!-- Enhanced Profile Time Tracking Integration -->
+<script src="../time-tracker/js/time-tracking-service.js"></script>
+<script src="../js/profile-time-tracker.js"></script>
+<script src="../time-tracker/js/time-tracking-analytics.js"></script>
+
+<script>
+// EST Time and Work Day Display
+(function() {
+    function updateESTTimeDisplay() {
+        const now = new Date();
+        const estTime = new Date(now.toLocaleString("en-US", {timeZone: "America/New_York"}));
+        
+        const timeElement = document.getElementById('current-est-time');
+        const workDayElement = document.getElementById('current-work-day');
+        
+        if (timeElement) {
+            timeElement.textContent = estTime.toLocaleTimeString();
+        }
+        
+        if (workDayElement) {
+            const hour = estTime.getHours();
+            let workDate = new Date(estTime);
+            
+            // If it's before 4 AM EST, it's part of previous calendar day's work day
+            if (hour < 4) {
+                workDate.setDate(workDate.getDate() - 1);
+            }
+            // If it's 4 AM or later but before 5 PM, show "Off Hours"
+            else if (hour >= 4 && hour < 17) {
+                workDayElement.textContent = 'Off Hours';
+                workDayElement.className = 'text-gray-500';
+                return;
+            }
+            
+            // Show work day date
+            workDayElement.textContent = workDate.toLocaleDateString();
+            workDayElement.className = 'text-blue-600 font-semibold';
+        }
+    }
+    
+    // Update every second
+    setInterval(updateESTTimeDisplay, 1000);
+    updateESTTimeDisplay(); // Initial call
+})();
+
+// Initialize ProfileTimeTracker
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('Profile page: DOM loaded, initializing ProfileTimeTracker');
+    
+    // Wait a bit for other scripts to load
+    setTimeout(() => {
+        if (window.ProfileTimeTracker && window.TimeTrackingService) {
+            window.profileTimeTracker = new window.ProfileTimeTracker();
+            
+            console.log('Profile page: ProfileTimeTracker initialized');
+            
+            // Initialize analytics
+            if (window.TimeTrackingAnalytics) {
+                window.profileAnalytics = new window.TimeTrackingAnalytics(
+                    'profile-analytics-container', 
+                    window.TimeTrackingService
+                );
+                console.log('Profile page: Analytics initialized');
+            }
+            
+            // Initialize Profile Time Tracker Interface
+            initializeProfileTimeTracker();
+            
+            // Override check-in/check-out buttons if they exist
+            const checkinBtn = document.getElementById('checkin-btn-profile');
+            const checkoutBtn = document.getElementById('checkout-btn-profile');
+            
+            if (checkinBtn) {
+                console.log('Profile page: Connecting check-in button');
+                checkinBtn.onclick = (e) => {
+                    e.preventDefault();
+                    window.profileTimeTracker.integratedCheckIn();
+                };
+            }
+            
+            if (checkoutBtn) {
+                console.log('Profile page: Connecting check-out button');
+                checkoutBtn.onclick = (e) => {
+                    e.preventDefault();
+                    window.profileTimeTracker.integratedCheckOut();
+                };
+            }
+            
+        } else {
+            console.error('Profile page: Required services not available');
+        }
+    }, 1500);
+});
+
+// Profile Time Tracker Functions
+function initializeProfileTimeTracker() {
+    console.log('Profile page: Initializing time tracker interface');
+    
+    if (!window.TimeTrackingService) {
+        console.error('Profile page: TimeTrackingService not available');
+        return;
+    }
+    
+    // Initialize time tracker service for profile
+    // Use the same instance as the Time Tracker page for consistency
+    if (!window.timeTracker) {
+        window.timeTracker = new window.TimeTrackingService();
+    }
+    window.profileTracker = window.timeTracker; // Reference to the same instance
+    console.log('Profile page: TimeTrackingService created/referenced:', window.timeTracker);
+    
+    // Start real-time sync
+    startProfileTimeTrackerSync();
+}
+
+function startProfileTimeTrackerSync() {
+    console.log('Profile page: Starting real-time sync');
+    
+    // Update profile display every second
+    setInterval(() => {
+        updateProfileTimeTrackerDisplay();
+    }, 1000);
+    
+    // Listen for storage changes (cross-tab sync)
+    window.addEventListener('storage', (e) => {
+        if (e.key && e.key.includes('guardian_time_tracker')) {
+            updateProfileTimeTrackerDisplay();
+        }
+    });
+    
+    // Initial update
+    updateProfileTimeTrackerDisplay();
+}
+
+function updateProfileTimeTrackerDisplay() {
+    if (!window.timeTracker) return;
+    
+    try {
+        const status = window.timeTracker.getStatus();
+        
+        // Update timer display
+        const timerTextEl = document.getElementById('timer-text-profile');
+        const statusTextEl = document.getElementById('status-text-profile');
+        
+        if (timerTextEl && statusTextEl) {
+            if (status.isTracking) {
+                const elapsed = status.currentElapsed || 0;
+                timerTextEl.textContent = window.timeTracker.constructor.formatTime(elapsed);
+                statusTextEl.textContent = status.isActive ? '▶ TRACKING' : '⏸ PAUSED';
+            } else {
+                timerTextEl.textContent = '00:00:00';
+                statusTextEl.textContent = '⏹ STOPPED';
+            }
+        }
+        
+        // Update session info
+        const currentTaskEl = document.getElementById('current-task-profile');
+        const sessionStartEl = document.getElementById('session-start-time-profile');
+        
+        if (currentTaskEl && sessionStartEl) {
+            if (status.isTracking && status.currentSession) {
+                currentTaskEl.textContent = status.currentSession.description || 'Working';
+                const startTime = new Date(status.currentSession.startTime);
+                sessionStartEl.textContent = `Started: ${startTime.toLocaleTimeString()}`;
+            } else {
+                currentTaskEl.textContent = 'No active session';
+                sessionStartEl.textContent = '--';
+            }
+        }
+        
+        // Update quick stats
+        updateProfileQuickStats();
+        
+    } catch (error) {
+        console.warn('Profile page: Error updating time tracker display:', error);
+    }
+}
+
+function updateProfileQuickStats() {
+    if (!window.timeTracker) return;
+    
+    try {
+        // Get today's analytics
+        const todayAnalytics = window.timeTracker.getAnalytics('today');
+        const weekAnalytics = window.timeTracker.getAnalytics('current_week');
+        
+        const todayTotalEl = document.getElementById('today-total-profile');
+        const weekTotalEl = document.getElementById('week-total-profile');
+        
+        if (todayTotalEl) {
+            todayTotalEl.textContent = formatProfileHours(todayAnalytics.totalTime);
+        }
+        
+        if (weekTotalEl) {
+            weekTotalEl.textContent = formatProfileHours(weekAnalytics.totalTime);
+        }
+        
+    } catch (error) {
+        console.warn('Profile page: Error updating quick stats:', error);
+    }
+}
+
+function formatProfileHours(milliseconds) {
+    if (!milliseconds || milliseconds === 0) return '0h';
+    
+    const hours = Math.floor(milliseconds / (1000 * 60 * 60));
+    const minutes = Math.floor((milliseconds % (1000 * 60 * 60)) / (1000 * 60));
+    
+    if (hours === 0 && minutes === 0) return '0h';
+    if (hours === 0) return `${minutes}m`;
+    if (minutes === 0) return `${hours}h`;
+    
+    return `${hours}h ${minutes}m`;
+}
+
+// Start real-time sync for Profile time tracker display
+function startProfileTimeTrackerSync() {
+    // Update display every 10 seconds
+    setInterval(() => {
+        updateProfileTimeTrackerDisplay();
+    }, 10000);
+    
+    // Listen for localStorage changes from other tabs/pages
+    window.addEventListener('storage', (event) => {
+        if (event.key && event.key.includes('guardian_session_current')) {
+            updateProfileTimeTrackerDisplay();
+        }
+    });
+    
+    // Listen for custom events from time tracker
+    window.addEventListener('timeTrackerUpdate', (event) => {
+        console.log('Profile received time tracker update:', event.detail);
+        updateProfileTimeTrackerDisplay();
+    });
+    
+    // Initial update
+    updateProfileTimeTrackerDisplay();
+}
+
+// Update the Profile time tracker display based on actual status
+function updateProfileTimeTrackerDisplay() {
+    try {
+        // Get current session from localStorage 
+        const currentSessionKey = Object.keys(localStorage).find(key => 
+            key.includes('guardian_session_current') && localStorage.getItem(key)
+        );
+        
+        const statusEl = document.getElementById('status-text-profile');
+        const timerTextEl = document.getElementById('timer-text-profile');
+        const timerCircle = document.querySelector('.timer-circle-profile');
+        
+        if (currentSessionKey) {
+            const sessionData = JSON.parse(localStorage.getItem(currentSessionKey));
+            
+            if (sessionData && sessionData.startTime && !sessionData.endTime) {
+                // Session is active
+                if (statusEl) statusEl.textContent = '▶ TRACKING';
+                if (timerCircle) timerCircle.classList.add('tracking');
+                
+                // Calculate elapsed time
+                const elapsed = Date.now() - sessionData.startTime;
+                const hours = Math.floor(elapsed / (1000 * 60 * 60));
+                const minutes = Math.floor((elapsed % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((elapsed % (1000 * 60)) / 1000);
+                
+                if (timerTextEl) {
+                    timerTextEl.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                }
+                
+                updateProfileQuickStats(true);
+                return;
+            }
+        }
+        
+        // No active session
+        if (statusEl) statusEl.textContent = '⏹ NOT TRACKING';
+        if (timerCircle) timerCircle.classList.remove('tracking');
+        if (timerTextEl) timerTextEl.textContent = '00:00:00';
+        
+        updateProfileQuickStats(false);
+        
+    } catch (error) {
+        console.error('Error updating Profile time tracker display:', error);
+    }
+}
+
+// Update quick stats on Profile
+function updateProfileQuickStats(isTracking) {
+    try {
+        // Get today's sessions
+        const today = new Date().toISOString().split('T')[0];
+        const employeeId = 'emp_default'; // This should be dynamic
+        const todaySessionsKey = `guardian_sessions_${employeeId}_${today}`;
+        const todaySessions = JSON.parse(localStorage.getItem(todaySessionsKey) || '[]');
+        
+        // Calculate total time today
+        let totalTime = 0;
+        todaySessions.forEach(session => {
+            if (session.endTime) {
+                totalTime += session.duration || 0;
+            }
+        });
+        
+        // Add current session time if tracking
+        if (isTracking) {
+            const currentSessionKey = Object.keys(localStorage).find(key => 
+                key.includes('guardian_session_current') && localStorage.getItem(key)
+            );
+            if (currentSessionKey) {
+                const sessionData = JSON.parse(localStorage.getItem(currentSessionKey));
+                if (sessionData && sessionData.startTime) {
+                    totalTime += Date.now() - sessionData.startTime;
+                }
+            }
+        }
+        
+        // Update display
+        const totalTimeEl = document.getElementById('total-time-today-profile');
+        const sessionsEl = document.getElementById('sessions-today-profile');
+        const statusEl = document.getElementById('work-status-profile');
+        
+        if (totalTimeEl) totalTimeEl.textContent = formatProfileHours(totalTime);
+        if (sessionsEl) sessionsEl.textContent = todaySessions.length;
+        if (statusEl) statusEl.textContent = isTracking ? 'Tracking' : 'Not Tracking';
+        
+    } catch (error) {
+        console.error('Error updating Profile quick stats:', error);
+    }
+}
+
+// Format time duration for Profile display
+function formatProfileHours(milliseconds) {
+    const hours = Math.floor(milliseconds / (1000 * 60 * 60));
+    const minutes = Math.floor((milliseconds % (1000 * 60 * 60)) / (1000 * 60));
+    return `${hours}h ${minutes}m`;
+}
+
+// Call initialization when page loads
+document.addEventListener('DOMContentLoaded', () => {
+    // Wait for services to be available
+    setTimeout(() => {
+        initializeProfileTimeTracker();
+        startProfileTimeTrackerSync(); // Add real-time sync
+    }, 2000);
+});
+</script>
+
+<style>
+/* Profile Time Tracker Styles */
+.timer-circle-profile {
+    position: relative;
+    display: inline-block;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    box-shadow: 0 8px 25px rgba(249, 115, 22, 0.3);
+}
+
+.timer-text-profile {
+    font-size: 20px;
+    font-weight: 700;
+    color: white;
+    font-family: 'Courier New', monospace;
+    margin-bottom: 6px;
+}
+
+.status-indicator-profile {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 3px 10px;
+    border-radius: 15px;
+    font-size: 10px;
+    font-weight: 600;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.control-section-profile {
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.start-section-profile,
+.tracking-section-profile {
+    transition: all 0.3s ease;
+}
+
+.current-task-profile {
+    text-align: center;
+}
+
+.current-task-profile h5 {
+    color: #374151;
+    margin-bottom: 8px;
+    font-size: 12px;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.current-task-profile p {
+    color: #1f2937;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.current-task-profile small {
+    color: #6b7280;
+    font-size: 11px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+#work-day-status-profile.work-hours {
+    color: #16a34a !important;
+}
+
+#work-day-status-profile.outside-hours {
+    color: #dc2626 !important;
+}
+
+/* Animation for timer circle */
+.timer-circle-profile.tracking {
+    animation: pulse-orange 2s infinite;
+}
+
+@keyframes pulse-orange {
+    0% {
+        box-shadow: 0 8px 25px rgba(249, 115, 22, 0.3);
+    }
+    50% {
+        box-shadow: 0 8px 35px rgba(249, 115, 22, 0.6);
+    }
+    100% {
+        box-shadow: 0 8px 25px rgba(249, 115, 22, 0.3);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .timer-circle-profile {
+        width: 140px;
+        height: 140px;
+    }
+    
+    .timer-text-profile {
+        font-size: 18px;
+    }
+}
+</style>
+    
+    console.log('Profile page: Task description:', description);
+    console.log('Profile page: timeTracker service:', window.timeTracker);
+    
+    if (!window.timeTracker) {
+        console.error('Profile page: No timeTracker service available');
+        showProfileNotification('Time tracking service not available', 'error');
+        return;
+    }
+    
+    try {
+        const result = await window.timeTracker.startTracking(description);
+        console.log('Profile page: Start tracking result:', result);
+        
+        if (result) {
+            taskInput.value = '';
+            showProfileNotification('Time tracking started!', 'success');
+            
+            // Notify other pages
+            broadcastTimeTrackerUpdate('tracking', { description });
+        } else {
+            showProfileNotification('Cannot start tracking outside work hours (5 PM - 4 AM EST)', 'error');
+        }
+    } catch (error) {
+        console.error('Profile page: Error starting tracking:', error);
+        showProfileNotification('Error starting time tracking', 'error');
+    }
+}
+
+async function stopProfileTracking() {
+    try {
+        const session = await window.timeTracker.stopTracking();
+        if (session) {
+            const hours = (session.duration / (1000 * 60 * 60)).toFixed(2);
+            const overtimeText = session.isOvertime ? ' (Overtime)' : '';
+            showProfileNotification(`Session completed: ${hours} hours${overtimeText}`, 'success');
+            
+            // Refresh analytics
+            if (window.profileAnalytics) {
+                window.profileAnalytics.refreshAnalytics();
+            }
+            
+            // Update enhanced details
+            setTimeout(() => updateProfileEnhancedDetails(), 500);
+            
+            // Notify other pages
+            broadcastTimeTrackerUpdate('stopped', session);
+        }
+    } catch (error) {
+        console.error('Profile page: Error stopping tracking:', error);
+        showProfileNotification('Error stopping time tracking', 'error');
+    }
+}
+
+function pauseProfileTracking() {
+    if (window.profileTracker.pauseTracking()) {
+        showProfileNotification('Time tracking paused', 'info');
+        broadcastTimeTrackerUpdate('paused');
+    }
+}
+
+function resumeProfileTracking() {
+    if (window.profileTracker.resumeTracking()) {
+        showProfileNotification('Time tracking resumed', 'success');
+        broadcastTimeTrackerUpdate('tracking');
+    }
+}
+
+function updateProfileUI(status) {
+    const startSection = document.getElementById('start-section-profile');
+    const trackingSection = document.getElementById('tracking-section-profile');
+    const statusText = document.getElementById('status-text-profile');
+    const pauseButton = document.getElementById('pause-button-profile');
+    const resumeButton = document.getElementById('resume-button-profile');
+    const currentTaskDesc = document.getElementById('current-task-desc-profile');
+    const startTime = document.getElementById('start-time-profile');
+    const timerCircle = document.querySelector('.timer-circle-profile');
+
+    if (!startSection || !trackingSection) return;
+
+    // Update status display
+    if (statusText) {
+        const statusIcons = {
+            'tracking': '▶ TRACKING',
+            'paused': '⏸ PAUSED',
+            'stopped': '⏹ STOPPED'
+        };
+        statusText.textContent = statusIcons[status.status] || '⏹ STOPPED';
+    }
+
+    // Update timer circle animation
+    if (timerCircle) {
+        if (status.status === 'tracking') {
+            timerCircle.classList.add('tracking');
+        } else {
+            timerCircle.classList.remove('tracking');
+        }
+    }
+
+    // Show/hide sections
+    if (status.status === 'stopped') {
+        startSection.classList.remove('hidden');
+        trackingSection.classList.add('hidden');
+    } else {
+        startSection.classList.add('hidden');
+        trackingSection.classList.remove('hidden');
+        
+        // Update task info
+        if (currentTaskDesc && status.currentSession) {
+            currentTaskDesc.textContent = status.currentSession.description;
+        }
+        
+        if (startTime && status.currentSession) {
+            const start = new Date(status.currentSession.startTime);
+            startTime.textContent = `Started: ${start.toLocaleTimeString('en-US', { hour12: true })}`;
+        }
+        
+        // Show/hide pause/resume buttons
+        if (pauseButton && resumeButton) {
+            if (status.status === 'paused') {
+                pauseButton.classList.add('hidden');
+                resumeButton.classList.remove('hidden');
+            } else {
+                pauseButton.classList.remove('hidden');
+                resumeButton.classList.add('hidden');
+            }
+        }
+    }
+
+    // Update today's summary
+    updateProfileTodaysSummary();
+    
+    // Update enhanced details (Profile specific)
+    updateProfileEnhancedDetails();
+}
+
+function updateProfileTimer(timeData) {
+    const timerText = document.getElementById('timer-text-profile');
+    if (timerText && timeData.formattedTime) {
+        timerText.textContent = timeData.formattedTime;
+    }
+}
+
+function updateProfileTodaysSummary() {
+    if (!window.profileTracker) return;
+    
+    const analytics = window.profileTracker.getAnalytics('today');
+    
+    const totalTimeEl = document.getElementById('total-time-today-profile');
+    const sessionsEl = document.getElementById('sessions-today-profile');
+    const overtimeEl = document.getElementById('overtime-today-profile');
+    const statusEl = document.getElementById('work-status-profile');
+    
+    if (totalTimeEl) totalTimeEl.textContent = formatProfileDuration(analytics.totalHours * 3600000);
+    if (sessionsEl) sessionsEl.textContent = analytics.sessions;
+    if (overtimeEl) overtimeEl.textContent = formatProfileDuration(analytics.overtime * 3600000);
+    if (statusEl) statusEl.textContent = window.profileTracker.getStatus().status === 'tracking' ? 'Tracking' : 'Not Tracking';
+}
+
+function updateProfileEnhancedDetails() {
+    if (!window.profileTracker) return;
+    
+    // Get analytics for different periods
+    const weekAnalytics = window.profileTracker.getAnalytics('current_week');
+    const monthAnalytics = window.profileTracker.getAnalytics('this_month');
+    const lifetimeAnalytics = window.profileTracker.getAnalytics('lifetime');
+    
+    // Update weekly performance
+    updateWeeklyPerformance(weekAnalytics);
+    
+    // Update monthly performance
+    updateMonthlyPerformance(monthAnalytics);
+    
+    // Update session analysis
+    updateSessionAnalysis(lifetimeAnalytics);
+    
+    // Update work patterns
+    updateWorkPatterns(lifetimeAnalytics);
+}
+
+function updateWeeklyPerformance(analytics) {
+    const weekTotalEl = document.getElementById('week-total-hours');
+    const weekAvgEl = document.getElementById('week-avg-hours');
+    const weekDaysEl = document.getElementById('week-work-days');
+    const weekEfficiencyEl = document.getElementById('week-efficiency');
+    
+    if (weekTotalEl) weekTotalEl.textContent = formatProfileDuration(analytics.totalHours * 3600000);
+    if (weekAvgEl) weekAvgEl.textContent = formatProfileDuration((analytics.averagePerDay || 0) * 3600000);
+    if (weekDaysEl) weekDaysEl.textContent = analytics.workDays || 0;
+    
+    // Calculate efficiency (target 8 hours per work day)
+    if (weekEfficiencyEl) {
+        const targetHours = (analytics.workDays || 0) * 8;
+        const efficiency = targetHours > 0 ? Math.round((analytics.totalHours / targetHours) * 100) : 0;
+        weekEfficiencyEl.textContent = `${Math.min(efficiency, 100)}%`;
+        weekEfficiencyEl.className = `font-bold ${efficiency >= 90 ? 'text-green-700' : efficiency >= 70 ? 'text-orange-700' : 'text-red-700'}`;
+    }
+}
+
+function updateMonthlyPerformance(analytics) {
+    const monthTotalEl = document.getElementById('month-total-hours');
+    const monthProgressEl = document.getElementById('month-progress');
+    const monthDaysEl = document.getElementById('month-work-days');
+    const monthOvertimeEl = document.getElementById('month-overtime-days');
+    
+    if (monthTotalEl) monthTotalEl.textContent = formatProfileDuration(analytics.totalHours * 3600000);
+    if (monthDaysEl) monthDaysEl.textContent = analytics.workDays || 0;
+    
+    // Calculate monthly progress (target 160 hours per month)
+    if (monthProgressEl) {
+        const targetHours = 160; // 20 work days * 8 hours
+        const progress = Math.round((analytics.totalHours / targetHours) * 100);
+        monthProgressEl.textContent = `${Math.min(progress, 100)}%`;
+        monthProgressEl.className = `font-bold ${progress >= 90 ? 'text-green-700' : progress >= 70 ? 'text-orange-700' : 'text-red-700'}`;
+    }
+    
+    // Count overtime days (simplified calculation)
+    if (monthOvertimeEl) {
+        const overtimeDays = Math.round(analytics.overtime / 8) || 0;
+        monthOvertimeEl.textContent = overtimeDays;
+    }
+}
+
+function updateSessionAnalysis(analytics) {
+    const longestEl = document.getElementById('longest-session');
+    const shortestEl = document.getElementById('shortest-session');
+    const avgLengthEl = document.getElementById('avg-session-length');
+    const breakTimeEl = document.getElementById('break-time');
+    
+    // Get session data from localStorage
+    const sessionIndex = JSON.parse(localStorage.getItem(`guardian_session_index_${window.profileTracker?.employeeId || 'default'}`) || '[]');
+    
+    if (sessionIndex.length > 0) {
+        const durations = sessionIndex.map(s => s.duration).filter(d => d > 0);
+        
+        if (durations.length > 0) {
+            const longest = Math.max(...durations);
+            const shortest = Math.min(...durations);
+            const average = durations.reduce((a, b) => a + b, 0) / durations.length;
+            
+            if (longestEl) longestEl.textContent = formatProfileDuration(longest);
+            if (shortestEl) shortestEl.textContent = formatProfileDuration(shortest);
+            if (avgLengthEl) avgLengthEl.textContent = formatProfileDuration(average);
+        }
+    }
+    
+    // Calculate break time (simplified)
+    if (breakTimeEl) {
+        const totalWorkTime = analytics.totalHours * 3600000;
+        const estimatedBreakTime = Math.max(0, (analytics.workDays * 3600000) - totalWorkTime); // Very rough estimate
+        breakTimeEl.textContent = formatProfileDuration(estimatedBreakTime);
+    }
+}
+
+function updateWorkPatterns(analytics) {
+    const productiveHourEl = document.getElementById('productive-hour');
+    const activeDayEl = document.getElementById('active-day');
+    const consistencyEl = document.getElementById('work-consistency');
+    const lateNightEl = document.getElementById('late-night-hours');
+    const weekendEl = document.getElementById('weekend-hours');
+    const overtimeFreqEl = document.getElementById('overtime-frequency');
+    
+    // Get session data for pattern analysis
+    const sessionIndex = JSON.parse(localStorage.getItem(`guardian_session_index_${window.profileTracker?.employeeId || 'default'}`) || '[]');
+    
+    if (sessionIndex.length > 0) {
+        // Most productive hour (simplified - just find most common start hour)
+        const startHours = sessionIndex.map(s => new Date(s.startTime).getHours());
+        const hourCounts = {};
+        startHours.forEach(hour => hourCounts[hour] = (hourCounts[hour] || 0) + 1);
+        const mostCommonHour = Object.keys(hourCounts).reduce((a, b) => hourCounts[a] > hourCounts[b] ? a : b);
+        
+        if (productiveHourEl) {
+            const hour12 = mostCommonHour % 12 || 12;
+            const ampm = mostCommonHour >= 12 ? 'PM' : 'AM';
+            productiveHourEl.textContent = `${hour12}:00 ${ampm}`;
+        }
+        
+        // Most active day
+        const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const dayOfWeeks = sessionIndex.map(s => new Date(s.startTime).getDay());
+        const dayCounts = {};
+        dayOfWeeks.forEach(day => dayCounts[day] = (dayCounts[day] || 0) + 1);
+        const mostActiveDay = Object.keys(dayCounts).reduce((a, b) => dayCounts[a] > dayCounts[b] ? a : b);
+        
+        if (activeDayEl) activeDayEl.textContent = dayNames[mostActiveDay] || '--';
+        
+        // Work consistency (how many days worked vs total days)
+        const uniqueDays = new Set(sessionIndex.map(s => new Date(s.startTime).toDateString())).size;
+        const daysSinceFirst = sessionIndex.length > 0 ? 
+            Math.ceil((Date.now() - new Date(sessionIndex[0].startTime)) / (1000 * 60 * 60 * 24)) : 0;
+        const consistency = daysSinceFirst > 0 ? Math.round((uniqueDays / daysSinceFirst) * 100) : 0;
+        
+        if (consistencyEl) {
+            consistencyEl.textContent = `${Math.min(consistency, 100)}%`;
+            consistencyEl.className = `font-bold ${consistency >= 80 ? 'text-green-700' : consistency >= 60 ? 'text-orange-700' : 'text-red-700'}`;
+        }
+        
+        // Late night work (after 10 PM EST)
+        const lateNightSessions = sessionIndex.filter(s => {
+            const hour = new Date(s.startTime).getHours();
+            return hour >= 22 || hour <= 4; // 10 PM to 4 AM
+        });
+        const lateNightTime = lateNightSessions.reduce((total, s) => total + s.duration, 0);
+        
+        if (lateNightEl) lateNightEl.textContent = formatProfileDuration(lateNightTime);
+        
+        // Weekend work
+        const weekendSessions = sessionIndex.filter(s => {
+            const day = new Date(s.startTime).getDay();
+            return day === 0 || day === 6; // Sunday or Saturday
+        });
+        const weekendTime = weekendSessions.reduce((total, s) => total + s.duration, 0);
+        
+        if (weekendEl) weekendEl.textContent = formatProfileDuration(weekendTime);
+        
+        // Overtime frequency
+        const overtimeSessions = sessionIndex.filter(s => s.duration > (8 * 3600000)); // > 8 hours
+        const overtimeFreq = sessionIndex.length > 0 ? Math.round((overtimeSessions.length / sessionIndex.length) * 100) : 0;
+        
+        if (overtimeFreqEl) {
+            overtimeFreqEl.textContent = `${overtimeFreq}%`;
+            overtimeFreqEl.className = `font-bold ${overtimeFreq <= 20 ? 'text-green-700' : overtimeFreq <= 40 ? 'text-orange-700' : 'text-red-700'}`;
+        }
+    }
+}
+
+function formatProfileDuration(ms) {
+    const hours = Math.floor(ms / (1000 * 60 * 60));
+    const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((ms % (1000 * 60)) / 1000);
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}
+
+function showProfileNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 transition-all duration-300 ${
+        type === 'success' ? 'bg-green-500 text-white' : 
+        type === 'error' ? 'bg-red-500 text-white' : 
+        type === 'info' ? 'bg-blue-500 text-white' :
+        'bg-gray-500 text-white'
+    }`;
+    notification.innerHTML = `
+        <div class="flex items-center">
+            <i class="fas fa-info-circle mr-2"></i>
+            <span>${message}</span>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                document.body.removeChild(notification);
+            }
+        }, 300);
+    }, 4000);
+}
+
+function broadcastTimeTrackerUpdate(status, data = null) {
+    // Broadcast to other windows/tabs
+    window.postMessage({
+        type: 'timeTrackerUpdate',
+        status: status,
+        data: data,
+        source: 'profile'
+    }, '*');
+    
+    // Dispatch custom event
+    window.dispatchEvent(new CustomEvent('timeTrackerUpdate', {
+        detail: { status, data, source: 'profile' }
+    }));
+}
+
+function syncWithExternalTracker(updateData) {
+    if (updateData.source === 'profile') return; // Avoid self-sync
+    
+    // Sync the profile tracker state with external updates
+    if (window.profileTracker && updateData.status) {
+        const currentStatus = window.profileTracker.getStatus();
+        
+        // Only sync if states are different
+        if (currentStatus.status !== updateData.status) {
+            console.log('Profile page: Syncing with external tracker state:', updateData.status);
+            updateProfileUI({ status: updateData.status, currentSession: updateData.data });
+        }
+    }
+}
+</script>
+</body>
+</html>

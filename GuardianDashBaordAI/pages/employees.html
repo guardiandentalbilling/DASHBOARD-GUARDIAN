@@ -1,0 +1,535 @@
+<div class="space-y-8">
+    <div class="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
+        <h2 class="text-3xl font-bold text-gray-800">Manage Employees</h2>
+        <div class="flex items-center space-x-4">
+            <button id="add-employee-btn" data-page="Add Employee" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center space-x-2">
+                <i class="fas fa-plus"></i>
+                <span>Add Employee</span>
+            </button>
+            <button id="debug-employees" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center space-x-2">
+                <i class="fas fa-bug"></i>
+                <span>Debug</span>
+            </button>
+            <button id="refresh-employees" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center space-x-2">
+                <i class="fas fa-sync-alt"></i>
+                <span>Refresh</span>
+            </button>
+            <label for="viewToggle" class="flex items-center cursor-pointer">
+                <span class="mr-2 text-sm font-medium text-gray-600">Toggle Empty View</span>
+                <div class="relative"><input type="checkbox" id="viewToggle" class="sr-only"><div class="block bg-gray-600 w-10 h-6 rounded-full"></div><div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition"></div></div>
+            </label>
+        </div>
+    </div>
+
+    <!-- Summary / Filter Tabs -->
+    <div id="employee-summary" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4"></div>
+    <div class="flex flex-wrap items-center gap-3">
+        <div class="flex items-center space-x-2 bg-white px-3 py-2 rounded-lg shadow border">
+            <label for="statusFilter" class="text-sm font-medium text-gray-600">Status:</label>
+            <select id="statusFilter" class="text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                <option value="all">All</option>
+                <option value="Active">Active</option>
+                <option value="On Leave">On Leave</option>
+                <option value="Resigned">Resigned</option>
+                <option value="Retired">Retired</option>
+                <option value="Inactive">Inactive</option>
+            </select>
+        </div>
+        <div class="flex items-center space-x-2 bg-white px-3 py-2 rounded-lg shadow border">
+            <label for="extraFilter" class="text-sm font-medium text-gray-600">Extra:</label>
+            <select id="extraFilter" class="text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                <option value="none">None</option>
+                <option value="hasLoan">Has Loan</option>
+                <option value="highOvertime">High Overtime (&gt;0)</option>
+            </select>
+        </div>
+        <div class="flex-1 max-w-xs relative">
+            <input id="searchEmployee" type="text" placeholder="Search name, email or role..." class="w-full pl-9 pr-3 py-2 bg-white rounded-lg shadow border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm" />
+            <i class="fas fa-search absolute left-3 top-2.5 text-gray-400"></i>
+        </div>
+        <button id="clearFilters" class="text-sm px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg border">Clear Filters</button>
+    </div>
+
+    <div id="employee-list-container">
+        <!-- Employees will be loaded here dynamically -->
+    </div>
+
+    <div id="empty-state-container" class="hidden">
+        <div class="text-center bg-white p-12 rounded-xl shadow-lg border-2 border-dashed">
+            <i class="fas fa-users fa-4x text-gray-300"></i>
+            <h3 class="mt-4 text-2xl font-bold text-gray-800">No Employees Found</h3>
+            <p class="mt-2 text-gray-500">Employee directory is currently empty.</p>
+        </div>
+    </div>
+
+</div>
+
+<style>
+    /* Simple CSS for the toggle switch */
+    input:checked ~ .dot { transform: translateX(100%); background-color: #4f46e5; }
+</style>
+
+<script>
+    (function() {
+        const toggle = document.getElementById('viewToggle');
+        const employeeList = document.getElementById('employee-list-container');
+        const emptyState = document.getElementById('empty-state-container');
+        const summaryContainer = document.getElementById('employee-summary');
+        const statusFilter = document.getElementById('statusFilter');
+        const extraFilter = document.getElementById('extraFilter');
+        const searchInput = document.getElementById('searchEmployee');
+        const clearFiltersBtn = document.getElementById('clearFilters');
+
+        let allEmployees = []; // master list
+        let currentFiltered = [];
+        let activeFilter = 'all';
+
+        function computeCounts(employees) {
+            const counts = {
+                total: employees.length,
+                active: 0,
+                onLeave: 0,
+                resigned: 0,
+                retired: 0,
+                inactive: 0,
+                hasLoan: 0,
+                highOvertime: 0
+            };
+            employees.forEach(e => {
+                const status = (e.status || 'Active').toLowerCase();
+                if (status === 'active') counts.active++;
+                else if (status.includes('leave')) counts.onLeave++;
+                else if (status === 'resigned') counts.resigned++;
+                else if (status === 'retired') counts.retired++;
+                else if (status === 'inactive') counts.inactive++;
+                // Derived flags
+                if (Array.isArray(e.loans) && e.loans.length > 0) counts.hasLoan++;
+                if ((parseInt(e.overtime)||0) > 0) counts.highOvertime++;
+            });
+            return counts;
+        }
+
+        function renderSummary(employees) {
+            const c = computeCounts(employees);
+            summaryContainer.innerHTML = `
+                ${summaryCard('Total', c.total, 'fa-users', 'indigo')}
+                ${summaryCard('Active', c.active, 'fa-user-check', 'green', 'Active')}
+                ${summaryCard('On Leave', c.onLeave, 'fa-plane-departure', 'yellow', 'On Leave')}
+                ${summaryCard('Resigned', c.resigned, 'fa-user-slash', 'red', 'Resigned')}
+                ${summaryCard('Retired', c.retired, 'fa-chair', 'purple', 'Retired')}
+                ${summaryCard('Has Loans', c.hasLoan, 'fa-hand-holding-usd', 'pink', 'hasLoanDerived')}
+            `;
+            // Attach click handlers
+            summaryContainer.querySelectorAll('[data-summary-filter]')?.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const f = btn.getAttribute('data-summary-filter');
+                    if (f === 'all') {
+                        statusFilter.value = 'all';
+                        extraFilter.value = 'none';
+                    } else if (['Active','On Leave','Resigned','Retired'].includes(f)) {
+                        statusFilter.value = f;
+                        extraFilter.value = 'none';
+                    } else if (f === 'hasLoanDerived') {
+                        statusFilter.value = 'all';
+                        extraFilter.value = 'hasLoan';
+                    }
+                    applyFilters();
+                });
+            });
+        }
+
+        function summaryCard(label, value, icon, color, filterKey='all') {
+            const palette = {
+                indigo: 'from-indigo-500 to-indigo-600',
+                green: 'from-green-500 to-emerald-600',
+                yellow: 'from-amber-400 to-amber-500',
+                red: 'from-rose-500 to-rose-600',
+                purple: 'from-violet-500 to-violet-600',
+                pink: 'from-pink-500 to-fuchsia-600'
+            };
+            return `
+                <button type="button" data-summary-filter="${filterKey}" class="group text-left w-full bg-gradient-to-br ${palette[color]} text-white rounded-xl p-4 shadow hover:shadow-lg transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-${color}-300">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-xs opacity-80 tracking-wide font-medium uppercase">${label}</p>
+                            <p class="text-2xl font-extrabold mt-1">${value}</p>
+                        </div>
+                        <div class="text-white/70 group-hover:scale-110 transition-transform"><i class="fas ${icon} fa-lg"></i></div>
+                    </div>
+                </button>`;
+        }
+
+        function applyFilters() {
+            const statusVal = statusFilter?.value || 'all';
+            const extraVal = extraFilter?.value || 'none';
+            const query = (searchInput?.value || '').toLowerCase().trim();
+
+            let filtered = [...allEmployees];
+            if (statusVal !== 'all') {
+                filtered = filtered.filter(e => {
+                    const st = (e.status || 'Active');
+                    if (statusVal === 'On Leave') return /leave/i.test(st);
+                    return st === statusVal;
+                });
+            }
+            if (extraVal === 'hasLoan') {
+                filtered = filtered.filter(e => Array.isArray(e.loans) && e.loans.length > 0);
+            } else if (extraVal === 'highOvertime') {
+                filtered = filtered.filter(e => (parseInt(e.overtime)||0) > 0);
+            }
+            if (query) {
+                filtered = filtered.filter(e => [e.firstName, e.lastName, e.email, e.role, e.userRole, e.username].filter(Boolean).some(v => v.toLowerCase().includes(query)) );
+            }
+            currentFiltered = filtered;
+            if (filtered.length === 0) {
+                showEmptyState();
+            } else {
+                // Use base (non-overridden) renderer to avoid recursion
+                if (typeof baseDisplayFn === 'function') {
+                    baseDisplayFn(filtered);
+                } else {
+                    displayEmployees(filtered); // fallback if base not yet set
+                }
+            }
+        }
+
+        function wireFilterEvents() {
+            statusFilter?.addEventListener('change', applyFilters);
+            extraFilter?.addEventListener('change', applyFilters);
+            searchInput?.addEventListener('input', () => { applyFilters(); });
+            clearFiltersBtn?.addEventListener('click', () => {
+                statusFilter.value = 'all';
+                extraFilter.value = 'none';
+                searchInput.value = '';
+                applyFilters();
+            });
+        }
+
+        // Load employees from API
+        async function loadEmployees() {
+            try {
+                console.log('Loading employees from API...');
+                
+                // Get API base URL from global config
+                const apiBaseUrl = window.GLOBAL_API_BASE_URL || 'http://localhost:5000/api';
+                
+                // Load from localStorage first (for newly added employees)
+                const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+                const adminId = userData.id || 'default-admin';
+                
+                // Try admin-specific employees first, then general employees
+                const adminEmployees = JSON.parse(localStorage.getItem(`employees_${adminId}`) || '[]');
+                const generalEmployees = JSON.parse(localStorage.getItem('employees') || '[]');
+                
+                // Merge admin-specific and general employees
+                const localEmployees = [...adminEmployees];
+                generalEmployees.forEach(emp => {
+                    if (!localEmployees.find(existing => existing.email === emp.email)) {
+                        localEmployees.push(emp);
+                    }
+                });
+                
+                console.log('LocalStorage employees for admin', adminId, ':', localEmployees);
+                
+                // Try to load from API
+                const response = await fetch(`${apiBaseUrl}/employees`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('authToken') || 'demo-token'}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log('API Response:', result);
+                    
+                    let apiEmployees = [];
+                    if (result.success && Array.isArray(result.data)) {
+                        apiEmployees = result.data;
+                    } else if (Array.isArray(result)) {
+                        apiEmployees = result;
+                    }
+                    
+                    // Merge API employees with localStorage employees
+                    const mergedEmployees = mergeEmployees(apiEmployees, localEmployees);
+                    console.log('Merged employees:', mergedEmployees);
+                    
+                    // Update localStorage with merged data
+                    localStorage.setItem('employees', JSON.stringify(mergedEmployees));
+                    displayEmployees(mergedEmployees);
+                    return;
+                } else {
+                    console.log('API not available, using localStorage only...');
+                    if (localEmployees.length > 0) {
+                        displayEmployees(localEmployees);
+                    } else {
+                        // Seed demo employees (only if absolutely empty) for testing filters
+                        const seed = [
+                            { id: 'seed1', firstName: 'Ayesha', lastName: 'Khan', email: 'ayesha@example.com', role: 'Billing Specialist', userRole: 'employee', status: 'Active', salaryPKR: 120000, overtime: 2 },
+                            { id: 'seed2', firstName: 'Bilal', lastName: 'Raza', email: 'bilal@example.com', role: 'AR Specialist', userRole: 'employee', status: 'On Leave', salaryPKR: 95000, overtime: 0 },
+                            { id: 'seed3', firstName: 'Sadia', lastName: 'Malik', email: 'sadia@example.com', role: 'Team Lead', userRole: 'employee', status: 'Resigned', salaryPKR: 180000, overtime: 0 },
+                            { id: 'seed4', firstName: 'Umair', lastName: 'Shah', email: 'umair@example.com', role: 'Account Manager', userRole: 'employee', status: 'Retired', salaryPKR: 210000, overtime: 0, loans: [{ amount: 50000 }] },
+                            { id: 'seed5', firstName: 'Zara', lastName: 'Iqbal', email: 'zara@example.com', role: 'IT Support', userRole: 'employee', status: 'Inactive', salaryPKR: 80000, overtime: 5 }
+                        ];
+                        console.log('Seeding demo employees for UI testing');
+                        localStorage.setItem('employees', JSON.stringify(seed));
+                        displayEmployees(seed);
+                    }
+                }
+            } catch (error) {
+                console.log('API error, using localStorage...', error);
+                loadFromLocalStorage();
+            }
+        }
+
+        // Merge API employees with localStorage employees (avoid duplicates)
+        function mergeEmployees(apiEmployees, localEmployees) {
+            const merged = [...apiEmployees];
+            
+            // Add localStorage employees that don't exist in API response
+            localEmployees.forEach(localEmp => {
+                const exists = apiEmployees.find(apiEmp => 
+                    apiEmp.email === localEmp.email || 
+                    apiEmp._id === localEmp.id || 
+                    apiEmp.employeeId === localEmp.employeeId
+                );
+                
+                if (!exists) {
+                    merged.push(localEmp);
+                }
+            });
+            
+            return merged;
+        }
+
+        // Load from localStorage as fallback
+        function loadFromLocalStorage() {
+            const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+            const adminId = userData.id || 'default-admin';
+            
+            // Load admin-specific employees
+            const adminEmployees = JSON.parse(localStorage.getItem(`employees_${adminId}`) || '[]');
+            
+            // Also load general employees for backward compatibility
+            const generalEmployees = JSON.parse(localStorage.getItem('employees') || '[]');
+            
+            // Merge both sources
+            const mergedEmployees = [...adminEmployees];
+            generalEmployees.forEach(emp => {
+                if (!mergedEmployees.find(existing => existing.email === emp.email)) {
+                    mergedEmployees.push(emp);
+                }
+            });
+            
+            console.log('LocalStorage admin employees:', adminEmployees);
+            console.log('LocalStorage general employees:', generalEmployees);
+            console.log('LocalStorage merged employees:', mergedEmployees);
+            
+            if (mergedEmployees.length > 0) {
+                displayEmployees(mergedEmployees);
+            } else {
+                showEmptyState();
+            }
+        }
+
+        // Display employees in the UI
+        function displayEmployees(employees) {
+            employeeList.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+            
+            const employeeCards = employees.map(employee => createEmployeeCard(employee)).join('');
+            employeeList.innerHTML = `<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">${employeeCards}</div>`;
+        }
+
+        // Preserve base renderer reference for filters before overriding
+        let baseDisplayFn = displayEmployees;
+
+        // Show empty state
+        function showEmptyState() {
+            employeeList.classList.add('hidden');
+            emptyState.classList.remove('hidden');
+        }
+
+        // Create employee card HTML
+        function createEmployeeCard(employee) {
+            const salary = employee.salaryPKR || 0;
+            const salaryUSD = Math.round(salary / 278); // Approximate PKR to USD conversion
+            
+            return `
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden transform hover:-translate-y-1 transition-all duration-300">
+                    <div class="p-6">
+                        <div class="flex items-center space-x-4">
+                            <img src="https://i.pravatar.cc/64?u=${employee.id || employee._id}" class="w-16 h-16 rounded-full" alt="${employee.firstName} ${employee.lastName}">
+                            <div>
+                                <p class="font-extrabold text-xl text-gray-800">${employee.firstName} ${employee.lastName}</p>
+                                <p class="text-sm text-gray-500">${employee.role || 'Employee'}</p>
+                            </div>
+                        </div>
+                        <div class="mt-4 border-t pt-4">
+                            <p class="text-sm"><i class="fas fa-envelope w-5 text-gray-400 mr-2"></i>${employee.email}</p>
+                            <p class="text-sm mt-1"><i class="fas fa-phone w-5 text-gray-400 mr-2"></i>${employee.phone || 'N/A'}</p>
+                            ${employee.username ? `<p class="text-sm mt-1"><i class="fas fa-user w-5 text-gray-400 mr-2"></i>Username: ${employee.username}</p>` : ''}
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 px-6 py-4 grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <p class="text-gray-500">Salary</p>
+                            <p class="font-bold text-gray-800">PKR ${salary.toLocaleString()}</p>
+                            <p class="text-xs text-gray-500">$${salaryUSD}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-500">User Role</p>
+                            <p class="font-bold text-gray-800">${employee.userRole || 'Employee'}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-500">Joining Date</p>
+                            <p class="font-bold text-gray-800">${employee.joiningDate || 'N/A'}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-500">Overtime Rate</p>
+                            <p class="font-bold text-gray-800">PKR ${employee.overtime || 0}/hr</p>
+                        </div>
+                    </div>
+                    <div class="p-4 bg-white flex justify-between items-center border-t">
+                        <span class="px-3 py-1 text-xs font-semibold rounded-full ${employee.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">${employee.status || 'Active'}</span>
+                        <div class="space-x-3 flex items-center">
+                            <button class="text-gray-400 hover:text-emerald-600" title="Message" onclick="startChatWithEmployee('${employee.id || employee._id}')"><i class="fas fa-comments"></i></button>
+                            <button class="text-gray-400 hover:text-blue-600" title="Edit" onclick="openEditEmployee('${employee.id || employee._id}')"><i class="fas fa-pencil-alt"></i></button>
+                            <button class="text-gray-400 hover:text-red-600" title="Delete" onclick="deleteEmployee('${employee.id || employee._id}')"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Delete employee function
+        window.deleteEmployee = function(employeeId) {
+            const all = JSON.parse(localStorage.getItem('employees') || '[]');
+            const target = all.find(e => (e.id || e._id) === employeeId);
+            const name = target ? `${target.firstName || ''} ${target.lastName || ''}`.trim() : 'this employee';
+            if (!confirm(`⚠️ Delete ${name}?\nThis action cannot be undone.`)) return;
+            const remaining = all.filter(emp => (emp.id || emp._id) !== employeeId);
+            localStorage.setItem('employees', JSON.stringify(remaining));
+            // Also remove from admin-specific store
+            const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+            const adminId = userData.id || 'default-admin';
+            const adminKey = `employees_${adminId}`;
+            const adminEmployees = JSON.parse(localStorage.getItem(adminKey) || '[]').filter(emp => (emp.id || emp._id) !== employeeId);
+            localStorage.setItem(adminKey, JSON.stringify(adminEmployees));
+            loadEmployees();
+            alert('✅ Employee deleted.');
+        };
+
+        window.openEditEmployee = function(id) {
+            sessionStorage.setItem('editingEmployeeId', id);
+            if (window.parent && window.parent.loadContent) {
+                window.parent.loadContent('Add Employee');
+            } else if (window.loadContent) {
+                window.loadContent('Add Employee');
+            }
+        }
+
+        // Start a chat with employee (preselect peer on chat page)
+        window.startChatWithEmployee = function(peerId) {
+            if (!peerId) return;
+            try {
+                const url = new URL(window.location.href);
+                url.searchParams.set('page', 'chat');
+                url.searchParams.set('peer', peerId);
+                window.history.pushState({ page: 'chat', peer: peerId }, 'CHAT', url.toString());
+            } catch (e) {
+                window.location.href = '/index.html?page=chat&peer=' + encodeURIComponent(peerId);
+                return;
+            }
+            if (window.parent && window.parent.loadContent) {
+                window.parent.loadContent('chat');
+            } else if (window.loadContent) {
+                window.loadContent('chat');
+            } else {
+                window.location.href = '/index.html?page=chat&peer=' + encodeURIComponent(peerId);
+            }
+        };
+
+        // Toggle functionality
+        if (toggle && employeeList && emptyState) {
+            toggle.addEventListener('change', function() {
+                if (this.checked) {
+                    employeeList.classList.add('hidden');
+                    emptyState.classList.remove('hidden');
+                } else {
+                    loadEmployees(); // Reload data when toggling back
+                }
+            });
+        }
+
+        // Load employees when page loads
+        loadEmployees();
+
+        // Wrap original loadEmployees to capture master list after population
+        const originalDisplay = displayEmployees;
+        displayEmployees = function(employees) { // override without triggering filters again
+            allEmployees = employees;
+            originalDisplay(employees);
+            renderSummary(allEmployees);
+            // Do not call applyFilters here; caller will invoke it once to prevent recursion
+        };
+        // After defining override need to re-wire filters
+        wireFilterEvents();
+
+        // Debug button functionality
+        document.getElementById('debug-employees')?.addEventListener('click', function() {
+            const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+            const adminId = userData.id || 'default-admin';
+            
+            const adminEmployees = JSON.parse(localStorage.getItem(`employees_${adminId}`) || '[]');
+            const generalEmployees = JSON.parse(localStorage.getItem('employees') || '[]');
+            
+            console.log('=== EMPLOYEE DEBUG INFO ===');
+            console.log('Current admin:', userData);
+            console.log('Admin ID:', adminId);
+            console.log('Admin-specific employees:', adminEmployees);
+            console.log('General employees in localStorage:', generalEmployees);
+            
+            alert(`Employee Debug Info:
+Current Admin: ${userData.name || 'Unknown'} (${adminId})
+Admin-specific employees: ${adminEmployees.length}
+General employees: ${generalEmployees.length}
+
+Admin Employees: ${adminEmployees.map(emp => `${emp.firstName} ${emp.lastName}`).join(', ') || 'None'}
+General Employees: ${generalEmployees.map(emp => `${emp.firstName} ${emp.lastName}`).join(', ') || 'None'}
+
+Check console for detailed data.`);
+        });
+
+        // Refresh button functionality
+        document.getElementById('refresh-employees')?.addEventListener('click', function() {
+            console.log('Manual refresh triggered...');
+            loadEmployees();
+        });
+
+        // Make refresh function globally available
+    window.refreshEmployeeList = loadEmployees;
+        
+        // Listen for employee updates
+        window.addEventListener('employeeAdded', function(event) {
+            console.log('Employee added event received, refreshing list...');
+            loadEmployees();
+        });
+        
+        // Listen for storage changes (when employee added from another tab/page)
+        window.addEventListener('storage', function(event) {
+            if (event.key === 'employees') {
+                console.log('Employee storage changed, refreshing list...');
+                loadEmployees();
+            }
+        });
+
+        // Persist currentUserId for chat usage if not already set
+        (function ensureCurrentUserId(){
+            const userData = JSON.parse(localStorage.getItem('userData')||'{}');
+            if (userData && (userData._id || userData.id) && !localStorage.getItem('currentUserId')) {
+                localStorage.setItem('currentUserId', userData._id || userData.id);
+            }
+        })();
+    })();
+</script>

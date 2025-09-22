@@ -1,0 +1,644 @@
+<div class="space-y-8">
+    <div class="flex items-center justify-between mb-8">
+        <h2 class="text-3xl font-bold text-gray-800">Manage Expenses</h2>
+        <a href="pages/add-expense.html">
+            <button class="px-6 py-3 bg-[#1A3464] text-white font-semibold rounded-lg shadow-md hover:bg-opacity-90 transition-transform hover:scale-105 flex items-center justify-center">
+                <i class="fas fa-plus mr-2"></i> Add Expense
+            </button>
+        </a>
+    </div>
+    <div class="flex flex-wrap gap-4 mb-8" id="expense-filters">
+        <button class="px-4 py-2 text-sm font-semibold bg-indigo-100 text-indigo-700 rounded-lg filter-btn" data-filter="all">All</button>
+        <button class="px-4 py-2 text-sm font-semibold bg-blue-100 text-blue-700 rounded-lg filter-btn" data-filter="Salaries">Salaries</button>
+        <button class="px-4 py-2 text-sm font-semibold bg-green-100 text-green-700 rounded-lg filter-btn" data-filter="Office Management">Office Management</button>
+        <button class="px-4 py-2 text-sm font-semibold bg-yellow-100 text-yellow-700 rounded-lg filter-btn" data-filter="Rents">Rents</button>
+        <button class="px-4 py-2 text-sm font-semibold bg-pink-100 text-pink-700 rounded-lg filter-btn" data-filter="Electricity Bills">Electricity Bills</button>
+        <button class="px-4 py-2 text-sm font-semibold bg-orange-100 text-orange-700 rounded-lg filter-btn" data-filter="Gas Bills">Gas Bills</button>
+        <button class="px-4 py-2 text-sm font-semibold bg-purple-100 text-purple-700 rounded-lg filter-btn" data-filter="Wifi Bills">Wifi Bills</button>
+        <button class="px-4 py-2 text-sm font-semibold bg-orange-100 text-orange-700 rounded-lg filter-btn" data-filter="Office Expenditures">Office Expenditures</button>
+        <button class="px-4 py-2 text-sm font-semibold bg-red-100 text-red-700 rounded-lg filter-btn" data-filter="Food">Food</button>
+        <button class="px-4 py-2 text-sm font-semibold bg-teal-100 text-teal-700 rounded-lg filter-btn" data-filter="Marketing">Marketing</button>
+    </div>
+    <div id="expense-success" class="fixed top-6 right-6 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg text-lg font-semibold z-50 hidden">Expense added successfully!</div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-gradient-to-br from-red-500 to-orange-500 p-6 rounded-xl shadow-lg">
+            <p class="text-sm opacity-80">Most Expense</p>
+            <p class="text-3xl font-extrabold">PKR 5,420,000</p>
+            <p class="text-xs opacity-80">$19,461</p>
+            <p class="text-xs mt-2">Category: Salaries</p>
+        </div>
+        <div class="bg-gradient-to-br from-green-500 to-teal-500 p-6 rounded-xl shadow-lg">
+            <p class="text-sm opacity-80">Lowest Expense</p>
+            <p class="text-3xl font-extrabold">PKR 45,000</p>
+            <p class="text-xs opacity-80">$161</p>
+            <p class="text-xs mt-2">Category: Office</p>
+        </div>
+        <div class="bg-gradient-to-br from-blue-500 to-indigo-500 p-6 rounded-xl shadow-lg">
+            <p class="text-sm opacity-80">Average Expense</p>
+            <p class="text-3xl font-extrabold">PKR 1,200,000</p>
+            <p class="text-xs opacity-80">$4,312</p>
+            <p class="text-xs mt-2">All Categories</p>
+        </div>
+    </div>
+    <div class="space-y-8">
+        <div class="bg-white p-6 rounded-xl shadow-lg section-sep expense-section" data-category="All">
+            <h3 class="text-xl font-bold text-[#1A3464] mb-4">All Expenses</h3>
+            <div class="flex items-end justify-between space-x-4" id="all-expense-bars">
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">Lifetime</span>
+                    <svg class="w-16 h-32" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#6366F1;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-indigo-900" id="all-lifetime-usd">$0</p>
+                    <p class="text-sm text-gray-500" id="all-lifetime-pkr">PKR 0</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">Last Year</span>
+                    <svg class="w-16 h-28" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#818CF8;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-indigo-900" id="all-lastyear-usd">$0</p>
+                    <p class="text-sm text-gray-500" id="all-lastyear-pkr">PKR 0</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">This Year</span>
+                    <svg class="w-16 h-24" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#A5B4FC;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-indigo-900" id="all-thisyear-usd">$0</p>
+                    <p class="text-sm text-gray-500" id="all-thisyear-pkr">PKR 0</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">Last Month</span>
+                    <svg class="w-16 h-14" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#C7D2FE;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-indigo-900" id="all-lastmonth-usd">$0</p>
+                    <p class="text-sm text-gray-500" id="all-lastmonth-pkr">PKR 0</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">This Month</span>
+                    <svg class="w-16 h-16" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#6366F1;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-indigo-900" id="all-thismonth-usd">$0</p>
+                    <p class="text-sm text-gray-500" id="all-thismonth-pkr">PKR 0</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">Last Week</span>
+                    <svg class="w-16 h-10" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#818CF8;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-indigo-900" id="all-lastweek-usd">$0</p>
+                    <p class="text-sm text-gray-500" id="all-lastweek-pkr">PKR 0</p>
+                </div>
+            </div>
+            <div class="expense-list mt-6"></div>
+        </div>
+        <div class="bg-white p-6 rounded-xl shadow-lg section-sep expense-section" data-category="Salaries">
+            <h3 class="text-xl font-bold text-[#1A3464] mb-4">Salaries</h3>
+            <div class="flex items-end justify-between space-x-4">
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">Lifetime</span>
+                    <svg class="w-16 h-32" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#FFB347;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-orange-900">$4,285</p>
+                    <p class="text-sm text-gray-500">PKR 1,200,000</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">Last Year</span>
+                    <svg class="w-16 h-28" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#B19CD9;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-purple-900">$3,214</p>
+                    <p class="text-sm text-gray-500">PKR 900,000</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">This Year</span>
+                    <svg class="w-16 h-24" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#5F9EA0;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-blue-900">$2,142</p>
+                    <p class="text-sm text-gray-500">PKR 600,000</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">Last Month</span>
+                    <svg class="w-16 h-14" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#FFD700;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-yellow-700">$893</p>
+                    <p class="text-sm text-gray-500">PKR 250,000</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">This Month</span>
+                    <svg class="w-16 h-16" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#32CD32;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-green-900">$714</p>
+                    <p class="text-sm text-gray-500">PKR 200,000</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">Last Week</span>
+                    <svg class="w-16 h-10" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#FF69B4;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-pink-900">$179</p>
+                    <p class="text-sm text-gray-500">PKR 50,000</p>
+                </div>
+            </div>
+            <div class="expense-list mt-6"></div>
+        </div>
+        <div class="bg-white p-6 rounded-xl shadow-lg section-sep expense-section" data-category="Office Management">
+            <h3 class="text-xl font-bold text-[#1A3464] mb-4">Office Management</h3>
+            <div class="flex items-end justify-between space-x-4">
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">Lifetime</span>
+                    <svg class="w-16 h-32" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#6EE7B7;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-teal-900">$1,607</p>
+                    <p class="text-sm text-gray-500">PKR 450,000</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">Last Year</span>
+                    <svg class="w-16 h-28" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#34D399;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-green-900">$1,071</p>
+                    <p class="text-sm text-gray-500">PKR 300,000</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">This Year</span>
+                    <svg class="w-16 h-24" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#059669;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-green-900">$714</p>
+                    <p class="text-sm text-gray-500">PKR 200,000</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">Last Month</span>
+                    <svg class="w-16 h-14" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#A7F3D0;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-teal-700">$357</p>
+                    <p class="text-sm text-gray-500">PKR 100,000</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">This Month</span>
+                    <svg class="w-16 h-16" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#10B981;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-green-900">$214</p>
+                    <p class="text-sm text-gray-500">PKR 60,000</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">Last Week</span>
+                    <svg class="w-16 h-10" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#065F46;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-green-900">$54</p>
+                    <p class="text-sm text-gray-500">PKR 15,000</p>
+                </div>
+            </div>
+            <div class="expense-list mt-6"></div>
+        </div>
+        <div class="bg-white p-6 rounded-xl shadow-lg section-sep expense-section" data-category="Rents">
+            <h3 class="text-xl font-bold text-[#1A3464] mb-4">Rents</h3>
+            <div class="flex items-end justify-between space-x-4">
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">Lifetime</span>
+                    <svg class="w-16 h-32" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#FBBF24;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-yellow-900">$3,571</p>
+                    <p class="text-sm text-gray-500">PKR 1,000,000</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">Last Year</span>
+                    <svg class="w-16 h-28" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#F59E42;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-orange-900">$2,143</p>
+                    <p class="text-sm text-gray-500">PKR 600,000</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">This Year</span>
+                    <svg class="w-16 h-24" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#FDE68A;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-yellow-700">$1,071</p>
+                    <p class="text-sm text-gray-500">PKR 300,000</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">Last Month</span>
+                    <svg class="w-16 h-14" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#FDE68A;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-yellow-700">$357</p>
+                    <p class="text-sm text-gray-500">PKR 100,000</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">This Month</span>
+                    <svg class="w-16 h-16" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#FBBF24;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-yellow-900">$214</p>
+                    <p class="text-sm text-gray-500">PKR 60,000</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">Last Week</span>
+                    <svg class="w-16 h-10" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#F59E42;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-orange-900">$54</p>
+                    <p class="text-sm text-gray-500">PKR 15,000</p>
+                </div>
+            </div>
+            <div class="expense-list mt-6"></div>
+        </div>
+        <div class="bg-white p-6 rounded-xl shadow-lg section-sep expense-section" data-category="Electricity Bills">
+            <h3 class="text-xl font-bold text-[#1A3464] mb-4">Electricity Bills</h3>
+            <div class="flex items-end justify-between space-x-4">
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">Lifetime</span>
+                    <svg class="w-16 h-32" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#F472B6;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-pink-900">$714</p>
+                    <p class="text-sm text-gray-500">PKR 200,000</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">Last Year</span>
+                    <svg class="w-16 h-28" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#EC4899;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-pink-900">$357</p>
+                    <p class="text-sm text-gray-500">PKR 100,000</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">This Year</span>
+                    <svg class="w-16 h-24" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#DB2777;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-pink-900">$214</p>
+                    <p class="text-sm text-gray-500">PKR 60,000</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">Last Month</span>
+                    <svg class="w-16 h-14" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#F472B6;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-pink-900">$107</p>
+                    <p class="text-sm text-gray-500">PKR 30,000</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">This Month</span>
+                    <svg class="w-16 h-16" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#EC4899;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-pink-900">$71</p>
+                    <p class="text-sm text-gray-500">PKR 20,000</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">Last Week</span>
+                    <svg class="w-16 h-10" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#DB2777;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-pink-900">$18</p>
+                    <p class="text-sm text-gray-500">PKR 5,000</p>
+                </div>
+            </div>
+            <div class="expense-list mt-6"></div>
+        </div>
+        <div class="bg-white p-6 rounded-xl shadow-lg section-sep expense-section" data-category="Gas Bills">
+            <h3 class="text-xl font-bold text-[#1A3464] mb-4">Gas Bills</h3>
+            <div class="flex items-end justify-between space-x-4">
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">Lifetime</span>
+                    <svg class="w-16 h-32" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#FCD34D;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-yellow-900">$357</p>
+                    <p class="text-sm text-gray-500">PKR 100,000</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">Last Year</span>
+                    <svg class="w-16 h-28" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#FBBF24;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-yellow-900">$214</p>
+                    <p class="text-sm text-gray-500">PKR 60,000</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">This Year</span>
+                    <svg class="w-16 h-24" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#F59E42;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-orange-900">$107</p>
+                    <p class="text-sm text-gray-500">PKR 30,000</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">Last Month</span>
+                    <svg class="w-16 h-14" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#FCD34D;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-yellow-900">$54</p>
+                    <p class="text-sm text-gray-500">PKR 15,000</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">This Month</span>
+                    <svg class="w-16 h-16" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#FBBF24;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-yellow-900">$36</p>
+                    <p class="text-sm text-gray-500">PKR 10,000</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">Last Week</span>
+                    <svg class="w-16 h-10" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#F59E42;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-orange-900">$11</p>
+                    <p class="text-sm text-gray-500">PKR 3,000</p>
+                </div>
+            </div>
+            <div class="expense-list mt-6"></div>
+        </div>
+        <div class="bg-white p-6 rounded-xl shadow-lg section-sep expense-section" data-category="Wifi Bills">
+            <h3 class="text-xl font-bold text-[#1A3464] mb-4">Wifi Bills</h3>
+            <div class="flex items-end justify-between space-x-4">
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">Lifetime</span>
+                    <svg class="w-16 h-32" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#818CF8;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-indigo-900">$357</p>
+                    <p class="text-sm text-gray-500">PKR 100,000</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">Last Year</span>
+                    <svg class="w-16 h-28" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#6366F1;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-indigo-900">$214</p>
+                    <p class="text-sm text-gray-500">PKR 60,000</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">This Year</span>
+                    <svg class="w-16 h-24" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#4F46E5;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-indigo-900">$107</p>
+                    <p class="text-sm text-gray-500">PKR 30,000</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">Last Month</span>
+                    <svg class="w-16 h-14" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#818CF8;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-indigo-900">$54</p>
+                    <p class="text-sm text-gray-500">PKR 15,000</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">This Month</span>
+                    <svg class="w-16 h-16" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#6366F1;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-indigo-900">$36</p>
+                    <p class="text-sm text-gray-500">PKR 10,000</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">Last Week</span>
+                    <svg class="w-16 h-10" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#4F46E5;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-indigo-900">$11</p>
+                    <p class="text-sm text-gray-500">PKR 3,000</p>
+                </div>
+            </div>
+            <div class="expense-list mt-6"></div>
+        </div>
+        <div class="bg-white p-6 rounded-xl shadow-lg section-sep expense-section" data-category="Office Expenditures">
+            <h3 class="text-xl font-bold text-[#1A3464] mb-4">Office Expenditures</h3>
+            <div class="flex items-end justify-between space-x-4">
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">Lifetime</span>
+                    <svg class="w-16 h-32" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#F87171;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-red-900">$1,071</p>
+                    <p class="text-sm text-gray-500">PKR 300,000</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">Last Year</span>
+                    <svg class="w-16 h-28" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#EF4444;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-red-900">$714</p>
+                    <p class="text-sm text-gray-500">PKR 200,000</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">This Year</span>
+                    <svg class="w-16 h-24" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#B91C1C;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-red-900">$357</p>
+                    <p class="text-sm text-gray-500">PKR 100,000</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">Last Month</span>
+                    <svg class="w-16 h-14" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#F87171;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-red-900">$179</p>
+                    <p class="text-sm text-gray-500">PKR 50,000</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">This Month</span>
+                    <svg class="w-16 h-16" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#EF4444;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-red-900">$107</p>
+                    <p class="text-sm text-gray-500">PKR 30,000</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">Last Week</span>
+                    <svg class="w-16 h-10" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#B91C1C;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-red-900">$36</p>
+                    <p class="text-sm text-gray-500">PKR 10,000</p>
+                </div>
+            </div>
+            <div class="expense-list mt-6"></div>
+        </div>
+        <div class="bg-white p-6 rounded-xl shadow-lg section-sep expense-section" data-category="Food">
+            <h3 class="text-xl font-bold text-[#1A3464] mb-4">Food</h3>
+            <div class="flex items-end justify-between space-x-4">
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">Lifetime</span>
+                    <svg class="w-16 h-32" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#FBBF24;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-yellow-900">$357</p>
+                    <p class="text-sm text-gray-500">PKR 100,000</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">Last Year</span>
+                    <svg class="w-16 h-28" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#F59E42;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-orange-900">$214</p>
+                    <p class="text-sm text-gray-500">PKR 60,000</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">This Year</span>
+                    <svg class="w-16 h-24" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#FDE68A;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-yellow-700">$107</p>
+                    <p class="text-sm text-gray-500">PKR 30,000</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">Last Month</span>
+                    <svg class="w-16 h-14" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#FDE68A;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-yellow-700">$54</p>
+                    <p class="text-sm text-gray-500">PKR 15,000</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">This Month</span>
+                    <svg class="w-16 h-16" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#FBBF24;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-yellow-900">$36</p>
+                    <p class="text-sm text-gray-500">PKR 10,000</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">Last Week</span>
+                    <svg class="w-16 h-10" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#F59E42;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-orange-900">$11</p>
+                    <p class="text-sm text-gray-500">PKR 3,000</p>
+                </div>
+            </div>
+            <div class="expense-list mt-6"></div>
+        </div>
+        <div class="bg-white p-6 rounded-xl shadow-lg section-sep expense-section" data-category="Marketing">
+            <h3 class="text-xl font-bold text-[#1A3464] mb-4">Marketing</h3>
+            <div class="flex items-end justify-between space-x-4">
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">Lifetime</span>
+                    <svg class="w-16 h-32" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#38BDF8;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-blue-900">$1,071</p>
+                    <p class="text-sm text-gray-500">PKR 300,000</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">Last Year</span>
+                    <svg class="w-16 h-28" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#0EA5E9;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-blue-900">$714</p>
+                    <p class="text-sm text-gray-500">PKR 200,000</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">This Year</span>
+                    <svg class="w-16 h-24" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#0369A1;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-blue-900">$357</p>
+                    <p class="text-sm text-gray-500">PKR 100,000</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">Last Month</span>
+                    <svg class="w-16 h-14" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#38BDF8;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-blue-900">$179</p>
+                    <p class="text-sm text-gray-500">PKR 50,000</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">This Month</span>
+                    <svg class="w-16 h-16" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#0EA5E9;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-blue-900">$107</p>
+                    <p class="text-sm text-gray-500">PKR 30,000</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-semibold mb-1">Last Week</span>
+                    <svg class="w-16 h-10" viewBox="0 0 60 100"><rect width="48" height="100" rx="12" style="fill:#0369A1;"></rect></svg>
+                    <p class="mt-2 text-2xl font-extrabold text-blue-900">$36</p>
+                    <p class="text-sm text-gray-500">PKR 10,000</p>
+                </div>
+            </div>
+            <div class="expense-list mt-6"></div>
+        </div>
+    </div>
+
+    <div class="bg-white p-6 rounded-xl shadow-lg">
+        <h3 class="text-xl font-bold text-[#1A3464] mb-4">Recent Expense Transactions</h3>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+                <thead class="bg-gray-50">
+                    <tr class="text-gray-600 uppercase text-xs">
+                        <th class="p-4">Date</th>
+                        <th class="p-4">Category</th>
+                        <th class="p-4">Description</th>
+                        <th class="p-4 text-right">Amount</th>
+                    </tr>
+                </thead>
+                <tbody class="text-gray-700">
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-4 border-t">Sep 18, 2025</td>
+                        <td class="p-4 border-t"><span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">Salaries</span></td>
+                        <td class="p-4 border-t font-medium">Monthly Payroll - September</td>
+                        <td class="p-4 border-t text-right">
+                            <p class="font-semibold font-mono text-red-600">PKR 5,420,000</p>
+                            <p class="text-xs text-gray-500 font-mono">$19,461</p>
+                        </td>
+                    </tr>
+                     <tr class="hover:bg-slate-50">
+                        <td class="p-4 border-t">Sep 15, 2025</td>
+                        <td class="p-4 border-t"><span class="px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800">Marketing</span></td>
+                        <td class="p-4 border-t font-medium">Google Ads Campaign</td>
+                        <td class="p-4 border-t text-right">
+                            <p class="font-semibold font-mono text-red-600">PKR 150,000</p>
+                            <p class="text-xs text-gray-500 font-mono">$538</p>
+                        </td>
+                    </tr>
+                     <tr class="hover:bg-slate-50">
+                        <td class="p-4 border-t">Sep 12, 2025</td>
+                        <td class="p-4 border-t"><span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Office</span></td>
+                        <td class="p-4 border-t font-medium">Office Supplies & Stationery</td>
+                        <td class="p-4 border-t text-right">
+                            <p class="font-semibold font-mono text-red-600">PKR 45,000</p>
+                            <p class="text-xs text-gray-500 font-mono">$161</p>
+                        </td>
+                    </tr>
+                     <tr class="hover:bg-slate-50">
+                        <td class="p-4 border-t">Sep 10, 2025</td>
+                        <td class="p-4 border-t"><span class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">Overtime</span></td>
+                        <td class="p-4 border-t font-medium">Overtime Payments - August</td>
+                        <td class="p-4 border-t text-right">
+                            <p class="font-semibold font-mono text-red-600">PKR 183,025</p>
+                            <p class="text-xs text-gray-500 font-mono">$657</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script>
+// Filter logic
+const filterBtns = document.querySelectorAll('.filter-btn');
+filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        const filter = btn.getAttribute('data-filter');
+        document.querySelectorAll('.expense-section').forEach(sec => {
+            if (filter === 'all' || sec.getAttribute('data-category') === filter) {
+                sec.style.display = '';
+            } else {
+                sec.style.display = 'none';
+            }
+        });
+        filterBtns.forEach(b => b.classList.remove('ring', 'ring-indigo-500'));
+        btn.classList.add('ring', 'ring-indigo-500');
+    });
+});
+// Success popup logic
+function showSuccess(msg) {
+    const popup = document.getElementById('expense-success');
+    popup.textContent = msg;
+    popup.classList.remove('hidden');
+    setTimeout(() => popup.classList.add('hidden'), 2000);
+}
+// Dynamic expense addition (example)
+function addExpenseToPage(expense) {
+    // Find the section for the category
+    const section = document.querySelector(`.expense-section[data-category='${expense.category}'] .expense-list`);
+    if (section) {
+        const div = document.createElement('div');
+        div.className = 'bg-gray-50 p-3 rounded-lg mb-2 flex justify-between items-center';
+        div.innerHTML = `<span>${expense.description || 'New Expense'} (${expense.date})</span><span class="font-bold text-indigo-700">PKR ${expense.amount}</span>`;
+        section.prepend(div);
+        showSuccess('Expense added successfully!');
+    }
+}
+// Example: addExpenseToPage({category:'Salaries', amount:5000, date:'2025-09-20', description:'Test'});
+window.addEventListener('DOMContentLoaded', function() {
+    let expenses = JSON.parse(localStorage.getItem('expenses') || '[]');
+    expenses.forEach(expense => {
+        addExpenseToPage(expense);
+    });
+});
+function showExpenseTab(section, period) {
+    const periods = ['lifetime', 'lastyear', 'thisyear', 'thismonth', 'lastweek'];
+    periods.forEach(p => {
+        document.getElementById(`${section}-${p}`).classList.add('hidden');
+    });
+    document.getElementById(`${section}-${period}`).classList.remove('hidden');
+}
+function updateAllExpenseBars(expenses) {
+    // Dummy logic: sum all PKR for each period, convert to USD
+    function sumByPeriod(periodFn) {
+        return expenses.filter(periodFn).reduce((sum, e) => sum + Number(e.amount), 0);
+    }
+    const PKRtoUSD = amt => Math.round(amt / 280);
+    const now = new Date();
+    document.getElementById('all-lifetime-pkr').textContent = 'PKR ' + sumByPeriod(() => true);
+    document.getElementById('all-lifetime-usd').textContent = '$' + PKRtoUSD(sumByPeriod(() => true));
+    document.getElementById('all-lastyear-pkr').textContent = 'PKR ' + sumByPeriod(e => new Date(e.date).getFullYear() === now.getFullYear() - 1);
+    document.getElementById('all-lastyear-usd').textContent = '$' + PKRtoUSD(sumByPeriod(e => new Date(e.date).getFullYear() === now.getFullYear() - 1));
+    document.getElementById('all-thisyear-pkr').textContent = 'PKR ' + sumByPeriod(e => new Date(e.date).getFullYear() === now.getFullYear());
+    document.getElementById('all-thisyear-usd').textContent = '$' + PKRtoUSD(sumByPeriod(e => new Date(e.date).getFullYear() === now.getFullYear()));
+    document.getElementById('all-lastmonth-pkr').textContent = 'PKR ' + sumByPeriod(e => new Date(e.date).getMonth() === now.getMonth() - 1 && new Date(e.date).getFullYear() === now.getFullYear());
+    document.getElementById('all-lastmonth-usd').textContent = '$' + PKRtoUSD(sumByPeriod(e => new Date(e.date).getMonth() === now.getMonth() - 1 && new Date(e.date).getFullYear() === now.getFullYear()));
+    document.getElementById('all-thismonth-pkr').textContent = 'PKR ' + sumByPeriod(e => new Date(e.date).getMonth() === now.getMonth() && new Date(e.date).getFullYear() === now.getFullYear());
+    document.getElementById('all-thismonth-usd').textContent = '$' + PKRtoUSD(sumByPeriod(e => new Date(e.date).getMonth() === now.getMonth() && new Date(e.date).getFullYear() === now.getFullYear()));
+    // Last week: get ISO week number
+    function getWeek(d) {
+        d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+        d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
+        var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+        var weekNo = Math.ceil((((d - yearStart) / 86400000) + 1)/7);
+        return weekNo;
+    }
+    const lastWeek = getWeek(now) - 1;
+    document.getElementById('all-lastweek-pkr').textContent = 'PKR ' + sumByPeriod(e => getWeek(new Date(e.date)) === lastWeek && new Date(e.date).getFullYear() === now.getFullYear());
+    document.getElementById('all-lastweek-usd').textContent = '$' + PKRtoUSD(sumByPeriod(e => getWeek(new Date(e.date)) === lastWeek && new Date(e.date).getFullYear() === now.getFullYear()));
+}
+window.addEventListener('DOMContentLoaded', function() {
+    let expenses = JSON.parse(localStorage.getItem('expenses') || '[]');
+    updateAllExpenseBars(expenses);
+});
+const PKRtoUSD = amt => Math.round(amt / 280);
+const now = new Date();
+function getWeek(d) {
+    d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
+    var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+    var weekNo = Math.ceil((((d - yearStart) / 86400000) + 1)/7);
+    return weekNo;
+}
+function sumByPeriod(expenses, periodFn) {
+    return expenses.filter(periodFn).reduce((sum, e) => sum + Number(e.amount), 0);
+}
+function updateSectionBars(category, expenses) {
+    let filtered = category === 'All' ? expenses : expenses.filter(e => e.category === category);
+    const section = document.querySelector(`.expense-section[data-category='${category}']`);
+    if (!section) return;
+    const bars = section.querySelectorAll('svg + p.text-2xl');
+    const pkrLabels = section.querySelectorAll('svg + p.text-2xl + p');
+    // Periods: Lifetime, Last Year, This Year, Last Month, This Month, Last Week
+    let periods = [
+        () => true,
+        e => new Date(e.date).getFullYear() === now.getFullYear() - 1,
+        e => new Date(e.date).getFullYear() === now.getFullYear(),
+        e => new Date(e.date).getMonth() === now.getMonth() - 1 && new Date(e.date).getFullYear() === now.getFullYear(),
+        e => new Date(e.date).getMonth() === now.getMonth() && new Date(e.date).getFullYear() === now.getFullYear(),
+        e => getWeek(new Date(e.date)) === getWeek(now) - 1 && new Date(e.date).getFullYear() === now.getFullYear()
+    ];
+    periods.forEach((fn, i) => {
+        const pkr = sumByPeriod(filtered, fn);
+        const usd = PKRtoUSD(pkr);
+        if (bars[i]) bars[i].textContent = `$${usd}`;
+        if (pkrLabels[i]) pkrLabels[i].textContent = `PKR ${pkr}`;
+    });
+}
+window.addEventListener('DOMContentLoaded', function() {
+    let expenses = JSON.parse(localStorage.getItem('expenses') || '[]');
+    const categories = [
+        'All', 'Salaries', 'Office Management', 'Rents', 'Electricity Bills', 'Gas Bills', 'Wifi Bills', 'Office Expenditures', 'Food', 'Marketing'
+    ];
+    categories.forEach(cat => updateSectionBars(cat, expenses));
+});
+</script>

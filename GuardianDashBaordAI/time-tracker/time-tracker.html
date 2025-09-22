@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guardian Time Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="styles/time-tracker.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+        }
+        .sidebar {
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: transform 0.3s ease-in-out;
+            transform: translateX(-100%);
+            z-index: 50;
+        }
+        .sidebar.active {
+            transform: translateX(0);
+        }
+        @media (min-width: 768px) {
+            .sidebar {
+                transform: translateX(0);
+            }
+        }
+        .menu-item {
+            color: #6b7280;
+            position: relative;
+        }
+        .menu-item:hover, .menu-item.active {
+            color: #D65A20;
+            background-color: #eff6ff;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col md:flex-row">
+    <script src="/js/auth-guard.js"></script>
+
+    <div id="sidebar-overlay" class="fixed inset-0 bg-gray-900 bg-opacity-50 z-40 md:hidden hidden"></div>
+    <div id="sidebar" class="sidebar fixed inset-y-0 left-0 w-64 md:relative md:w-64 p-4 md:p-6 md:flex-shrink-0 flex flex-col h-full overflow-y-auto bg-white">
+        <div class="flex items-center justify-between md:justify-center mb-6">
+             <img src="https://guardiandentalbilling.com/wp-content/uploads/2025/02/Logo-250-x-150-px-1.png" alt="Company Logo" class="h-20 w-auto">
+            <button id="close-sidebar" class="md:hidden text-gray-500 hover:text-gray-700 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+        <nav class="mt-8 flex-1">
+            <ul class="space-y-2">
+                <li><a href="../index.html" class="menu-item p-3 block rounded-lg font-medium transition-colors duration-200 hover:bg-blue-50">Dashboard</a></li>
+                <li><a href="#" data-page="profile" class="menu-item p-3 block rounded-lg font-medium transition-colors duration-200 hover:bg-blue-50">My Profile</a></li>
+                <li><a href="#" data-page="tasks" class="menu-item p-3 block rounded-lg font-medium transition-colors duration-200 hover:bg-blue-50">Tasks</a></li>
+                <li><a href="#" data-page="time-tracker" class="menu-item p-3 block rounded-lg font-medium transition-colors duration-200 hover:bg-blue-50 active"><i class="fas fa-clock mr-2"></i>Time Tracker</a></li>
+                <li><a href="#" data-page="guardian-ai" class="menu-item p-3 block rounded-lg font-medium transition-colors duration-200 hover:bg-blue-50">Guardian AI</a></li>
+                <li><a href="#" data-page="eligibility" class="menu-item p-3 block rounded-lg font-medium transition-colors duration-200 hover:bg-blue-50">Eligibility Verification</a></li>
+                <li><a href="#" data-page="claims-follow-up" class="menu-item p-3 block rounded-lg font-medium transition-colors duration-200 hover:bg-blue-50">Claims Follow Up</a></li>
+                <li><a href="#" data-page="ar-comment" class="menu-item p-3 block rounded-lg font-medium transition-colors duration-200 hover:bg-blue-50">Create AR Comment</a></li>
+                <li><a href="#" data-page="speech-practice" class="menu-item p-3 block rounded-lg font-medium transition-colors duration-200 hover:bg-blue-50">Speech Practice</a></li>
+                <li><a href="#" data-page="guardian-tts" class="menu-item p-3 block rounded-lg font-medium transition-colors duration-200 hover:bg-blue-50">Guardian TTS</a></li>
+                <li><a href="#" data-page="phonetic-pronunciation" class="menu-item p-3 block rounded-lg font-medium transition-colors duration-200 hover:bg-blue-50">Phonetic Pronunciation</a></li>
+                <li><a href="#" data-page="complaint-suggestions" class="menu-item p-3 block rounded-lg font-medium transition-colors duration-200 hover:bg-blue-50">Complaint / Suggestions</a></li>
+                <li><a href="#" data-page="request-leave" class="menu-item p-3 block rounded-lg font-medium transition-colors duration-200 hover:bg-blue-50">Request Leave</a></li>
+                <li><a href="#" data-page="request-loan" class="menu-item p-3 block rounded-lg font-medium transition-colors duration-200 hover:bg-blue-50">Request Loan</a></li>
+                <li><a href="#" data-page="submit-report" class="menu-item p-3 block rounded-lg font-medium transition-colors duration-200 hover:bg-blue-50">Submit Report</a></li>
+                <li><a href="#" data-page="team-directory" class="menu-item p-3 block rounded-lg font-medium transition-colors duration-200 hover:bg-blue-50"><i class="fas fa-users mr-2"></i>Team Directory</a></li>
+            </ul>
+        </nav>
+        
+        <!-- User Info and Logout Section -->
+        <div class="mt-auto pt-4 border-t border-gray-200">
+            <div class="px-3 py-2 bg-gray-50 rounded-lg">
+                <div class="text-sm font-medium text-gray-800" id="user-name">Loading...</div>
+                <div class="text-xs text-gray-500" id="user-role">Employee</div>
+            </div>
+            <button id="logout-btn" class="w-full mt-3 px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-colors duration-200 flex items-center justify-center">
+                <i class="fas fa-sign-out-alt mr-2"></i>
+                Logout
+            </button>
+        </div>
+    </div>
+
+    <div class="flex-1 flex flex-col p-4 md:p-8 overflow-hidden h-screen">
+        <header class="flex items-center justify-between bg-white p-4 md:p-6 rounded-xl shadow-md z-10">
+            <button id="open-sidebar" class="md:hidden text-gray-500 hover:text-gray-700 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            </button>
+            <h2 id="main-title" class="text-lg md:text-xl font-semibold text-gray-800 uppercase">Time Tracker</h2>
+            
+            <!-- EST Timezone Indicator -->
+            <div class="flex items-center space-x-4">
+                <div class="text-sm text-gray-600">
+                    <span class="font-medium">EST:</span>
+                    <span id="est-time" class="font-mono">Loading...</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="bg-white p-6 md:p-8 mt-6 rounded-xl shadow-md overflow-hidden flex-1 h-full">
+            <div class="time-tracker-container">
+        <!-- Info Section - Left Side -->
+        <div class="info-section">
+            <div class="screenshot-info">
+                <h3><i class="fas fa-camera"></i> Screenshot Monitoring</h3>
+                <p>Screenshots are taken every 5-10 minutes while tracking.</p>
+                <p>You'll see a notification when a screenshot is captured.</p>
+                <div class="screenshot-status" id="screenshot-status">
+                    <span class="status-dot inactive"></span>
+                    <span>Monitoring: Inactive</span>
+                </div>
+            </div>
+            
+            <div class="features-info">
+                <h3><i class="fas fa-star"></i> Features</h3>
+                <ul>
+                    <li><i class="fas fa-clock"></i> Real-time time tracking</li>
+                    <li><i class="fas fa-camera"></i> Automatic screenshots</li>
+                    <li><i class="fas fa-bell"></i> System notifications</li>
+                    <li><i class="fas fa-chart-bar"></i> Activity monitoring</li>
+                    <li><i class="fas fa-lock"></i> Secure data encryption</li>
+                </ul>
+            </div>
+
+            <!-- Today's Summary -->
+            <div class="summary-info">
+                <h3><i class="fas fa-calendar-day"></i> Today's Summary</h3>
+                <div class="summary-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Total Time:</span>
+                        <span class="stat-value" id="total-time-today">00:00:00</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Sessions:</span>
+                        <span class="stat-value" id="sessions-today">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Last Screenshot:</span>
+                        <span class="stat-value" id="last-screenshot">Never</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance Metrics -->
+            <div class="performance-info">
+                <h3><i class="fas fa-chart-line"></i> Performance Metrics</h3>
+                <div class="performance-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Avg Session:</span>
+                        <span class="stat-value" id="avg-session-time">00:00:00</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Productivity:</span>
+                        <span class="stat-value" id="productivity-score">85%</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Weekly Goal:</span>
+                        <span class="stat-value" id="weekly-goal">40h</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Work Schedule -->
+            <div class="schedule-info">
+                <h3><i class="fas fa-calendar-week"></i> Work Schedule</h3>
+                <div class="schedule-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Work Hours:</span>
+                        <span class="stat-value" id="work-hours-today">6 AM - 11 PM EST</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Breaks Taken:</span>
+                        <span class="stat-value" id="breaks-today">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Status:</span>
+                        <span class="stat-value" id="shift-status">Available</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timer Display Section - Center -->
+        <div class="timer-section">
+            <div class="timer-display">
+                <div class="timer-circle">
+                    <span class="timer-text" id="timer-text">00:00:00</span>
+                    <div class="status-indicator" id="status-indicator">
+                        <span id="status-text">⏹ STOPPED</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Control Section -->
+            <div class="control-section" id="control-section">
+                <!-- Start Section (shown when not tracking) -->
+                <div class="start-section" id="start-section">
+                    <div class="form-group">
+                        <label for="task-description">What are you working on?</label>
+                        <input
+                            id="task-description"
+                            type="text"
+                            placeholder="Describe your task..."
+                            class="description-input"
+                        />
+                    </div>
+                    
+                    <button id="start-button" class="start-button">
+                        <i class="fas fa-play"></i>
+                        Start Tracking
+                    </button>
+                </div>
+
+                <!-- Tracking Section (shown when tracking) -->
+                <div class="tracking-section hidden" id="tracking-section">
+                    <div class="current-task" id="current-task">
+                        <h3>Current Task:</h3>
+                        <p id="current-task-desc">Working on tasks</p>
+                        <small id="start-time">Started: --:--:--</small>
+                    </div>
+                    
+                    <div class="control-buttons">
+                        <button id="pause-button" class="pause-button">
+                            <i class="fas fa-pause"></i>
+                            Pause
+                        </button>
+                        
+                        <button id="resume-button" class="resume-button hidden">
+                            <i class="fas fa-play"></i>
+                            Resume
+                        </button>
+                        
+                        <button id="stop-button" class="stop-button">
+                            <i class="fas fa-stop"></i>
+                            Stop
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Section - Right Side -->
+        <div class="analytics-section">
+            <!-- Weekly Summary -->
+            <div class="weekly-summary">
+                <h3><i class="fas fa-calendar-week"></i> Weekly Summary</h3>
+                <div class="weekly-details">
+                    <div class="allowed-hours">
+                        <span class="label">Allowed Hours: <strong id="allowed-hours">40h</strong></span>
+                        <span class="label">Logged Hours: <strong id="logged-hours-week">0h</strong></span>
+                        <span class="label">Overtime: <strong id="overtime-week">0h</strong></span>
+                    </div>
+                    <div class="daily-breakdown">
+                        <div class="day-item">
+                            <span class="day-name">Mon</span>
+                            <div class="day-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="progress-mon" style="width: 0%"></div>
+                                </div>
+                                <span class="hours-text" id="hours-mon">0h</span>
+                            </div>
+                        </div>
+                        <div class="day-item">
+                            <span class="day-name">Tue</span>
+                            <div class="day-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="progress-tue" style="width: 0%"></div>
+                                </div>
+                                <span class="hours-text" id="hours-tue">0h</span>
+                            </div>
+                        </div>
+                        <div class="day-item">
+                            <span class="day-name">Wed</span>
+                            <div class="day-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="progress-wed" style="width: 0%"></div>
+                                </div>
+                                <span class="hours-text" id="hours-wed">0h</span>
+                            </div>
+                        </div>
+                        <div class="day-item">
+                            <span class="day-name">Thu</span>
+                            <div class="day-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="progress-thu" style="width: 0%"></div>
+                                </div>
+                                <span class="hours-text" id="hours-thu">0h</span>
+                            </div>
+                        </div>
+                        <div class="day-item">
+                            <span class="day-name">Fri</span>
+                            <div class="day-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="progress-fri" style="width: 0%"></div>
+                                </div>
+                                <span class="hours-text" id="hours-fri">0h</span>
+                            </div>
+                        </div>
+                        <div class="day-item">
+                            <span class="day-name">Sat</span>
+                            <div class="day-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="progress-sat" style="width: 0%"></div>
+                                </div>
+                                <span class="hours-text" id="hours-sat">0h</span>
+                            </div>
+                        </div>
+                        <div class="day-item">
+                            <span class="day-name">Sun</span>
+                            <div class="day-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="progress-sun" style="width: 0%"></div>
+                                </div>
+                                <span class="hours-text" id="hours-sun">0h</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Hours Summary -->
+            <div class="total-hours-summary">
+                <h3><i class="fas fa-chart-bar"></i> Total Hours Summary</h3>
+                <div class="total-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">This Week:</span>
+                        <span class="stat-value" id="total-this-week">0h</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Last Week:</span>
+                        <span class="stat-value" id="total-last-week">0h</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">This Month:</span>
+                        <span class="stat-value" id="total-this-month">0h</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Last Month:</span>
+                        <span class="stat-value" id="total-last-month">0h</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">This Year:</span>
+                        <span class="stat-value" id="total-this-year">0h</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Lifetime:</span>
+                        <span class="stat-value" id="total-lifetime">0h</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project Analytics -->
+            <div class="project-analytics">
+                <h3><i class="fas fa-tasks"></i> Project Analytics</h3>
+                <div class="project-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Active Projects:</span>
+                        <span class="stat-value" id="active-projects">3</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Most Productive:</span>
+                        <span class="stat-value" id="productive-time">2-4 PM</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Task Completion:</span>
+                        <span class="stat-value" id="task-completion">92%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notification Area -->
+        <div class="notification-area" id="notification-area"></div>
+    </div>
+        </main>
+    </div>
+
+    <script>
+        // Authentication Check
+        function checkAuthentication() {
+            const authToken = localStorage.getItem('authToken');
+            const userData = localStorage.getItem('userData');
+            
+            if (!authToken || !userData) {
+                window.location.href = '/login.html';
+                return false;
+            }
+            
+            try {
+                const user = JSON.parse(userData);
+                updateUserInterface(user);
+                return true;
+            } catch (error) {
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('userData');
+                window.location.href = '/login.html';
+                return false;
+            }
+        }
+        
+        // Update user interface
+        function updateUserInterface(user) {
+            const userNameElement = document.querySelector('#user-name');
+            if (userNameElement) {
+                userNameElement.textContent = user.name;
+            }
+            
+            const roleElement = document.querySelector('#user-role');
+            if (roleElement) {
+                roleElement.textContent = user.role === 'admin' ? 'Administrator' : 'Employee';
+                roleElement.className = user.role === 'admin' ? 'text-red-600 font-semibold' : 'text-green-600 font-semibold';
+            }
+            
+            const logoutBtn = document.querySelector('#logout-btn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', function() {
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('userData');
+                    window.location.href = '/login.html';
+                });
+            }
+        }
+
+        // Sidebar functionality
+        function initSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarOverlay = document.getElementById('sidebar-overlay');
+            const openSidebarBtn = document.getElementById('open-sidebar');
+            const closeSidebarBtn = document.getElementById('close-sidebar');
+
+            function openSidebar() {
+                sidebar.classList.add('active');
+                sidebarOverlay.classList.remove('hidden');
+            }
+
+            function closeSidebar() {
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.add('hidden');
+            }
+
+            if (openSidebarBtn) openSidebarBtn.addEventListener('click', openSidebar);
+            if (closeSidebarBtn) closeSidebarBtn.addEventListener('click', closeSidebar);
+            if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
+
+            // Add navigation handling for sidebar links
+            const sidebarLinks = document.querySelectorAll('[data-page]');
+            sidebarLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const page = this.getAttribute('data-page');
+                    handleNavigation(page);
+                });
+            });
+        }
+
+        // Navigation handler
+        function handleNavigation(page) {
+            const pageRoutes = {
+                'dashboard': '../index.html',
+                'profile': '../pages/profile.html',
+                'tasks': '../pages/tasks.html',
+                'time-tracker': 'time-tracker.html', // Current page
+                'guardian-ai': '../pages/guardian-ai.html',
+                'eligibility': '../pages/eligibility.html',
+                'claims-follow-up': '../pages/claims-follow-up.html',
+                'ar-comment': '../pages/ar-comment.html',
+                'speech-practice': '../pages/speech-practice.html',
+                'guardian-tts': '../pages/guardian-tts.html',
+                'phonetic-pronunciation': '../pages/phonetic-pronunciation.html',
+                'complaint-suggestions': '../pages/complaint-suggestions.html',
+                'request-leave': '../pages/request-leave.html',
+                'request-loan': '../pages/request-loan.html',
+                'submit-report': '../pages/submit-report.html',
+                'team-directory': '../pages/employees.html' // Team directory maps to employees page
+            };
+
+            if (page === 'time-tracker') {
+                // Already on time tracker page
+                showNavigationNotification('Already on Time Tracker page', 'info');
+                return;
+            }
+
+            if (pageRoutes[page]) {
+                // Show loading notification
+                showNavigationNotification(`Navigating to ${page.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}...`, 'info');
+                
+                // Navigate to the page
+                setTimeout(() => {
+                    window.location.href = pageRoutes[page];
+                }, 500);
+            } else {
+                showNavigationNotification(`Page "${page}" not found`, 'error');
+            }
+        }
+
+        // Navigation notification function
+        function showNavigationNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 transition-all duration-300 ${
+                type === 'success' ? 'bg-green-500 text-white' : 
+                type === 'error' ? 'bg-red-500 text-white' : 
+                type === 'warning' ? 'bg-orange-500 text-white' :
+                'bg-blue-500 text-white'
+            }`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            // Auto remove after 3 seconds
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        document.body.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // EST Timezone Display
+        function updateESTTime() {
+            const now = new Date();
+            const estTime = new Date(now.toLocaleString("en-US", {timeZone: "America/New_York"}));
+            const timeString = estTime.toLocaleTimeString('en-US', {
+                hour12: false,
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            
+            const estTimeElement = document.getElementById('est-time');
+            if (estTimeElement) {
+                estTimeElement.textContent = timeString;
+            }
+        }
+
+        // Global EST timezone functions
+        window.getESTTime = function() {
+            return new Date(new Date().toLocaleString("en-US", {timeZone: "America/New_York"}));
+        };
+
+        window.formatESTTime = function(date) {
+            const estDate = new Date(date.toLocaleString("en-US", {timeZone: "America/New_York"}));
+            return estDate.toLocaleTimeString('en-US', {
+                hour12: false,
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            }) + ' EST';
+        };
+
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthentication();
+            initSidebar();
+            updateESTTime();
+            setInterval(updateESTTime, 1000); // Update EST time every second
+        });
+    </script>
+
+    <script src="js/time-tracking-service.js"></script>
+    <script src="js/time-tracker.js"></script>
+</body>
+</html>

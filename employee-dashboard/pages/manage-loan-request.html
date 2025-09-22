@@ -1,0 +1,395 @@
+<script>(function(){if(!document.getElementById('sidebar')){if(!location.search.includes('page=request-loan'))location.replace('/index.html?page=request-loan');}})();</script>
+<div class="space-y-8">
+    <h2 class="text-3xl font-bold text-gray-800">Manage Loan Requests</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-white">
+        <div class="bg-gradient-to-br from-orange-500 to-red-500 p-6 rounded-xl shadow-lg">
+            <p class="text-3xl font-extrabold text-shadow">3</p>
+            <p class="text-sm opacity-80 text-shadow">Pending Requests</p>
+        </div>
+        <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-6 rounded-xl shadow-lg">
+            <p class="text-3xl font-extrabold text-shadow">PKR 1.2M</p>
+            <p class="text-sm opacity-80 text-shadow">Total Disbursed (This Year)</p>
+        </div>
+        <div class="bg-gradient-to-br from-green-500 to-teal-600 p-6 rounded-xl shadow-lg">
+            <p class="text-3xl font-extrabold text-shadow">5</p>
+            <p class="text-sm opacity-80 text-shadow">Loans Paid Off</p>
+        </div>
+        <div class="bg-gradient-to-br from-amber-500 to-yellow-500 p-6 rounded-xl shadow-lg">
+            <p class="text-3xl font-extrabold text-shadow">PKR 850K</p>
+            <p class="text-sm opacity-80 text-shadow">Outstanding Balance</p>
+        </div>
+    </div>
+
+    <div class="bg-white p-6 rounded-xl shadow-lg">
+        <div class="border-b border-gray-200">
+            <nav id="loan-tabs" class="-mb-px flex space-x-6">
+                <button data-status="all" class="loan-tab-btn active py-3 px-1 border-b-2 font-semibold text-sm">All</button>
+                <button data-status="Pending" class="loan-tab-btn py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700">Pending</button>
+                <button data-status="Approved" class="loan-tab-btn py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700">Approved</button>
+                <button data-status="Paid Off" class="loan-tab-btn py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700">Paid Off</button>
+                <button data-status="Rejected" class="loan-tab-btn py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700">Rejected</button>
+            </nav>
+        </div>
+
+        <div id="loan-cards-container" class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+            <div class="loan-card rounded-xl border border-gray-200" data-status="Pending">
+                <div class="p-4 flex justify-between items-start">
+                    <div class="flex items-center space-x-3"><img src="https://i.pravatar.cc/40?u=9" class="w-10 h-10 rounded-full"><p class="font-bold">Robert Harris</p></div>
+                    <span class="px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>
+                </div>
+                <div class="p-4 space-y-2">
+                    <div><p class="text-xs text-gray-500">Amount</p><p class="text-xl font-bold">PKR 50,000 <span class="text-sm font-normal text-gray-500">/ $179</span></p></div>
+                    <div><p class="text-xs text-gray-500">Reason</p><p class="text-sm">Medical Emergency</p></div>
+                    <div><p class="text-xs text-gray-500">Requested On</p><p class="text-sm">Sep 20, 2025</p></div>
+                </div>
+                <div class="p-4 bg-gray-50 rounded-b-xl flex justify-end space-x-3">
+                    <button class="px-4 py-2 text-sm font-semibold bg-red-100 text-red-700 rounded-lg hover:bg-red-200">Reject</button>
+                    <button class="px-4 py-2 text-sm font-semibold bg-green-100 text-green-700 rounded-lg hover:bg-green-200">Approve</button>
+                </div>
+            </div>
+            
+            <div class="loan-card rounded-xl border border-gray-200" data-status="Approved">
+                <div class="p-4 flex justify-between items-start">
+                    <div class="flex items-center space-x-3"><img src="https://i.pravatar.cc/40?u=5" class="w-10 h-10 rounded-full"><p class="font-bold">David Lee</p></div>
+                    <span class="px-3 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">Approved</span>
+                </div>
+                <div class="p-4 space-y-2">
+                    <div><p class="text-xs text-gray-500">Amount</p><p class="text-xl font-bold">PKR 100,000 <span class="text-sm font-normal text-gray-500">/ $359</span></p></div>
+                    <div><p class="text-xs text-gray-500">Repayment Progress</p>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5 mt-1"><div class="bg-blue-600 h-2.5 rounded-full" style="width: 45%"></div></div>
+                        <p class="text-xs text-right text-gray-500 mt-1">45% Paid</p>
+                    </div>
+                </div>
+                <div class="p-4 bg-gray-50 rounded-b-xl flex justify-end space-x-3">
+                    <button class="px-4 py-2 text-sm font-semibold bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300">View Details</button>
+                </div>
+            </div>
+
+            <div class="loan-card rounded-xl border border-gray-200" data-status="Paid Off">
+                 <div class="p-4 flex justify-between items-start">
+                    <div class="flex items-center space-x-3"><img src="https://i.pravatar.cc/40?u=7" class="w-10 h-10 rounded-full"><p class="font-bold">James Brown</p></div>
+                    <span class="px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Paid Off</span>
+                </div>
+                <div class="p-4 space-y-2">
+                    <div><p class="text-xs text-gray-500">Amount</p><p class="text-xl font-bold">PKR 75,000 <span class="text-sm font-normal text-gray-500">/ $269</span></p></div>
+                     <div><p class="text-xs text-gray-500">Repayment Progress</p>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5 mt-1"><div class="bg-green-600 h-2.5 rounded-full" style="width: 100%"></div></div>
+                        <p class="text-xs text-right text-gray-500 mt-1">100% Paid</p>
+                    </div>
+                </div>
+                 <div class="p-4 bg-gray-50 rounded-b-xl flex justify-end space-x-3">
+                    <button class="px-4 py-2 text-sm font-semibold bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300">View Details</button>
+                </div>
+            </div>
+
+            <div class="loan-card rounded-xl border border-gray-200" data-status="Rejected">
+                 <div class="p-4 flex justify-between items-start">
+                    <div class="flex items-center space-x-3"><img src="https://i.pravatar.cc/40?u=4" class="w-10 h-10 rounded-full"><p class="font-bold">Emily Rodriguez</p></div>
+                    <span class="px-3 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Rejected</span>
+                </div>
+                <div class="p-4 space-y-2">
+                    <div><p class="text-xs text-gray-500">Amount</p><p class="text-xl font-bold">PKR 200,000 <span class="text-sm font-normal text-gray-500">/ $718</span></p></div>
+                    <div><p class="text-xs text-gray-500">Reason</p><p class="text-sm">Personal Travel</p></div>
+                    <div><p class="text-xs text-gray-500">Rejected On</p><p class="text-sm">Sep 10, 2025</p></div>
+                </div>
+                 <div class="p-4 bg-gray-50 rounded-b-xl flex justify-end space-x-3">
+                    <button class="px-4 py-2 text-sm font-semibold bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300">View Details</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        let allLoanRequests = [];
+        
+        // Initialize the page
+        async function initializeLoanManagement() {
+            await loadLoanRequests();
+            await loadLoanStats();
+            setupEventListeners();
+        }
+
+        // Load all loan requests from API
+        async function loadLoanRequests() {
+            try {
+                const response = await fetch('http://localhost:5000/api/loan-requests');
+                if (response.ok) {
+                    allLoanRequests = await response.json();
+                    renderLoanCards(allLoanRequests);
+                } else {
+                    console.error('Failed to load loan requests');
+                    showError('Failed to load loan requests');
+                }
+            } catch (error) {
+                console.error('Error loading loan requests:', error);
+                showError('Error loading loan requests');
+            }
+        }
+
+        // Load loan statistics
+        async function loadLoanStats() {
+            try {
+                const response = await fetch('http://localhost:5000/api/loan-requests/stats');
+                if (response.ok) {
+                    const stats = await response.json();
+                    updateStatsCards(stats);
+                }
+            } catch (error) {
+                console.error('Error loading loan stats:', error);
+            }
+        }
+
+        // Update statistics cards
+        function updateStatsCards(stats) {
+            const statusBreakdown = stats.statusBreakdown.reduce((acc, item) => {
+                acc[item._id] = item;
+                return acc;
+            }, {});
+
+            // Update cards (you may need to adjust based on your stats structure)
+            const pendingCount = statusBreakdown.Pending?.count || 0;
+            const totalAmount = stats.totalLoanAmount || 0;
+            const paidOffCount = statusBreakdown.Paid?.count || 0;
+            
+            // Update the stat cards in the HTML
+            document.querySelector('.bg-gradient-to-br.from-orange-500 .text-3xl').textContent = pendingCount;
+            document.querySelector('.bg-gradient-to-br.from-blue-500 .text-3xl').textContent = `PKR ${(totalAmount / 1000).toFixed(1)}K`;
+            document.querySelector('.bg-gradient-to-br.from-green-500 .text-3xl').textContent = paidOffCount;
+        }
+
+        // Render loan cards
+        function renderLoanCards(loans) {
+            const container = document.getElementById('loan-cards-container');
+            container.innerHTML = '';
+
+            if (loans.length === 0) {
+                container.innerHTML = '<div class="col-span-full text-center py-8 text-gray-500">No loan requests found</div>';
+                return;
+            }
+
+            loans.forEach(loan => {
+                const card = createLoanCard(loan);
+                container.appendChild(card);
+            });
+        }
+
+        // Create loan card element
+        function createLoanCard(loan) {
+            const card = document.createElement('div');
+            card.className = 'loan-card rounded-xl border border-gray-200';
+            card.dataset.status = loan.status;
+
+            const progress = loan.totalPaid ? ((loan.totalPaid / loan.loanAmount) * 100).toFixed(0) : 0;
+            const statusClass = getStatusClass(loan.status);
+            const currencySymbol = getCurrencySymbol(loan.currency);
+            
+            card.innerHTML = `
+                <div class="p-4 flex justify-between items-start">
+                    <div class="flex items-center space-x-3">
+                        <img src="https://i.pravatar.cc/40?u=${loan._id}" class="w-10 h-10 rounded-full">
+                        <p class="font-bold">${loan.employeeName}</p>
+                    </div>
+                    <span class="px-3 py-1 text-xs font-semibold rounded-full ${statusClass}">${loan.status}</span>
+                </div>
+                <div class="p-4 space-y-2">
+                    <div>
+                        <p class="text-xs text-gray-500">Amount</p>
+                        <p class="text-xl font-bold">${currencySymbol}${loan.loanAmount.toLocaleString()}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500">Reason</p>
+                        <p class="text-sm">${loan.loanReason}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500">Requested On</p>
+                        <p class="text-sm">${new Date(loan.requestDate).toLocaleDateString()}</p>
+                    </div>
+                    ${loan.status === 'Approved' || loan.status === 'Paid' ? `
+                        <div>
+                            <p class="text-xs text-gray-500">Repayment Progress</p>
+                            <div class="w-full bg-gray-200 rounded-full h-2.5 mt-1">
+                                <div class="bg-blue-600 h-2.5 rounded-full" style="width: ${progress}%"></div>
+                            </div>
+                            <p class="text-xs text-right text-gray-500 mt-1">${progress}% Paid</p>
+                        </div>
+                    ` : ''}
+                </div>
+                <div class="p-4 bg-gray-50 rounded-b-xl flex justify-end space-x-3">
+                    ${loan.status === 'Pending' ? `
+                        <button class="reject-btn px-4 py-2 text-sm font-semibold bg-red-100 text-red-700 rounded-lg hover:bg-red-200" data-id="${loan._id}">Reject</button>
+                        <button class="approve-btn px-4 py-2 text-sm font-semibold bg-green-100 text-green-700 rounded-lg hover:bg-green-200" data-id="${loan._id}">Approve</button>
+                    ` : `
+                        <button class="view-details-btn px-4 py-2 text-sm font-semibold bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300" data-id="${loan._id}">View Details</button>
+                        ${loan.status === 'Approved' && loan.remainingBalance > 0 ? `
+                            <button class="add-payment-btn px-4 py-2 text-sm font-semibold bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200" data-id="${loan._id}">Add Payment</button>
+                        ` : ''}
+                    `}
+                </div>
+            `;
+
+            return card;
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            const tabs = document.querySelectorAll('.loan-tab-btn');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Update tab styles
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+
+                    const statusToShow = tab.dataset.status;
+                    filterLoanCards(statusToShow);
+                });
+            });
+
+            // Delegate event listeners for dynamic buttons
+            document.getElementById('loan-cards-container').addEventListener('click', async (e) => {
+                const loanId = e.target.dataset.id;
+                
+                if (e.target.classList.contains('approve-btn')) {
+                    await updateLoanStatus(loanId, 'Approved');
+                } else if (e.target.classList.contains('reject-btn')) {
+                    await updateLoanStatus(loanId, 'Rejected');
+                } else if (e.target.classList.contains('add-payment-btn')) {
+                    showPaymentModal(loanId);
+                } else if (e.target.classList.contains('view-details-btn')) {
+                    showLoanDetails(loanId);
+                }
+            });
+        }
+
+        // Filter loan cards by status
+        function filterLoanCards(status) {
+            const filteredLoans = status === 'all' ? allLoanRequests : 
+                allLoanRequests.filter(loan => loan.status === status);
+            renderLoanCards(filteredLoans);
+        }
+
+        // Update loan status
+        async function updateLoanStatus(loanId, status) {
+            const reason = status === 'Rejected' ? 
+                prompt('Please provide a reason for rejection:') : 
+                prompt('Any notes for approval (optional):') || '';
+            
+            if (status === 'Rejected' && !reason) return;
+
+            try {
+                const response = await fetch(`http://localhost:5000/api/loan-requests/${loanId}/status`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        status: status,
+                        adminNotes: reason,
+                        reviewedBy: 'admin' // In real app, get from session
+                    })
+                });
+
+                if (response.ok) {
+                    showSuccess(`Loan ${status.toLowerCase()} successfully!`);
+                    await loadLoanRequests();
+                    await loadLoanStats();
+                } else {
+                    const error = await response.json();
+                    showError(error.msg || 'Failed to update loan status');
+                }
+            } catch (error) {
+                console.error('Error updating loan status:', error);
+                showError('Error updating loan status');
+            }
+        }
+
+        // Helper functions
+        function getStatusClass(status) {
+            const classes = {
+                'Pending': 'bg-yellow-100 text-yellow-800',
+                'Approved': 'bg-blue-100 text-blue-800',
+                'Rejected': 'bg-red-100 text-red-800',
+                'Paid': 'bg-green-100 text-green-800'
+            };
+            return classes[status] || 'bg-gray-100 text-gray-800';
+        }
+
+        function getCurrencySymbol(currency) {
+            const symbols = { 'USD': '$', 'PKR': '₨', 'EUR': '€' };
+            return symbols[currency] || '$';
+        }
+
+        function showSuccess(message) {
+            showNotification(message, 'success');
+        }
+
+        function showError(message) {
+            showNotification(message, 'error');
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 transition-all duration-300 ${
+                type === 'success' ? 'bg-green-500 text-white' : 
+                type === 'error' ? 'bg-red-500 text-white' : 
+                'bg-blue-500 text-white'
+            }`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        document.body.removeChild(notification);
+                    }
+                }, 300);
+            }, 5000);
+        }
+
+        function showPaymentModal(loanId) {
+            const amount = prompt('Enter payment amount:');
+            if (amount && !isNaN(amount) && parseFloat(amount) > 0) {
+                addPayment(loanId, parseFloat(amount));
+            }
+        }
+
+        async function addPayment(loanId, amount) {
+            try {
+                const response = await fetch(`http://localhost:5000/api/loan-requests/${loanId}/payment`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        amount: amount,
+                        paymentMethod: 'Salary Deduction',
+                        notes: 'Manual payment entry by admin'
+                    })
+                });
+
+                if (response.ok) {
+                    showSuccess('Payment added successfully!');
+                    await loadLoanRequests();
+                    await loadLoanStats();
+                } else {
+                    const error = await response.json();
+                    showError(error.msg || 'Failed to add payment');
+                }
+            } catch (error) {
+                console.error('Error adding payment:', error);
+                showError('Error adding payment');
+            }
+        }
+
+        function showLoanDetails(loanId) {
+            const loan = allLoanRequests.find(l => l._id === loanId);
+            if (loan) {
+                alert(`Loan Details:\nEmployee: ${loan.employeeName}\nAmount: ${getCurrencySymbol(loan.currency)}${loan.loanAmount}\nStatus: ${loan.status}\nReason: ${loan.loanReason}\nRequested: ${new Date(loan.requestDate).toLocaleDateString()}`);
+            }
+        }
+
+        // Initialize when the page loads
+        initializeLoanManagement();
+    })();
+</script>

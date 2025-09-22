@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Light grey background */
+        }
+        .sidebar {
+            background-color: #ffffff; /* White sidebar */
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: transform 0.3s ease-in-out;
+            transform: translateX(-100%);
+            z-index: 50;
+        }
+        .sidebar.active {
+            transform: translateX(0);
+        }
+        @media (min-width: 768px) {
+            .sidebar {
+                transform: translateX(0);
+            }
+        }
+        .menu-item {
+            color: #6b7280; /* Grey text */
+            position: relative;
+        }
+        .menu-item:hover, .menu-item.active {
+            color: #D65A20; /* Orange accent on hover/active */
+            background-color: #eff6ff; /* Light blue background */
+        }
+        .menu-item.has-quick-action::after {
+            content: '⚡';
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+            opacity: 0.7;
+        }
+        .menu-item.has-quick-action:hover::after {
+            opacity: 1;
+        }
+        .main-content::-webkit-scrollbar { width: 8px; }
+        .main-content::-webkit-scrollbar-track { background: #e2e8f0; border-radius: 10px; }
+        .main-content::-webkit-scrollbar-thumb { background-color: #94a3b8; border-radius: 10px; border: 2px solid #e2e8f0; }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 min-h-screen flex flex-col md:flex-row">
+    <script src="/js/auth-guard.js"></script>
+
+    <div id="sidebar-overlay" class="fixed inset-0 bg-gray-900 bg-opacity-50 z-40 md:hidden hidden"></div>
+    <div id="sidebar" class="sidebar fixed inset-y-0 left-0 w-64 md:relative md:w-64 p-4 md:p-6 md:flex-shrink-0 flex flex-col h-full overflow-y-auto bg-white">
+        <div class="flex items-center justify-between md:justify-center mb-6">
+             <img src="https://guardiandentalbilling.com/wp-content/uploads/2025/02/Logo-250-x-150-px-1.png" alt="Company Logo" class="h-20 w-auto">
+            <button id="close-sidebar" class="md:hidden text-gray-500 hover:text-gray-700 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+        <nav class="mt-8 flex-1">
+            <ul class="space-y-2" id="sidebar-menu">
+                <li><a href="/index.html?page=dashboard" data-page="dashboard" class="menu-item p-3 flex items-center gap-3 rounded-lg font-medium transition-colors duration-200 hover:bg-blue-50 active"><i class="fas fa-chart-line text-blue-500"></i><span>Dashboard</span></a></li>
+                <li><a href="/index.html?page=profile" data-page="profile" class="menu-item p-3 flex items-center gap-3 rounded-lg font-medium transition-colors duration-200 hover:bg-blue-50"><i class="fas fa-id-badge text-indigo-500"></i><span>My Profile</span></a></li>
+                <li><a href="/index.html?page=tasks" data-page="tasks" class="menu-item p-3 flex items-center gap-3 rounded-lg font-medium transition-colors duration-200 hover:bg-blue-50"><i class="fas fa-list-check text-emerald-500"></i><span>Tasks</span></a></li>
+                <li><a href="/time-tracker/time-tracker.html" data-page="time-tracker" class="menu-item p-3 flex items-center gap-3 rounded-lg font-medium transition-colors duration-200 hover:bg-blue-50"><i class="fas fa-clock text-orange-500"></i><span>Time Tracker</span></a></li>
+                <li><a href="/index.html?page=guardian-ai" data-page="guardian-ai" class="menu-item p-3 flex items-center gap-3 rounded-lg font-medium transition-colors duration-200 hover:bg-blue-50"><i class="fas fa-robot text-purple-500"></i><span>Guardian AI</span></a></li>
+                <li><a href="/index.html?page=eligibility" data-page="eligibility" class="menu-item p-3 flex items-center gap-3 rounded-lg font-medium transition-colors duration-200 hover:bg-blue-50"><i class="fas fa-file-medical text-teal-500"></i><span>Eligibility Verification</span></a></li>
+                <li><a href="/index.html?page=claims-follow-up" data-page="claims-follow-up" class="menu-item p-3 flex items-center gap-3 rounded-lg font-medium transition-colors duration-200 hover:bg-blue-50"><i class="fas fa-clipboard-check text-lime-600"></i><span>Claims Follow Up</span></a></li>
+                <li><a href="/index.html?page=ar-comment" data-page="ar-comment" class="menu-item p-3 flex items-center gap-3 rounded-lg font-medium transition-colors duration-200 hover:bg-blue-50"><i class="fas fa-comment-dots text-pink-500"></i><span>Create AR Comment</span></a></li>
+                <li><a href="/index.html?page=speech-practice" data-page="speech-practice" class="menu-item p-3 flex items-center gap-3 rounded-lg font-medium transition-colors duration-200 hover:bg-blue-50"><i class="fas fa-microphone-lines text-red-500"></i><span>Speech Practice</span></a></li>
+                <li><a href="/index.html?page=guardian-tts" data-page="guardian-tts" class="menu-item p-3 flex items-center gap-3 rounded-lg font-medium transition-colors duration-200 hover:bg-blue-50"><i class="fas fa-wave-square text-sky-500"></i><span>Guardian TTS</span></a></li>
+                <li><a href="/index.html?page=phonetic-pronunciation" data-page="phonetic-pronunciation" class="menu-item p-3 flex items-center gap-3 rounded-lg font-medium transition-colors duration-200 hover:bg-blue-50"><i class="fas fa-spell-check text-violet-500"></i><span>Phonetic Pronunciation</span></a></li>
+                <li><a href="/index.html?page=settings" data-page="settings" class="menu-item p-3 flex items-center gap-3 rounded-lg font-medium transition-colors duration-200 hover:bg-blue-50"><i class="fas fa-sliders-h text-gray-600"></i><span>Settings</span></a></li>
+                <li><a href="/index.html?page=chat" data-page="chat" class="menu-item p-3 flex items-center gap-3 rounded-lg font-medium transition-colors duration-200 hover:bg-blue-50"><i class="fas fa-comments text-emerald-500"></i><span>Chat</span></a></li>
+                <li><a href="/index.html?page=complaint-suggestions" data-page="complaint-suggestions" class="menu-item has-quick-action p-3 flex items-center gap-3 rounded-lg font-medium transition-colors duration-200 hover:bg-blue-50"><i class="fas fa-lightbulb text-amber-500"></i><span>Complaint / Suggestions</span></a></li>
+                <li><a href="/index.html?page=request-leave" data-page="request-leave" class="menu-item has-quick-action p-3 flex items-center gap-3 rounded-lg font-medium transition-colors duration-200 hover:bg-blue-50"><i class="fas fa-plane-departure text-cyan-500"></i><span>Request Leave</span></a></li>
+                <li><a href="/index.html?page=request-loan" data-page="request-loan" class="menu-item has-quick-action p-3 flex items-center gap-3 rounded-lg font-medium transition-colors duration-200 hover:bg-blue-50"><i class="fas fa-hand-holding-dollar text-green-600"></i><span>Request Loan</span></a></li>
+                <li><a href="/index.html?page=submit-report" data-page="submit-report" class="menu-item p-3 flex items-center gap-3 rounded-lg font-medium transition-colors duration-200 hover:bg-blue-50"><i class="fas fa-file-signature text-fuchsia-500"></i><span>Submit Report</span></a></li>
+                <li><a href="/index.html?page=team-directory" data-page="team-directory" class="menu-item has-quick-action p-3 flex items-center gap-3 rounded-lg font-medium transition-colors duration-200 hover:bg-blue-50"><i class="fas fa-users text-indigo-600"></i><span>Team Directory</span></a></li>
+            </ul>
+        </nav>
+        
+        <!-- User Info and Logout Section -->
+        <div class="mt-auto pt-4 border-t border-gray-200">
+            <div class="px-3 py-2 bg-gray-50 rounded-lg">
+                <div class="text-sm font-medium text-gray-800" id="user-name">Loading...</div>
+                <div class="text-xs text-gray-500" id="user-role">Employee</div>
+            </div>
+            <button id="logout-btn" class="w-full mt-3 px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-colors duration-200 flex items-center justify-center">
+                <i class="fas fa-sign-out-alt mr-2"></i>
+                Logout
+            </button>
+        </div>
+    </div>
+
+    <div class="flex-1 flex flex-col p-4 md:p-8 overflow-hidden h-screen">
+        <header class="flex items-center justify-between bg-white p-4 md:p-6 rounded-xl shadow-md z-10">
+            <button id="open-sidebar" class="md:hidden text-gray-500 hover:text-gray-700 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            </button>
+            <h2 id="main-title" class="text-lg md:text-xl font-semibold text-gray-800 uppercase">Dashboard</h2>
+            
+            <!-- Check-in/Check-out Section -->
+            <div class="flex items-center space-x-4">
+                <div id="attendance-section" class="flex items-center space-x-2">
+                    <div id="attendance-status" class="text-sm text-gray-600">
+                        <span id="status-text">Loading...</span>
+                        <div id="timer-display" class="font-mono text-xs text-gray-500 hidden"></div>
+                    </div>
+                    <button id="checkin-btn" class="px-4 py-2 bg-green-500 text-white text-sm rounded-lg hover:bg-green-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed" disabled>
+                        Check In
+                    </button>
+                    <button id="checkout-btn" class="px-4 py-2 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed" disabled>
+                        Check Out
+                    </button>
+                </div>
+                
+                <div class="relative w-full max-w-sm md:max-w-md">
+                    <input type="text" placeholder="Search..." class="w-full pl-10 pr-4 py-2 text-sm md:text-base border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path></svg>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <main id="main-content" class="main-content bg-white p-6 md:p-8 mt-6 rounded-xl shadow-md overflow-y-auto flex-1 h-full">
+            </main>
+    </div>
+
+    <script>
+        // Authentication Check - Ensure user is logged in
+        function checkAuthentication() {
+            const authToken = localStorage.getItem('authToken');
+            const userData = localStorage.getItem('userData');
+            
+            if (!authToken || !userData) {
+                // No authentication, redirect to login
+                window.location.href = '/login.html';
+                return false;
+            }
+            
+            try {
+                const user = JSON.parse(userData);
+                
+                // Check if admin is trying to access employee dashboard
+                if (user.role === 'admin') {
+                    // Admin can access both, but show admin indicator
+                    updateUserInterface(user);
+                    return true;
+                } else if (user.role === 'employee') {
+                    // Employee access
+                    updateUserInterface(user);
+                    return true;
+                } else {
+                    // Invalid role
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('userData');
+                    window.location.href = '/login.html';
+                    return false;
+                }
+            } catch (error) {
+                // Invalid user data
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('userData');
+                window.location.href = '/login.html';
+                return false;
+            }
+        }
+        
+        // Update user interface based on user data
+        function updateUserInterface(user) {
+            // Update user name in sidebar if element exists
+            const userNameElement = document.querySelector('#user-name');
+            if (userNameElement) {
+                userNameElement.textContent = user.name;
+            }
+            
+            // Add role indicator
+            const roleElement = document.querySelector('#user-role');
+            if (roleElement) {
+                roleElement.textContent = user.role === 'admin' ? 'Administrator' : 'Employee';
+                roleElement.className = user.role === 'admin' ? 'text-red-600 font-semibold' : 'text-green-600 font-semibold';
+            }
+            
+            // Add logout functionality
+            const logoutBtn = document.querySelector('#logout-btn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', function() {
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('userData');
+                    window.location.href = '/login.html';
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check authentication after DOM is loaded
+            if (!checkAuthentication()) {
+                return; // Stop execution if not authenticated
+            }
+
+            const mainContent = document.getElementById('main-content');
+            const mainTitle = document.getElementById('main-title');
+            const menuLinks = document.querySelectorAll('.menu-item');
+            const openSidebarBtn = document.getElementById('open-sidebar');
+            const closeSidebarBtn = document.getElementById('close-sidebar');
+            const sidebar = document.getElementById('sidebar');
+            const sidebarOverlay = document.getElementById('sidebar-overlay');
+            
+            // Map menu text & slugs to page file and title
+            const pageMap = {
+                'Dashboard': { file: 'dashboard.html', title: 'DASHBOARD', slug: 'dashboard' },
+                'My Profile': { file: 'profile.html', title: 'MY PROFILE', slug: 'profile' },
+                'Tasks': { file: 'tasks.html', title: 'TASKS', slug: 'tasks' },
+                'Time Tracker': { file: 'REDIRECT', title: 'TIME TRACKER', slug: 'time-tracker' },
+                'Guardian AI': { file: 'guardian-ai.html', title: 'GUARDIAN AI', slug: 'guardian-ai' },
+                'Eligibility Verification': { file: 'eligibility.html', title: 'ELIGIBILITY VERIFICATION', slug: 'eligibility' },
+                'Claims Follow Up': { file: 'claims-follow-up.html', title: 'CLAIMS FOLLOW UP', slug: 'claims-follow-up' },
+                'Create AR Comment': { file: 'ar-comment.html', title: 'CREATE AR COMMENT', slug: 'ar-comment' },
+                'Speech Practice': { file: 'speech-practice.html', title: 'SPEECH PRACTICE', slug: 'speech-practice' },
+                'Guardian TTS': { file: 'guardian-tts.html', title: 'GUARDIAN TTS', slug: 'guardian-tts' },
+                'Phonetic Pronunciation': { file: 'phonetic-pronunciation.html', title: 'PHONETIC PRONUNCIATION', slug: 'phonetic-pronunciation' },
+                'Complaint / Suggestions': { file: 'complaint-suggestions.html', title: 'COMPLAINT / SUGGESTIONS', slug: 'complaint-suggestions' },
+                'Request Leave': { file: 'request-leave.html', title: 'REQUEST LEAVE', slug: 'request-leave' },
+                'Request Loan': { file: 'request-loan.html', title: 'REQUEST LOAN', slug: 'request-loan' },
+                'Submit Report': { file: 'submit-report.html', title: 'SUBMIT REPORT', slug: 'submit-report' },
+                'Team Directory': { file: 'employees.html', title: 'TEAM DIRECTORY', slug: 'team-directory' }
+                , 'Settings': { file: 'settings.html', title: 'SETTINGS', slug: 'settings' }
+                , 'Chat': { file: 'chat.html', title: 'CHAT', slug: 'chat' }
+            };
+
+            function getBySlug(slug) {
+                return Object.values(pageMap).find(p => p.slug === slug);
+            }
+
+            // Unified resolver: accepts display name, slug, or uppercase variant
+            function resolvePage(pageIdentifier) {
+                if (!pageIdentifier) return null;
+                // Exact key match first
+                if (pageMap[pageIdentifier]) return pageMap[pageIdentifier];
+                // Slug match (already lowercase) or case-insensitive slug attempt
+                const lowered = pageIdentifier.toLowerCase();
+                const bySlug = getBySlug(lowered);
+                if (bySlug) return bySlug;
+                // Case-insensitive key match
+                const byKeyCI = Object.keys(pageMap).find(k => k.toLowerCase() === lowered);
+                if (byKeyCI) return pageMap[byKeyCI];
+                return null;
+            }
+
+            // Function to load content from external file
+            async function loadContent(pageIdentifier) {
+                console.log('[Loader] Requested:', pageIdentifier);
+                const pageInfo = resolvePage(pageIdentifier);
+                if (!pageInfo) {
+                    if (pageIdentifier === 'time-tracker') {
+                        window.location.href = '/time-tracker/time-tracker.html';
+                        return;
+                    }
+                    mainTitle.textContent = 'Error';
+                    mainContent.innerHTML = `<div class="text-center p-8 text-gray-500">
+                        <p>Content for "${pageIdentifier}" is not available.</p>
+                        <p class="text-sm mt-2">Available pages: ${Object.keys(pageMap).map(k=>pageMap[k].slug).join(', ')}</p>
+                    </div>`;
+                    return;
+                }
+
+                if (pageInfo.slug === 'time-tracker') {
+                    window.location.href = '/time-tracker/time-tracker.html';
+                    return;
+                }
+                
+                try {
+                    console.log('[Loader] Fetching file:', pageInfo.file, 'slug:', pageInfo.slug);
+                    const pagePath = `/pages/${pageInfo.file}`; // absolute path to avoid relative directory confusion
+                    console.log('[Loader] Resolved page path:', pagePath);
+                    const response = await fetch(pagePath, { cache: 'no-cache' });
+                    console.log('[Loader] Response status:', response.status, 'for', pagePath);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    let raw = await response.text();
+                    console.log('Content loaded successfully, length:', raw.length);
+
+                    // If the fetched file is a full HTML document, extract body inner HTML
+                    if (/<!DOCTYPE html>/i.test(raw) || /<html[\s>]/i.test(raw)) {
+                        try {
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(raw, 'text/html');
+                            if (doc.body) {
+                                // Collect head assets (stylesheets, inline styles, and scripts) to inject if not already present
+                                const existingScriptSrcs = new Set(Array.from(document.querySelectorAll('script[src]')).map(s => s.getAttribute('src')));
+                                const existingStyleHrefs = new Set(Array.from(document.querySelectorAll('link[rel="stylesheet"][href]')).map(l => l.getAttribute('href')));
+                                const headLinks = Array.from(doc.head.querySelectorAll('link[rel="stylesheet"][href]'));
+                                headLinks.forEach(link => {
+                                    const href = link.getAttribute('href');
+                                    if (!href) return;
+                                    // Skip common already-loaded CDNs to reduce duplication
+                                    if (existingStyleHrefs.has(href)) return;
+                                    if (/tailwindcss|fonts\.googleapis|font-awesome/i.test(href)) return;
+                                    const clone = link.cloneNode(true);
+                                    clone.setAttribute('data-dynamic-head', 'true');
+                                    document.head.appendChild(clone);
+                                    existingStyleHrefs.add(href);
+                                    console.log('[Loader] Injected stylesheet from head:', href);
+                                });
+
+                                // Inline <style> tags
+                                const headStyles = Array.from(doc.head.querySelectorAll('style'));
+                                headStyles.forEach(styleTag => {
+                                    // Simple de-duplication: hash textContent length + first 40 chars
+                                    const sig = 'inline-style-' + styleTag.textContent.length + '-' + styleTag.textContent.slice(0,40);
+                                    if (!document.head.querySelector('style[data-sig="'+sig+'"]')) {
+                                        const clone = document.createElement('style');
+                                        clone.textContent = styleTag.textContent;
+                                        clone.setAttribute('data-dynamic-head', 'true');
+                                        clone.setAttribute('data-sig', sig);
+                                        document.head.appendChild(clone);
+                                        console.log('[Loader] Injected inline style from head');
+                                    }
+                                });
+
+                                // Head scripts (both with src and inline) - load sequentially to preserve order
+                                const headScripts = Array.from(doc.head.querySelectorAll('script'));
+                                for (const scriptEl of headScripts) {
+                                    const src = scriptEl.getAttribute('src');
+                                    if (src) {
+                                        // Skip duplicates & already globally included vendor libs
+                                        if (existingScriptSrcs.has(src)) continue;
+                                        if (/tailwindcss|jspdf|html2canvas|fontawesome|kit\.fontawesome/i.test(src)) continue;
+                                        await new Promise((res, rej) => {
+                                            const s = document.createElement('script');
+                                            s.src = src;
+                                            s.async = false;
+                                            s.setAttribute('data-dynamic-head', 'true');
+                                            s.onload = () => { console.log('[Loader] Head script loaded:', src); res(); };
+                                            s.onerror = () => { console.warn('[Loader] Failed head script:', src); res(); };
+                                            document.head.appendChild(s);
+                                        });
+                                        existingScriptSrcs.add(src);
+                                    } else if (scriptEl.textContent.trim()) {
+                                        // Inline script
+                                        const s = document.createElement('script');
+                                        s.textContent = scriptEl.textContent;
+                                        s.setAttribute('data-dynamic-head', 'true');
+                                        document.head.appendChild(s);
+                                        console.log('[Loader] Executed inline head script snippet');
+                                    }
+                                }
+                                raw = doc.body.innerHTML;
+                            }
+                        } catch (e) {
+                            console.warn('Failed to parse full document, using raw content', e);
+                        }
+                    }
+
+                    mainTitle.textContent = pageInfo.title;
+                    mainContent.innerHTML = raw;
+
+                    // Execute any scripts in the injected content (re-created to run)
+                    const scripts = [...mainContent.querySelectorAll('script')];
+                    scripts.forEach(oldScript => {
+                        const newScript = document.createElement('script');
+                        if (oldScript.src) newScript.src = oldScript.src; else newScript.textContent = oldScript.textContent;
+                        // Preserve attributes like type if present
+                        [...oldScript.attributes].forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                        document.body.appendChild(newScript);
+                        // Optionally remove afterwards
+                        setTimeout(() => newScript.remove(), 0);
+                        oldScript.remove();
+                    });
+                    
+                    console.log('[Loader] Page loaded successfully:', pageInfo.slug);
+                    
+                } catch (error) {
+                    console.error('[Loader] Failed to load page:', pageInfo.slug, error);
+                    mainTitle.textContent = 'Error Loading Page';
+                    mainContent.innerHTML = `<div class="text-center p-8 text-red-500">
+                        <h3 class="text-lg font-bold mb-4">Failed to load page: ${pageInfo.file}</h3>
+                        <p class="mb-2">Error: ${error.message}</p>
+                        <p class="text-sm text-gray-600 mb-2">Attempted URL: <code>${pageInfo ? '/pages/' + pageInfo.file : '(unresolved)'}</code></p>
+                        <p class="text-sm text-gray-600 mb-4">Please check the file exists on the server in <code>/pages</code> and is world-readable (644).</p>
+                        <button onclick="loadContent('${pageName}')" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                            Try Again
+                        </button>
+                    </div>`;
+                }
+
+                if (window.innerWidth < 768) {
+                    toggleSidebar();
+                }
+            }
+
+            // Make loadContent globally accessible for iframe communication
+            window.loadContent = loadContent;
+
+            // Sidebar toggle functionality
+            function toggleSidebar() {
+                sidebar.classList.toggle('active');
+                sidebarOverlay.classList.toggle('hidden');
+            }
+
+            openSidebarBtn.addEventListener('click', toggleSidebar);
+            closeSidebarBtn.addEventListener('click', toggleSidebar);
+            sidebarOverlay.addEventListener('click', toggleSidebar);
+
+            // Add click listeners to menu links (SPA interception)
+            menuLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    const slug = link.dataset.page;
+                    if (slug === 'time-tracker') return; // allow normal navigation to standalone page
+                    e.preventDefault();
+                    menuLinks.forEach(item => item.classList.remove('active'));
+                    link.classList.add('active');
+                    const pageObj = getBySlug(slug);
+                    if (pageObj) {
+                        if (['request-leave','complaint-suggestions','request-loan','team-directory'].includes(slug)) {
+                            showNotification(`${pageObj.title} - Also available in Time Tracker Quick Actions!`, 'info');
+                        }
+                        loadContent(pageObj.slug);
+                        const url = new URL(window.location.href);
+                        url.searchParams.set('page', slug);
+                        window.history.pushState({page: slug}, pageObj.title, url.toString());
+                    }
+                });
+            });
+
+            // Handle browser back/forward
+            window.addEventListener('popstate', (e) => {
+                const slug = (e.state && e.state.page) || new URL(window.location.href).searchParams.get('page');
+                if (slug) {
+                    const pageObj = getBySlug(slug);
+                    if (pageObj) {
+                        const link = document.querySelector(`.menu-item[data-page="${slug}"]`);
+                        if (link) {
+                            menuLinks.forEach(i=>i.classList.remove('active'));
+                            link.classList.add('active');
+                        }
+                        loadContent(pageObj.slug);
+                    }
+                }
+            });
+
+            // Global in-app navigation handler for direct links to fragment pages so sidebar persists
+            document.body.addEventListener('click', (e) => {
+                const anchor = e.target.closest('a');
+                if (!anchor) return;
+                // Ignore menu items (already handled) or external / hash / javascript links
+                if (anchor.classList.contains('menu-item')) return;
+                const href = anchor.getAttribute('href');
+                if (!href || href === '#' || href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('tel:')) return;
+                // Intercept links pointing to pages/*.html (relative) to keep SPA shell + sidebar
+                if (/^\.\/pages\/.+\.html$/.test(href) || /^pages\/.+\.html$/.test(href)) {
+                    e.preventDefault();
+                    // Derive a display title from filename if not mapped
+                    const fileName = href.split('/').pop();
+                    const baseName = fileName.replace(/\.html$/, '');
+                    const derivedTitle = baseName
+                        .replace(/[-_]+/g, ' ')
+                        .replace(/\b\w/g, c => c.toUpperCase());
+                    mainTitle.textContent = derivedTitle.toUpperCase();
+                    fetch(href.startsWith('./') ? href : `./${href}`)
+                        .then(r => {
+                            if (!r.ok) throw new Error(r.status + ' ' + r.statusText);
+                            return r.text();
+                        })
+                        .then(html => {
+                            mainContent.innerHTML = html;
+                            // Execute inline scripts if any
+                            const scripts = mainContent.querySelectorAll('script');
+                            scripts.forEach(script => {
+                                const s = document.createElement('script');
+                                if (script.src) s.src = script.src; else s.textContent = script.textContent;
+                                document.head.appendChild(s);
+                                document.head.removeChild(s);
+                            });
+                        })
+                        .catch(err => {
+                            mainContent.innerHTML = `<div class="p-8 text-center text-red-500">Failed to load ${href}: ${err.message}</div>`;
+                        });
+                }
+            });
+
+            // Notification function
+            function showNotification(message, type = 'info') {
+                const notification = document.createElement('div');
+                notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 transition-all duration-300 ${
+                    type === 'success' ? 'bg-green-500 text-white' : 
+                    type === 'error' ? 'bg-red-500 text-white' : 
+                    type === 'info' ? 'bg-blue-500 text-white' :
+                    'bg-gray-500 text-white'
+                }`;
+                notification.innerHTML = `
+                    <div class="flex items-center">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        <span>${message}</span>
+                    </div>
+                `;
+                
+                document.body.appendChild(notification);
+                
+                // Auto remove after 4 seconds
+                setTimeout(() => {
+                    notification.style.opacity = '0';
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            document.body.removeChild(notification);
+                        }
+                    }, 300);
+                }, 4000);
+            }
+
+            // Initial page load via ?page= slug param
+            const urlParams = new URLSearchParams(window.location.search);
+            const initialSlug = urlParams.get('page');
+            if (initialSlug) {
+                const pageObj = getBySlug(initialSlug);
+                if (pageObj) {
+                    const link = document.querySelector(`.menu-item[data-page="${initialSlug}"]`);
+                    if (link) {
+                        menuLinks.forEach(i=>i.classList.remove('active'));
+                        link.classList.add('active');
+                    }
+                        loadContent(pageObj.slug);
+                } else {
+                    const active = document.querySelector('.menu-item.active');
+                    if (active) {
+                        const activeInfo = resolvePage(active.dataset.page || active.textContent.trim());
+                        if (activeInfo) loadContent(activeInfo.slug); else loadContent(active.textContent.trim());
+                    }
+                }
+            } else {
+                const active = document.querySelector('.menu-item.active');
+                if (active) {
+                    const activeInfo = resolvePage(active.dataset.page || active.textContent.trim());
+                    if (activeInfo) loadContent(activeInfo.slug); else loadContent(active.textContent.trim());
+                }
+            }
+
+            // Initialize attendance system
+            initializeAttendanceSystem();
+        });
+
+        // Listen for navigation messages from iframe (Time Tracker Quick Actions)
+        window.addEventListener('message', function(event) {
+            // Security check - only accept messages from same origin
+            if (event.origin !== window.location.origin) {
+                return;
+            }
+            
+            if (event.data && event.data.action === 'navigate' && event.data.page) {
+                const pageName = event.data.page;
+                
+                // Update active menu item
+                const menuLinks = document.querySelectorAll('.menu-item');
+                menuLinks.forEach(item => {
+                    item.classList.remove('active');
+                    if (item.textContent.trim() === pageName) {
+                        item.classList.add('active');
+                    }
+                });
+                
+                // Load the content
+                loadContent(pageName); // pageName may be display or slug; resolver handles it
+                
+                // Show notification
+                showNotification(`Navigated to ${pageName} from Quick Actions`, 'success');
+            }
+        });
+
+        // Attendance System Functions
+        let attendanceTimer = null;
+        let checkInTime = null;
+
+        function initializeAttendanceSystem() {
+            const employeeId = getCurrentEmployeeId();
+            const checkinBtn = document.getElementById('checkin-btn');
+            const checkoutBtn = document.getElementById('checkout-btn');
+            const statusText = document.getElementById('status-text');
+            const timerDisplay = document.getElementById('timer-display');
+
+            // Load current attendance status
+            loadAttendanceStatus(employeeId);
+
+            // Check-in button click
+            checkinBtn.addEventListener('click', async () => {
+                await checkIn(employeeId);
+            });
+
+            // Check-out button click
+            checkoutBtn.addEventListener('click', async () => {
+                await checkOut(employeeId);
+            });
+        }
+
+        function getCurrentEmployeeId() {
+            // In a real app, this would come from login session
+            // For now, using localStorage or default value
+            return localStorage.getItem('currentEmployeeId') || '64a7c8b2c3d4e5f6789012ab';
+        }
+
+        async function loadAttendanceStatus(employeeId) {
+            try {
+                const response = await fetch(`http://localhost:5000/api/attendance/status/${employeeId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    updateAttendanceUI(data);
+                }
+            } catch (error) {
+                console.error('Error loading attendance status:', error);
+                document.getElementById('status-text').textContent = 'Status unavailable';
+            }
+        }
+
+        async function checkIn(employeeId) {
+            try {
+                const response = await fetch('http://localhost:5000/api/attendance/checkin', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        employeeId: employeeId,
+                        checkInLocation: 'Office', // You can get this from geolocation
+                        ipAddress: await getClientIP()
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showNotification('Checked in successfully!', 'success');
+                    loadAttendanceStatus(employeeId);
+                } else {
+                    showNotification(result.msg, 'error');
+                }
+            } catch (error) {
+                console.error('Error checking in:', error);
+                showNotification('Error checking in. Please try again.', 'error');
+            }
+        }
+
+        async function checkOut(employeeId) {
+            try {
+                const response = await fetch('http://localhost:5000/api/attendance/checkout', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        employeeId: employeeId,
+                        checkOutLocation: 'Office',
+                        ipAddress: await getClientIP()
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    const overtimeMsg = result.overtimeHours > 0 ? 
+                        ` You worked ${result.overtimeHours.toFixed(2)} hours overtime today!` : '';
+                    showNotification(`Checked out successfully! Total: ${result.totalHours.toFixed(2)} hours.${overtimeMsg}`, 'success');
+                    loadAttendanceStatus(employeeId);
+                } else {
+                    showNotification(result.msg, 'error');
+                }
+            } catch (error) {
+                console.error('Error checking out:', error);
+                showNotification('Error checking out. Please try again.', 'error');
+            }
+        }
+
+        function updateAttendanceUI(data) {
+            const checkinBtn = document.getElementById('checkin-btn');
+            const checkoutBtn = document.getElementById('checkout-btn');
+            const statusText = document.getElementById('status-text');
+            const timerDisplay = document.getElementById('timer-display');
+
+            // Update button states
+            checkinBtn.disabled = !data.canCheckIn;
+            checkoutBtn.disabled = !data.canCheckOut;
+
+            // Update status text
+            statusText.textContent = data.status;
+
+            // Start/stop timer
+            if (data.status === 'Checked In' && data.checkInTime) {
+                checkInTime = new Date(data.checkInTime);
+                startTimer();
+                timerDisplay.classList.remove('hidden');
+            } else {
+                stopTimer();
+                timerDisplay.classList.add('hidden');
+                
+                if (data.totalHours) {
+                    const overtimeText = data.overtimeHours > 0 ? ` (${data.overtimeHours.toFixed(2)}h OT)` : '';
+                    statusText.textContent += ` - ${data.totalHours.toFixed(2)}h${overtimeText}`;
+                }
+            }
+        }
+
+        function startTimer() {
+            stopTimer(); // Clear any existing timer
+            
+            attendanceTimer = setInterval(() => {
+                if (checkInTime) {
+                    const now = new Date();
+                    const diff = now - checkInTime;
+                    const hours = Math.floor(diff / (1000 * 60 * 60));
+                    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                    
+                    const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                    document.getElementById('timer-display').textContent = timeString;
+                    
+                    // Highlight overtime
+                    const totalHours = diff / (1000 * 60 * 60);
+                    if (totalHours > 8.5) {
+                        document.getElementById('timer-display').classList.add('text-orange-600', 'font-bold');
+                    }
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (attendanceTimer) {
+                clearInterval(attendanceTimer);
+                attendanceTimer = null;
+            }
+        }
+
+        async function getClientIP() {
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                return data.ip;
+            } catch (error) {
+                return 'Unknown';
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 transition-all duration-300 ${
+                type === 'success' ? 'bg-green-500 text-white' : 
+                type === 'error' ? 'bg-red-500 text-white' : 
+                'bg-blue-500 text-white'
+            }`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 5000);
+        }
+    </script>
+
+    <!-- Global API Configuration Loader -->
+    <script src="js/global-api-loader.js"></script>
+</body>
+</html>

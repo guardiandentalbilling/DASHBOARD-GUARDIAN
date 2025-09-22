@@ -1,0 +1,309 @@
+<div class="space-y-8">
+    <h2 class="text-3xl font-bold text-gray-800">System Settings</h2>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-2 space-y-8">
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                <h3 class="text-xl font-bold text-[#1A3464] mb-4 border-b pb-3">API Configuration</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label for="backendApiUrl" class="block text-sm font-medium text-gray-600">Backend API Base URL</label>
+                        <p class="text-xs text-gray-500 mb-2">This URL is used for all backend API calls across the application</p>
+                        <input type="url" id="backendApiUrl" placeholder="https://your-api-domain.com/api" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                        <p class="text-xs text-gray-400 mt-1">Current: <span id="currentApiUrl" class="font-mono text-blue-600">Not set</span></p>
+                    </div>
+                    <div>
+                        <label for="apiKey" class="block text-sm font-medium text-gray-600">Gemini API Key</label>
+                        <p class="text-xs text-gray-500 mb-2">This key is used for AI features like Guardian AI, TTS, and phonetic converter</p>
+                        <div class="relative">
+                            <input type="password" id="apiKey" value="AIzaSyBI-1nm5J02NX1HBszEgeOClktTITPxAKc" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 font-mono">
+                            <button id="toggleApiVisibility" class="absolute inset-y-0 right-0 px-3 text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="bg-blue-50 border border-blue-200 rounded-md p-3">
+                        <div class="flex items-start">
+                            <i class="fas fa-info-circle text-blue-500 mt-0.5 mr-2"></i>
+                            <div class="text-sm text-blue-700">
+                                <p class="font-medium">API Status:</p>
+                                <p id="apiStatus" class="mt-1">Testing connection...</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex space-x-3">
+                        <button id="testApiBtn" class="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700">
+                            <i class="fas fa-wifi mr-2"></i>Test Connection
+                        </button>
+                        <button id="saveApiBtn" class="px-6 py-2 bg-[#F46425] text-white font-semibold rounded-lg shadow-md hover:bg-opacity-90">
+                            <i class="fas fa-save mr-2"></i>Save API Settings
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                <h3 class="text-xl font-bold text-[#1A3464] mb-4 border-b pb-3">Company Information</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="companyName" class="block text-sm font-medium text-gray-600">Company Name</label>
+                        <input type="text" id="companyName" value="Guardian Dental Billing LLC" class="mt-1 block w-full p-2 border border-gray-300 rounded-md">
+                    </div>
+                    <div>
+                        <label for="companyPhone" class="block text-sm font-medium text-gray-600">Company Phone</label>
+                        <input type="text" id="companyPhone" value="+1 (732) 498-0786" class="mt-1 block w-full p-2 border border-gray-300 rounded-md">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="companyAddress" class="block text-sm font-medium text-gray-600">Address</label>
+                        <input type="text" id="companyAddress" value="123 Wellness Ave, Suite 100, HealthCity, HC 54321" class="mt-1 block w-full p-2 border border-gray-300 rounded-md">
+                    </div>
+                     <div class="md:col-span-2">
+                        <label for="companyEmail" class="block text-sm font-medium text-gray-600">Public Email</label>
+                        <input type="email" id="companyEmail" value="billing@guardiandentalbilling.com" class="mt-1 block w-full p-2 border border-gray-300 rounded-md">
+                    </div>
+                </div>
+                 <div class="text-right mt-4">
+                    <button class="px-6 py-2 bg-[#F46425] text-white font-semibold rounded-lg shadow-md hover:bg-opacity-90">Save Company Details</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="space-y-8">
+             <div class="bg-white p-6 rounded-xl shadow-lg">
+                <h3 class="text-xl font-bold text-[#1A3464] mb-4 border-b pb-3">Financial Settings</h3>
+                <div>
+                    <label for="exchangeRate" class="block text-sm font-medium text-gray-600">USD to PKR Exchange Rate</label>
+                    <input type="number" step="0.01" id="exchangeRate" value="278.50" class="mt-1 block w-full p-2 border border-gray-300 rounded-md">
+                </div>
+                <div class="text-right mt-4">
+                    <button class="px-6 py-2 bg-[#F46425] text-white font-semibold rounded-lg shadow-md hover:bg-opacity-90">Update Rate</button>
+                </div>
+            </div>
+             <div class="bg-white p-6 rounded-xl shadow-lg">
+                <h3 class="text-xl font-bold text-[#1A3464] mb-4 border-b pb-3">Admin Profile</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label for="adminEmail" class="block text-sm font-medium text-gray-600">Email</label>
+                        <input type="email" id="adminEmail" value="admin@guardiandb.com" class="mt-1 block w-full p-2 border bg-gray-100 border-gray-300 rounded-md" readonly>
+                    </div>
+                    <div>
+                        <label for="newPassword" class="block text-sm font-medium text-gray-600">New Password</label>
+                        <input type="password" id="newPassword" class="mt-1 block w-full p-2 border border-gray-300 rounded-md">
+                    </div>
+                </div>
+                 <div class="text-right mt-4">
+                    <button class="px-6 py-2 bg-[#F46425] text-white font-semibold rounded-lg shadow-md hover:bg-opacity-90">Change Password</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Global API Configuration Manager
+    class APIConfigManager {
+        constructor() {
+            this.init();
+        }
+
+        init() {
+            this.loadCurrentConfig();
+            this.setupEventListeners();
+            this.testCurrentConnection();
+        }
+
+        // Load current API configuration
+        loadCurrentConfig() {
+            const backendApiUrl = localStorage.getItem('GLOBAL_API_BASE_URL') || 'http://localhost:5000/api';
+            const geminiApiKey = localStorage.getItem('GEMINI_API_KEY') || '';
+            
+            document.getElementById('backendApiUrl').value = backendApiUrl;
+            document.getElementById('apiKey').value = geminiApiKey;
+            document.getElementById('currentApiUrl').textContent = backendApiUrl;
+            
+            // Broadcast current config to all pages
+            this.broadcastAPIConfig(backendApiUrl, geminiApiKey);
+        }
+
+        // Setup event listeners
+        setupEventListeners() {
+            const apiKeyInput = document.getElementById('apiKey');
+            const toggleBtn = document.getElementById('toggleApiVisibility');
+            const testApiBtn = document.getElementById('testApiBtn');
+            const saveApiBtn = document.getElementById('saveApiBtn');
+
+            // Toggle API key visibility
+            if (toggleBtn && apiKeyInput) {
+                toggleBtn.addEventListener('click', () => {
+                    const type = apiKeyInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                    apiKeyInput.setAttribute('type', type);
+                    
+                    const icon = toggleBtn.querySelector('i');
+                    icon.classList.toggle('fa-eye');
+                    icon.classList.toggle('fa-eye-slash');
+                });
+            }
+
+            // Test API connection
+            if (testApiBtn) {
+                testApiBtn.addEventListener('click', () => this.testAPIConnection());
+            }
+
+            // Save API settings
+            if (saveApiBtn) {
+                saveApiBtn.addEventListener('click', () => this.saveAPISettings());
+            }
+        }
+
+        // Test API connection
+        async testAPIConnection() {
+            const apiUrl = document.getElementById('backendApiUrl').value.trim();
+            const statusEl = document.getElementById('apiStatus');
+            const testBtn = document.getElementById('testApiBtn');
+            
+            if (!apiUrl) {
+                statusEl.innerHTML = '<span class="text-red-600">❌ Please enter an API URL</span>';
+                return;
+            }
+
+            // Show testing state
+            statusEl.innerHTML = '<span class="text-yellow-600">🔄 Testing connection...</span>';
+            testBtn.disabled = true;
+            testBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Testing...';
+
+            try {
+                // Test health endpoint
+                const healthUrl = apiUrl.replace('/api', '') + '/health';
+                const response = await fetch(healthUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    timeout: 5000
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    statusEl.innerHTML = `<span class="text-green-600">✅ Connected successfully!</span>`;
+                    
+                    // Test employees endpoint
+                    await this.testEmployeesEndpoint(apiUrl);
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                console.error('API Test Error:', error);
+                statusEl.innerHTML = `<span class="text-red-600">❌ Connection failed: ${error.message}</span>`;
+            } finally {
+                testBtn.disabled = false;
+                testBtn.innerHTML = '<i class="fas fa-wifi mr-2"></i>Test Connection';
+            }
+        }
+
+        // Test employees endpoint
+        async testEmployeesEndpoint(apiUrl) {
+            try {
+                const response = await fetch(`${apiUrl}/employees`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const statusEl = document.getElementById('apiStatus');
+                if (response.ok) {
+                    const employees = await response.json();
+                    statusEl.innerHTML = `<span class="text-green-600">✅ Connected! Found ${employees.length || 0} employees</span>`;
+                } else {
+                    statusEl.innerHTML = `<span class="text-yellow-600">⚠️ Connected but employees endpoint returned ${response.status}</span>`;
+                }
+            } catch (error) {
+                const statusEl = document.getElementById('apiStatus');
+                statusEl.innerHTML = `<span class="text-yellow-600">⚠️ Connected but employees endpoint failed</span>`;
+            }
+        }
+
+        // Test current connection on load
+        async testCurrentConnection() {
+            const apiUrl = document.getElementById('backendApiUrl').value.trim();
+            if (apiUrl && apiUrl !== 'http://localhost:5000/api') {
+                // Only auto-test if it's not the default localhost URL
+                setTimeout(() => {
+                    this.testAPIConnection();
+                }, 1000);
+            } else {
+                document.getElementById('apiStatus').innerHTML = '<span class="text-gray-600">⏸️ Using default local API</span>';
+            }
+        }
+
+        // Save API settings
+        saveAPISettings() {
+            const backendApiUrl = document.getElementById('backendApiUrl').value.trim();
+            const geminiApiKey = document.getElementById('apiKey').value.trim();
+            
+            if (!backendApiUrl) {
+                alert('Please enter a valid Backend API URL');
+                return;
+            }
+
+            // Save to localStorage
+            localStorage.setItem('GLOBAL_API_BASE_URL', backendApiUrl);
+            // Use unified helper to update key & broadcast
+            if (typeof window.updateGeminiKey === 'function') {
+                window.updateGeminiKey(geminiApiKey);
+            } else {
+                localStorage.setItem('GEMINI_API_KEY', geminiApiKey);
+                window.GEMINI_API_KEY = geminiApiKey;
+            }
+            
+            // Update display
+            document.getElementById('currentApiUrl').textContent = backendApiUrl;
+            
+            // Broadcast to all pages
+            this.broadcastAPIConfig(backendApiUrl, geminiApiKey);
+            
+            // Show success message
+            const saveBtn = document.getElementById('saveApiBtn');
+            const originalText = saveBtn.innerHTML;
+            saveBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Saved!';
+            saveBtn.classList.add('bg-green-600');
+            saveBtn.classList.remove('bg-orange-500');
+            
+            setTimeout(() => {
+                saveBtn.innerHTML = originalText;
+                saveBtn.classList.remove('bg-green-600');
+                saveBtn.classList.add('bg-orange-500');
+            }, 2000);
+
+            // Reload other pages if open
+            this.notifyOtherPages();
+        }
+
+        // Broadcast API config to all pages
+        broadcastAPIConfig(backendApiUrl, geminiApiKey) {
+            // Set global variables that other pages can access
+            window.GLOBAL_API_BASE_URL = backendApiUrl;
+            // Dispatch combined events for backward compatibility
+            window.dispatchEvent(new CustomEvent('apiConfigUpdated', { detail: { backendApiUrl, geminiApiKey } }));
+            window.dispatchEvent(new CustomEvent('globalApiUpdated', { detail: { backendApiUrl, geminiApiKey } }));
+        }
+
+        // Notify other pages to reload their API configs
+        notifyOtherPages() {
+            // Use localStorage event to notify other tabs/pages
+            localStorage.setItem('API_CONFIG_UPDATED', Date.now().toString());
+        }
+    }
+
+    // Initialize API Config Manager
+    document.addEventListener('DOMContentLoaded', function() {
+        new APIConfigManager();
+    });
+
+    // Listen for API config updates from other pages
+    window.addEventListener('storage', function(e) {
+        if (e.key === 'API_CONFIG_UPDATED') {
+            location.reload(); // Reload settings page to show updated config
+        }
+    });
+</script>

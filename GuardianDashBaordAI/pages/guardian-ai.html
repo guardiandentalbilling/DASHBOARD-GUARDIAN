@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <script>
+            // Auto-redirect into dashboard shell if this page is opened directly
+            (function(){
+                const insideShell = !!document.getElementById('sidebar');
+                const hasParentShell = window !== window.parent && window.parent.document.getElementById && window.parent.document.getElementById('sidebar');
+                if(!insideShell && !hasParentShell){
+                    const target = '/index.html?page=guardian-ai';
+                    if(!location.pathname.endsWith('/index.html')){
+                        window.location.replace(target);
+                    }
+                }
+            })();
+        </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guardian AI</title>
+    <!-- Tailwind CSS for modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Global API Configuration -->
+    <script src="../js/global-api-loader.js"></script>
+    <style>
+        /* Custom scrollbar for a cleaner look */
+        #chat-box::-webkit-scrollbar {
+            width: 8px;
+        }
+        #chat-box::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        #chat-box::-webkit-scrollbar-thumb {
+            background-color: #a0aec0; /* light:bg-gray-400 */
+            border-radius: 20px;
+        }
+        .dark #chat-box::-webkit-scrollbar-thumb {
+            background-color: #4a5568; /* dark:bg-gray-700 */
+        }
+       
+        /* Style for the loading spinner */
+        .loader {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        /* Animation for new messages */
+        .message {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+    <script>
+        // Tailwind dark mode configuration
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans transition-colors duration-300">
+
+    <!-- Header Section -->
+    <header class="bg-white dark:bg-gray-800 shadow-md p-4 flex items-center justify-between sticky top-0 z-10">
+        <div class="flex items-center gap-3">
+            <img src="https://guardiandentalbilling.com/wp-content/uploads/2025/02/Logo-250-x-150-px-1-1.png" alt="Guardian Logo" class="h-10 w-auto">
+            <h1 class="text-xl md:text-2xl font-bold text-gray-800 dark:text-white hidden sm:block">Guardian AI</h1>
+        </div>
+        <button id="themeToggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 focus:ring-offset-gray-100 dark:focus:ring-offset-gray-900">
+            <i class="fas fa-sun text-yellow-500 block dark:hidden"></i>
+            <i class="fas fa-moon text-gray-300 hidden dark:block"></i>
+        </button>
+    </header>
+
+    <!-- Main Chat Area -->
+    <main class="p-4 md:p-6 lg:p-8 flex justify-center">
+        <div id="chat-container" class="w-full max-w-4xl bg-white dark:bg-gray-800 rounded-2xl shadow-lg flex flex-col h-[calc(100vh-100px)]">
+            
+            <!-- Chat Messages Display -->
+            <div id="chat-box" class="flex-1 p-6 space-y-4 overflow-y-auto">
+                <div class="message bot flex gap-3 items-start">
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden">
+                        <img src="https://guardiandentalbilling.com/wp-content/uploads/2025/02/Logo-250-x-150-px-1-1.png" alt="Bot Avatar" class="w-full h-full object-cover">
+                    </div>
+                    <div class="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg p-3 max-w-md">
+                        <p>👋 Welcome to Guardian AI! Ask me anything or upload a file to get started.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Input Area -->
+            <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+                <div id="file-preview-container" class="hidden items-center gap-2 mb-2 p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                    <i class="fas fa-paperclip text-gray-500"></i>
+                    <span id="file-name" class="text-sm text-gray-700 dark:text-gray-300"></span>
+                    <button id="remove-file-btn" class="ml-auto text-red-500 hover:text-red-700">
+                        <i class="fas fa-times-circle"></i>
+                    </button>
+                </div>
+                <div class="flex items-center gap-2">
+                    <input type="text" id="user-input" placeholder="Ask Guardian anything..." class="flex-1 bg-gray-100 dark:bg-gray-600 border-transparent rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full">
+                    <input type="file" id="file-input" class="hidden">
+                    <button id="attachBtn" class="p-3 rounded-lg text-gray-500 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                        <i class="fas fa-paperclip"></i>
+                    </button>
+                    <button id="sendBtn" class="p-3 rounded-lg text-white bg-indigo-500 hover:bg-indigo-600 transition-colors flex items-center justify-center w-20">
+                        <span id="send-text">Send</span>
+                        <div id="loading-spinner" class="loader hidden"></div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // DOM element references
+        const chatBox = document.getElementById("chat-box");
+        const userInput = document.getElementById("user-input");
+        const sendBtn = document.getElementById("sendBtn");
+        const attachBtn = document.getElementById("attachBtn");
+        const fileInput = document.getElementById("file-input");
+        const themeToggle = document.getElementById("themeToggle");
+        const sendText = document.getElementById("send-text");
+        const loadingSpinner = document.getElementById("loading-spinner");
+        const filePreviewContainer = document.getElementById("file-preview-container");
+        const fileNameSpan = document.getElementById("file-name");
+        const removeFileBtn = document.getElementById("remove-file-btn");
+
+        // State for attached file
+        let attachedFile = null;
+        
+        // Check if Gemini access is available (proxy or direct key). We no longer block UI if local key missing.
+        function checkApiKey() {
+            // If neither proxy base URL nor local key is present, warn once.
+            const haveProxy = !!window.GLOBAL_API_BASE_URL;
+            const haveDirect = !!window.GEMINI_API_KEY;
+            if (!haveProxy && !haveDirect) {
+                appendMessage("⚠️ Gemini backend not configured yet. Ask an admin to set API base URL or provide a development key.", "bot");
+            }
+            return true; // Always allow; makeGeminiApiRequest will throw a useful error if unreachable.
+        }
+
+
+        // --- Theme Persistence ---
+        // On page load, apply the saved theme or the user's OS preference.
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark')
+        } else {
+          document.documentElement.classList.remove('dark')
+        }
+
+        // --- Core Functions ---
+
+        /**
+         * Sends the user's message (and optional file) to the Gemini API.
+         */
+        async function sendMessage() {
+            // We allow sending even if no direct key; proxy will be attempted first.
+            checkApiKey();
+            
+            const message = userInput.value.trim();
+            if (!message && !attachedFile) return;
+
+            // Display user's message
+            appendMessage(message, "user", attachedFile?.name);
+            userInput.value = "";
+            
+            // Show loading state
+            toggleLoading(true);
+
+            // Construct the API request payload
+            const parts = [{ text: message }];
+            if (attachedFile) {
+                parts.push({
+                    inlineData: {
+                        mimeType: attachedFile.type,
+                        data: attachedFile.base64
+                    }
+                });
+            }
+            
+            const payload = {
+                contents: [{ role: "user", parts: parts }],
+            };
+
+            // Clear the attached file after preparing the payload
+            clearAttachedFile();
+
+            try {
+                // Use the global Gemini API helper function
+                const data = await makeGeminiApiRequest(payload);
+                
+                if (data.candidates && data.candidates.length > 0) {
+                    const reply = data.candidates[0].content.parts[0].text;
+                    appendMessage(reply, "bot");
+                } else {
+                    appendMessage("⚠️ I'm sorry, I couldn't generate a response. Please check your API key configuration in Settings.", "bot");
+                }
+
+            } catch (err) {
+                console.error("API Error:", err);
+                appendMessage(`❌ Error: ${err.message}`, "bot");
+            } finally {
+                // Hide loading state
+                toggleLoading(false);
+            }
+        }
+
+        /**
+         * Appends a message to the chat box.
+         * @param {string} text - The message content.
+         * @param {string} sender - 'user' or 'bot'.
+         * @param {string} [fileName] - The name of the file attached to a user message.
+         */
+        function appendMessage(text, sender, fileName = null) {
+            const messageWrapper = document.createElement("div");
+            messageWrapper.className = `message ${sender} flex gap-3 items-start ${sender === 'user' ? 'flex-row-reverse' : ''}`;
+            
+            const avatar = document.createElement("div");
+            const avatarBaseClasses = `w-8 h-8 rounded-full flex items-center justify-center text-white flex-shrink-0`;
+
+            if (sender === 'user') {
+                avatar.className = `${avatarBaseClasses} bg-indigo-500`;
+                avatar.innerHTML = `<i class="fas fa-user"></i>`;
+            } else {
+                avatar.className = `${avatarBaseClasses} overflow-hidden`;
+                avatar.innerHTML = `<img src="https://guardiandentalbilling.com/wp-content/uploads/2025/02/Logo-250-x-150-px-1-1.png" alt="Bot Avatar" class="w-full h-full object-cover">`;
+            }
+
+            const contentContainer = document.createElement("div");
+            contentContainer.className = `rounded-lg p-3 max-w-md ${sender === 'user' ? 'bg-indigo-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200'}`;
+            
+            if (fileName) {
+                const fileAttachmentDiv = document.createElement('div');
+                fileAttachmentDiv.className = 'text-sm mb-1 p-2 bg-black bg-opacity-20 rounded-md';
+                fileAttachmentDiv.innerHTML = `<i class="fas fa-file-alt mr-2"></i> ${fileName}`;
+                contentContainer.appendChild(fileAttachmentDiv);
+            }
+
+            const textParagraph = document.createElement("p");
+            textParagraph.textContent = text;
+            contentContainer.appendChild(textParagraph);
+
+            messageWrapper.appendChild(avatar);
+            messageWrapper.appendChild(contentContainer);
+            chatBox.appendChild(messageWrapper);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        /**
+         * Converts an image file to a base64 string.
+         * @param {File} file - The file to convert.
+         * @returns {Promise<{base64: string, name: string, type: string}>}
+         */
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => {
+                    const base64String = reader.result.split(',')[1];
+                    resolve({ base64: base64String, name: file.name, type: file.type });
+                };
+                reader.onerror = error => reject(error);
+            });
+        }
+        
+        /**
+         * Clears the currently attached file state and hides the preview.
+         */
+        function clearAttachedFile() {
+            attachedFile = null;
+            fileInput.value = ''; // Reset file input
+            filePreviewContainer.classList.add('hidden');
+        }
+
+        /**
+         * Toggles the loading indicator on the send button.
+         * @param {boolean} isLoading - Whether to show the loader.
+         */
+        function toggleLoading(isLoading) {
+            if (isLoading) {
+                sendText.classList.add("hidden");
+                loadingSpinner.classList.remove("hidden");
+                sendBtn.disabled = true;
+                userInput.disabled = true;
+            } else {
+                sendText.classList.remove("hidden");
+                loadingSpinner.classList.add("hidden");
+                sendBtn.disabled = false;
+                userInput.disabled = false;
+                userInput.focus();
+            }
+        }
+        
+        // --- Event Listeners & Initializers ---
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            // Inform user of available configuration without disabling interaction
+            setTimeout(() => { checkApiKey(); }, 400);
+        });
+        
+        // Listen for API configuration updates from settings
+        window.addEventListener('globalApiUpdated', (event) => {
+            console.log('Guardian AI: API configuration updated', event.detail);
+            appendMessage("🔄 Gemini configuration updated. You can continue chatting.", "bot");
+        });
+
+        // Send message on button click
+        sendBtn.addEventListener("click", sendMessage);
+
+        // Send message on Enter key press
+        userInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        
+        // Trigger file input on attach button click
+        attachBtn.addEventListener("click", () => fileInput.click());
+
+        // Handle file selection
+        fileInput.addEventListener("change", async () => {
+            const file = fileInput.files[0];
+            if (file) {
+                try {
+                    // Only allow image files for now
+                    if (!file.type.startsWith('image/')) {
+                        alert('Only image files are supported.');
+                        fileInput.value = '';
+                        return;
+                    }
+                    attachedFile = await fileToBase64(file);
+                    fileNameSpan.textContent = file.name;
+                    filePreviewContainer.classList.remove('hidden');
+                } catch (error) {
+                    console.error("Error converting file to base64:", error);
+                    alert("Could not process the file.");
+                }
+            }
+        });
+        
+        // Handle removing the attached file
+        removeFileBtn.addEventListener("click", clearAttachedFile);
+
+        // Toggle dark/light mode and save preference
+        themeToggle.addEventListener("click", () => {
+            document.documentElement.classList.toggle("dark");
+            
+            if (document.documentElement.classList.contains('dark')) {
+                localStorage.theme = 'dark';
+            } else {
+                localStorage.theme = 'light';
+            }
+        });
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,180 @@
+/* Time Tracker Integration Button Styles */
+
+.time-tracker-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #4c51bf 0%, #667eea 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    font-size: 14px;
+    min-height: 44px;
+    box-shadow: 0 2px 8px rgba(76, 81, 191, 0.2);
+}
+
+.time-tracker-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(76, 81, 191, 0.3);
+    color: white;
+    text-decoration: none;
+}
+
+.time-tracker-button:active {
+    transform: translateY(0);
+}
+
+.time-tracker-button.tracking {
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+    animation: pulse-button 2s infinite;
+}
+
+.time-tracker-button.paused {
+    background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+}
+
+.time-tracker-button.small {
+    padding: 8px 16px;
+    font-size: 12px;
+    min-height: 36px;
+}
+
+.time-tracker-button.large {
+    padding: 16px 28px;
+    font-size: 16px;
+    min-height: 52px;
+}
+
+.time-tracker-button.outline {
+    background: transparent;
+    border: 2px solid #4c51bf;
+    color: #4c51bf;
+}
+
+.time-tracker-button.outline:hover {
+    background: #4c51bf;
+    color: white;
+}
+
+.time-tracker-icon {
+    font-size: 1.1em;
+}
+
+.time-tracker-timer {
+    font-family: 'Courier New', monospace;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+@keyframes pulse-button {
+    0%, 100% { 
+        transform: scale(1);
+        box-shadow: 0 6px 20px rgba(72, 187, 120, 0.3);
+    }
+    50% { 
+        transform: scale(1.05);
+        box-shadow: 0 8px 25px rgba(72, 187, 120, 0.4);
+    }
+}
+
+/* Quick integration widget */
+.time-tracker-widget {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+    max-width: 300px;
+}
+
+.time-tracker-widget h3 {
+    color: #2d3748;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.time-tracker-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    padding: 12px;
+    background: #f7fafc;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #e53e3e;
+}
+
+.status-indicator.active {
+    background: #48bb78;
+    animation: blink 1s infinite;
+}
+
+.status-indicator.paused {
+    background: #ed8936;
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0.3; }
+}
+
+.status-text {
+    font-size: 14px;
+    color: #4a5568;
+    font-weight: 500;
+}
+
+.quick-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.quick-action-btn {
+    flex: 1;
+    padding: 8px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    color: #4a5568;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.quick-action-btn:hover {
+    background: #edf2f7;
+    border-color: #cbd5e0;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .time-tracker-button {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .time-tracker-widget {
+        max-width: none;
+    }
+    
+    .quick-actions {
+        flex-direction: column;
+    }
+}

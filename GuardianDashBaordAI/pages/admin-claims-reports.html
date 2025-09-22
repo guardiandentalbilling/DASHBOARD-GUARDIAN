@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claims Follow-up Reports</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-4 py-6">
+        <!-- Header -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
+                <h1 class="text-2xl font-bold text-gray-900 mb-4 md:mb-0">Claims Follow-up Management & Reports</h1>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <select id="statusFilter" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">All Statuses</option>
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="denied">Denied</option>
+                        <option value="under-review">Under Review</option>
+                    </select>
+                    <select id="employeeFilter" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">All Employees</option>
+                    </select>
+                    <button onclick="refreshData()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-sync-alt mr-2"></i>Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Total Claims</p>
+                        <p class="text-3xl font-bold text-blue-600" id="totalClaims">--</p>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-file-medical text-blue-600 text-xl"></i>
+                    </div>
+                </div>
+                <p class="text-sm text-gray-500 mt-2" id="totalClaimsChange">Loading...</p>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Pending Follow-ups</p>
+                        <p class="text-3xl font-bold text-yellow-600" id="pendingClaims">--</p>
+                    </div>
+                    <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-hourglass-half text-yellow-600 text-xl"></i>
+                    </div>
+                </div>
+                <p class="text-sm text-gray-500 mt-2" id="pendingPercentage">-- of total</p>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Resolution Rate</p>
+                        <p class="text-3xl font-bold text-green-600" id="resolutionRate">--%</p>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                    </div>
+                </div>
+                <p class="text-sm text-gray-500 mt-2" id="avgResolutionTime">Avg: -- days</p>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Total Amount</p>
+                        <p class="text-3xl font-bold text-purple-600" id="totalAmount">$--</p>
+                    </div>
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-dollar-sign text-purple-600 text-xl"></i>
+                    </div>
+                </div>
+                <p class="text-sm text-gray-500 mt-2" id="pendingAmount">$-- pending</p>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Claims Status Distribution</h3>
+                <canvas id="statusChart" width="400" height="200"></canvas>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Weekly Claims Trend</h3>
+                <canvas id="trendChart" width="400" height="200"></canvas>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Employee Performance</h3>
+                <canvas id="employeeChart" width="400" height="200"></canvas>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Resolution Time Analysis</h3>
+                <canvas id="resolutionChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- Claims Table -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Claims Follow-up Records</h3>
+                <div class="flex gap-2">
+                    <button onclick="exportClaimsData()" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors">
+                        <i class="fas fa-download mr-2"></i>Export
+                    </button>
+                    <button onclick="addNewClaim()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-plus mr-2"></i>New Claim
+                    </button>
+                </div>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Claim ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Patient</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employee</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Follow-up</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Next Action</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="claimsTableBody" class="bg-white divide-y divide-gray-200">
+                        <!-- Claims data will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Priority Claims -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Priority Follow-ups</h3>
+            <div id="priorityClaims" class="space-y-4">
+                <!-- Priority claims will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Claim Modal -->
+    <div id="claimModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <h3 class="text-lg font-bold text-gray-900 mb-4" id="modalTitle">Add New Claim</h3>
+                <form id="claimForm">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Claim ID</label>
+                            <input type="text" id="claimId" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Patient Name</label>
+                            <input type="text" id="patientName" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Assigned Employee</label>
+                            <select id="assignedEmployee" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                                <option value="">Select Employee</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Amount</label>
+                            <input type="number" id="claimAmount" step="0.01" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Status</label>
+                            <select id="claimStatus" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                                <option value="pending">Pending</option>
+                                <option value="under-review">Under Review</option>
+                                <option value="approved">Approved</option>
+                                <option value="denied">Denied</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Notes</label>
+                            <textarea id="claimNotes" rows="3" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                        </div>
+                    </div>
+                    <div class="flex justify-end space-x-3 mt-6">
+                        <button type="button" onclick="closeModal()" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400 transition-colors">Cancel</button>
+                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:5000/api';
+        let claimsData = [];
+        let employeesData = [];
+        let statusChart, trendChart, employeeChart, resolutionChart;
+
+        // Mock claims data structure (replace with actual API)
+        const mockClaimsData = [
+            {
+                id: 'CLM001',
+                patientName: 'John Smith',
+                employeeId: 'EMP001',
+                employeeName: 'Alice Johnson',
+                amount: 1250.00,
+                status: 'pending',
+                dateCreated: '2024-01-15',
+                lastFollowUp: '2024-01-18',
+                nextAction: '2024-01-22',
+                notes: 'Insurance verification needed'
+            },
+            {
+                id: 'CLM002',
+                patientName: 'Sarah Wilson',
+                employeeId: 'EMP002',
+                employeeName: 'Bob Martinez',
+                amount: 850.00,
+                status: 'approved',
+                dateCreated: '2024-01-10',
+                lastFollowUp: '2024-01-20',
+                nextAction: null,
+                notes: 'Payment received'
+            },
+            {
+                id: 'CLM003',
+                patientName: 'Mike Davis',
+                employeeId: 'EMP001',
+                employeeName: 'Alice Johnson',
+                amount: 2100.00,
+                status: 'under-review',
+                dateCreated: '2024-01-12',
+                lastFollowUp: '2024-01-19',
+                nextAction: '2024-01-25',
+                notes: 'Additional documentation requested'
+            }
+        ];
+
+        async function loadEmployees() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/employees`);
+                employeesData = await response.json();
+                
+                // Populate employee filter
+                const employeeFilter = document.getElementById('employeeFilter');
+                const assignedEmployee = document.getElementById('assignedEmployee');
+                
+                employeesData.forEach(emp => {
+                    const option1 = document.createElement('option');
+                    option1.value = emp._id;
+                    option1.textContent = `${emp.firstName} ${emp.lastName}`;
+                    employeeFilter.appendChild(option1);
+                    
+                    const option2 = document.createElement('option');
+                    option2.value = emp._id;
+                    option2.textContent = `${emp.firstName} ${emp.lastName}`;
+                    assignedEmployee.appendChild(option2);
+                });
+            } catch (error) {
+                console.error('Error loading employees:', error);
+                employeesData = [];
+            }
+        }
+
+        async function loadClaimsData() {
+            try {
+                // TODO: Replace with actual API call
+                // const response = await fetch(`${API_BASE_URL}/claims`);
+                // claimsData = await response.json();
+                
+                // Using mock data for now
+                claimsData = mockClaimsData;
+                
+                updateSummaryCards();
+                generateCharts();
+                updateClaimsTable();
+                updatePriorityClaims();
+            } catch (error) {
+                console.error('Error loading claims data:', error);
+                claimsData = mockClaimsData; // Fallback to mock data
+                updateSummaryCards();
+                generateCharts();
+                updateClaimsTable();
+                updatePriorityClaims();
+            }
+        }
+
+        function updateSummaryCards() {
+            const totalClaims = claimsData.length;
+            const pendingClaims = claimsData.filter(claim => claim.status === 'pending').length;
+            const approvedClaims = claimsData.filter(claim => claim.status === 'approved').length;
+            const totalAmount = claimsData.reduce((sum, claim) => sum + claim.amount, 0);
+            const pendingAmount = claimsData.filter(claim => claim.status === 'pending').reduce((sum, claim) => sum + claim.amount, 0);
+            
+            const resolutionRate = totalClaims > 0 ? Math.round((approvedClaims / totalClaims) * 100) : 0;
+            const pendingPercentage = totalClaims > 0 ? Math.round((pendingClaims / totalClaims) * 100) : 0;
+
+            document.getElementById('totalClaims').textContent = totalClaims;
+            document.getElementById('pendingClaims').textContent = pendingClaims;
+            document.getElementById('resolutionRate').textContent = `${resolutionRate}%`;
+            document.getElementById('totalAmount').textContent = `$${totalAmount.toLocaleString()}`;
+            
+            document.getElementById('totalClaimsChange').textContent = 'All time total';
+            document.getElementById('pendingPercentage').textContent = `${pendingPercentage}% of total`;
+            document.getElementById('avgResolutionTime').textContent = 'Avg: 5.2 days';
+            document.getElementById('pendingAmount').textContent = `$${pendingAmount.toLocaleString()} pending`;
+        }
+
+        function generateCharts() {
+            generateStatusChart();
+            generateTrendChart();
+            generateEmployeeChart();
+            generateResolutionChart();
+        }
+
+        function generateStatusChart() {
+            const statusCounts = {
+                pending: 0,
+                'under-review': 0,
+                approved: 0,
+                denied: 0
+            };
+
+            claimsData.forEach(claim => {
+                statusCounts[claim.status]++;
+            });
+
+            const ctx = document.getElementById('statusChart').getContext('2d');
+            if (statusChart) statusChart.destroy();
+            
+            statusChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Pending', 'Under Review', 'Approved', 'Denied'],
+                    datasets: [{
+                        data: [statusCounts.pending, statusCounts['under-review'], statusCounts.approved, statusCounts.denied],
+                        backgroundColor: ['#F59E0B', '#3B82F6', '#10B981', '#EF4444']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        function generateTrendChart() {
+            // Generate last 7 days data
+            const last7Days = [];
+            const claimsCounts = [];
+            
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                const dateStr = date.toISOString().split('T')[0];
+                last7Days.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+                
+                // Count claims for this date (mock calculation)
+                const count = Math.floor(Math.random() * 5) + 1;
+                claimsCounts.push(count);
+            }
+
+            const ctx = document.getElementById('trendChart').getContext('2d');
+            if (trendChart) trendChart.destroy();
+            
+            trendChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: last7Days,
+                    datasets: [{
+                        label: 'New Claims',
+                        data: claimsCounts,
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function generateEmployeeChart() {
+            const employeeStats = {};
+            
+            claimsData.forEach(claim => {
+                if (!employeeStats[claim.employeeName]) {
+                    employeeStats[claim.employeeName] = 0;
+                }
+                employeeStats[claim.employeeName]++;
+            });
+
+            const ctx = document.getElementById('employeeChart').getContext('2d');
+            if (employeeChart) employeeChart.destroy();
+            
+            employeeChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(employeeStats),
+                    datasets: [{
+                        label: 'Claims Handled',
+                        data: Object.values(employeeStats),
+                        backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                        borderColor: 'rgb(59, 130, 246)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function generateResolutionChart() {
+            const resolutionTimes = {
+                '0-2 days': 0,
+                '3-5 days': 0,
+                '6-10 days': 0,
+                '10+ days': 0
+            };
+
+            // Mock resolution time calculation
+            claimsData.forEach(claim => {
+                if (claim.status === 'approved' || claim.status === 'denied') {
+                    const days = Math.floor(Math.random() * 15) + 1;
+                    if (days <= 2) resolutionTimes['0-2 days']++;
+                    else if (days <= 5) resolutionTimes['3-5 days']++;
+                    else if (days <= 10) resolutionTimes['6-10 days']++;
+                    else resolutionTimes['10+ days']++;
+                }
+            });
+
+            const ctx = document.getElementById('resolutionChart').getContext('2d');
+            if (resolutionChart) resolutionChart.destroy();
+            
+            resolutionChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(resolutionTimes),
+                    datasets: [{
+                        label: 'Claims Count',
+                        data: Object.values(resolutionTimes),
+                        backgroundColor: [
+                            '#10B981',
+                            '#3B82F6',
+                            '#F59E0B',
+                            '#EF4444'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateClaimsTable() {
+            const tbody = document.getElementById('claimsTableBody');
+            const statusFilter = document.getElementById('statusFilter').value;
+            const employeeFilter = document.getElementById('employeeFilter').value;
+            
+            let filteredClaims = claimsData;
+            
+            if (statusFilter) {
+                filteredClaims = filteredClaims.filter(claim => claim.status === statusFilter);
+            }
+            
+            if (employeeFilter) {
+                filteredClaims = filteredClaims.filter(claim => claim.employeeId === employeeFilter);
+            }
+
+            if (filteredClaims.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="px-6 py-4 text-center text-gray-500">
+                            No claims found matching the selected criteria
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = filteredClaims.map(claim => {
+                const statusColors = {
+                    'pending': 'bg-yellow-100 text-yellow-800',
+                    'under-review': 'bg-blue-100 text-blue-800',
+                    'approved': 'bg-green-100 text-green-800',
+                    'denied': 'bg-red-100 text-red-800'
+                };
+
+                const lastFollowUp = claim.lastFollowUp ? new Date(claim.lastFollowUp).toLocaleDateString() : '-';
+                const nextAction = claim.nextAction ? new Date(claim.nextAction).toLocaleDateString() : '-';
+
+                return `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${claim.id}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${claim.patientName}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${claim.employeeName}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">$${claim.amount.toLocaleString()}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColors[claim.status]}">
+                                ${claim.status.replace('-', ' ')}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${lastFollowUp}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${nextAction}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <button onclick="editClaim('${claim.id}')" class="text-blue-600 hover:text-blue-900 mr-3">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="followUpClaim('${claim.id}')" class="text-green-600 hover:text-green-900 mr-3">
+                                <i class="fas fa-phone"></i>
+                            </button>
+                            <button onclick="deleteClaim('${claim.id}')" class="text-red-600 hover:text-red-900">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function updatePriorityClaims() {
+            const priorityClaims = claimsData
+                .filter(claim => claim.status === 'pending' || claim.status === 'under-review')
+                .slice(0, 5); // Top 5 priority claims
+
+            const container = document.getElementById('priorityClaims');
+            
+            if (priorityClaims.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        <i class="fas fa-check-circle text-4xl mb-4"></i>
+                        <p>No priority follow-ups at this time</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = priorityClaims.map(claim => {
+                const nextActionDate = claim.nextAction ? new Date(claim.nextAction) : null;
+                const isOverdue = nextActionDate && nextActionDate < new Date();
+                const urgencyClass = isOverdue ? 'border-red-200 bg-red-50' : 'border-yellow-200 bg-yellow-50';
+
+                return `
+                    <div class="border ${urgencyClass} rounded-lg p-4">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="font-semibold text-gray-900">${claim.id} - ${claim.patientName}</h4>
+                                <p class="text-sm text-gray-600">Assigned to: ${claim.employeeName}</p>
+                                <p class="text-sm text-gray-600">Amount: $${claim.amount.toLocaleString()}</p>
+                                <p class="text-sm text-gray-600">Status: ${claim.status.replace('-', ' ')}</p>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-xs px-2 py-1 rounded-full ${isOverdue ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}">
+                                    ${isOverdue ? 'OVERDUE' : 'PENDING'}
+                                </span>
+                                <p class="text-xs text-gray-500 mt-1">
+                                    Next: ${nextActionDate ? nextActionDate.toLocaleDateString() : 'Not set'}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="mt-3 flex space-x-2">
+                            <button onclick="followUpClaim('${claim.id}')" class="text-xs bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">
+                                Follow Up
+                            </button>
+                            <button onclick="editClaim('${claim.id}')" class="text-xs bg-gray-600 text-white px-3 py-1 rounded hover:bg-gray-700">
+                                Edit
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function refreshData() {
+            loadClaimsData();
+        }
+
+        function addNewClaim() {
+            document.getElementById('modalTitle').textContent = 'Add New Claim';
+            document.getElementById('claimForm').reset();
+            document.getElementById('claimModal').classList.remove('hidden');
+        }
+
+        function editClaim(claimId) {
+            const claim = claimsData.find(c => c.id === claimId);
+            if (!claim) return;
+
+            document.getElementById('modalTitle').textContent = 'Edit Claim';
+            document.getElementById('claimId').value = claim.id;
+            document.getElementById('patientName').value = claim.patientName;
+            document.getElementById('assignedEmployee').value = claim.employeeId;
+            document.getElementById('claimAmount').value = claim.amount;
+            document.getElementById('claimStatus').value = claim.status;
+            document.getElementById('claimNotes').value = claim.notes || '';
+            
+            document.getElementById('claimModal').classList.remove('hidden');
+        }
+
+        function followUpClaim(claimId) {
+            // TODO: Implement follow-up functionality
+            alert(`Follow-up action for claim ${claimId} - functionality to be implemented`);
+        }
+
+        function deleteClaim(claimId) {
+            if (confirm('Are you sure you want to delete this claim?')) {
+                claimsData = claimsData.filter(claim => claim.id !== claimId);
+                updateClaimsTable();
+                updateSummaryCards();
+                updatePriorityClaims();
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('claimModal').classList.add('hidden');
+        }
+
+        function exportClaimsData() {
+            const headers = ['Claim ID', 'Patient', 'Employee', 'Amount', 'Status', 'Last Follow-up', 'Next Action', 'Notes'];
+            const csvContent = [
+                headers.join(','),
+                ...claimsData.map(claim => [
+                    claim.id,
+                    `"${claim.patientName}"`,
+                    `"${claim.employeeName}"`,
+                    claim.amount,
+                    claim.status,
+                    claim.lastFollowUp || '',
+                    claim.nextAction || '',
+                    `"${claim.notes || ''}"`
+                ].join(','))
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `claims-report-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Event listeners
+        document.getElementById('statusFilter').addEventListener('change', updateClaimsTable);
+        document.getElementById('employeeFilter').addEventListener('change', updateClaimsTable);
+
+        document.getElementById('claimForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                id: document.getElementById('claimId').value,
+                patientName: document.getElementById('patientName').value,
+                employeeId: document.getElementById('assignedEmployee').value,
+                employeeName: employeesData.find(emp => emp._id === document.getElementById('assignedEmployee').value)?.firstName + ' ' + 
+                             employeesData.find(emp => emp._id === document.getElementById('assignedEmployee').value)?.lastName || 'Unknown',
+                amount: parseFloat(document.getElementById('claimAmount').value),
+                status: document.getElementById('claimStatus').value,
+                notes: document.getElementById('claimNotes').value,
+                dateCreated: new Date().toISOString().split('T')[0],
+                lastFollowUp: new Date().toISOString().split('T')[0]
+            };
+
+            // TODO: Save to actual API
+            const existingIndex = claimsData.findIndex(claim => claim.id === formData.id);
+            if (existingIndex >= 0) {
+                claimsData[existingIndex] = { ...claimsData[existingIndex], ...formData };
+            } else {
+                claimsData.push(formData);
+            }
+
+            closeModal();
+            refreshData();
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadEmployees();
+            loadClaimsData();
+        });
+    </script>
+</body>
+</html>

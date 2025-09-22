@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Leave Requests</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-4 py-6">
+        <!-- Header -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
+                <h1 class="text-2xl font-bold text-gray-900 mb-4 md:mb-0">Leave Request Management</h1>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <select id="statusFilter" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">All Statuses</option>
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                    <select id="leaveTypeFilter" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">All Types</option>
+                        <option value="sick">Sick Leave</option>
+                        <option value="vacation">Vacation</option>
+                        <option value="personal">Personal</option>
+                        <option value="emergency">Emergency</option>
+                    </select>
+                    <button onclick="refreshLeaveData()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-sync-alt mr-2"></i>Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Pending Requests</p>
+                        <p class="text-3xl font-bold text-yellow-600" id="pendingCount">--</p>
+                    </div>
+                    <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-hourglass-half text-yellow-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Approved This Month</p>
+                        <p class="text-3xl font-bold text-green-600" id="approvedCount">--</p>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">On Leave Today</p>
+                        <p class="text-3xl font-bold text-blue-600" id="todayCount">--</p>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-calendar-day text-blue-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Rejected This Month</p>
+                        <p class="text-3xl font-bold text-red-600" id="rejectedCount">--</p>
+                    </div>
+                    <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-times-circle text-red-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leave Requests Table -->
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="p-6 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-900">All Leave Requests</h2>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employee</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Leave Type</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dates</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Duration</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reason</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaveRequestsTable" class="bg-white divide-y divide-gray-200">
+                        <!-- Leave requests will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Modal -->
+    <div id="actionModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <h3 class="text-lg font-medium text-gray-900" id="modalTitle">Action Required</h3>
+                <div class="mt-4">
+                    <p class="text-sm text-gray-600" id="modalMessage">Are you sure you want to perform this action?</p>
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Comment (Optional)</label>
+                        <textarea id="actionComment" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Add a comment..."></textarea>
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-3 mt-6">
+                    <button onclick="closeModal()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors">Cancel</button>
+                    <button id="confirmAction" class="px-4 py-2 rounded-md transition-colors">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentRequestId = null;
+        let currentAction = null;
+        let allLeaveRequests = [];
+
+        async function loadLeaveRequests() {
+            try {
+                const response = await fetch('/api/leave-requests', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token') || 'demo-token'}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success) {
+                        allLeaveRequests = result.data;
+                        displayLeaveRequests(allLeaveRequests);
+                        updateSummaryCards(allLeaveRequests);
+                        return;
+                    }
+                }
+                
+                // Fallback to demo data if API fails
+                console.log('Using demo data for leave requests');
+                allLeaveRequests = sampleLeaveRequests;
+                displayLeaveRequests(allLeaveRequests);
+                updateSummaryCards(allLeaveRequests);
+                
+            } catch (error) {
+                console.error('Error loading leave requests:', error);
+                // Use demo data as fallback
+                allLeaveRequests = sampleLeaveRequests;
+                displayLeaveRequests(allLeaveRequests);
+                updateSummaryCards(allLeaveRequests);
+            }
+        }
+
+        function displayLeaveRequests(requests) {
+            const tableBody = document.getElementById('leaveRequestsTable');
+            tableBody.innerHTML = '';
+            
+            if (requests.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td colspan="7" class="px-6 py-8 text-center text-gray-500">
+                        <i class="fas fa-inbox text-4xl mb-2"></i>
+                        <p>No leave requests found</p>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+                return;
+            }
+            
+            requests.forEach(request => {
+                const row = createLeaveRequestRow(request);
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Sample leave requests data (fallback)
+        const sampleLeaveRequests = [
+            {
+                id: 1,
+                employeeName: "John Doe",
+                employeeId: "EMP001",
+                leaveType: "vacation",
+                startDate: "2025-01-15",
+                endDate: "2025-01-20",
+                duration: 5,
+                reason: "Family vacation to Hawaii",
+                status: "pending",
+                submittedDate: "2025-01-05",
+                email: "john.doe@company.com"
+            },
+            {
+                id: 2,
+                employeeName: "Jane Smith",
+                employeeId: "EMP002",
+                leaveType: "sick",
+                startDate: "2025-01-10",
+                endDate: "2025-01-12",
+                duration: 3,
+                reason: "Medical treatment",
+                status: "approved",
+                submittedDate: "2025-01-08",
+                email: "jane.smith@company.com"
+            },
+            {
+                id: 3,
+                employeeName: "Mike Johnson",
+                employeeId: "EMP003",
+                leaveType: "personal",
+                startDate: "2025-02-01",
+                endDate: "2025-02-01",
+                duration: 1,
+                reason: "Personal appointment",
+                status: "pending",
+                submittedDate: "2025-01-20",
+                email: "mike.johnson@company.com"
+            }
+        ];
+
+        function createLeaveRequestRow(request) {
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-gray-50';
+            
+            const statusClass = getStatusClass(request.status);
+            const leaveTypeDisplay = request.leaveType.charAt(0).toUpperCase() + request.leaveType.slice(1);
+            
+            row.innerHTML = `
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
+                            <i class="fas fa-user text-gray-600"></i>
+                        </div>
+                        <div class="ml-4">
+                            <div class="text-sm font-medium text-gray-900">${request.employeeName}</div>
+                            <div class="text-sm text-gray-500">${request.employeeId}</div>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+                        ${leaveTypeDisplay}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <div>${new Date(request.startDate).toLocaleDateString()} - ${new Date(request.endDate).toLocaleDateString()}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${request.duration} days</td>
+                <td class="px-6 py-4 text-sm text-gray-900 max-w-xs truncate" title="${request.reason}">${request.reason}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${statusClass}">
+                        ${request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    ${request.status === 'pending' ? `
+                        <button onclick="showActionModal(${request.id}, 'approve')" class="text-green-600 hover:text-green-900 mr-3">
+                            <i class="fas fa-check mr-1"></i>Approve
+                        </button>
+                        <button onclick="showActionModal(${request.id}, 'reject')" class="text-red-600 hover:text-red-900">
+                            <i class="fas fa-times mr-1"></i>Reject
+                        </button>
+                    ` : `
+                        <button onclick="viewRequest(${request.id})" class="text-blue-600 hover:text-blue-900">
+                            <i class="fas fa-eye mr-1"></i>View
+                        </button>
+                    `}
+                </td>
+            `;
+            
+            return row;
+        }
+
+        function getStatusClass(status) {
+            switch(status) {
+                case 'approved': return 'bg-green-100 text-green-800';
+                case 'rejected': return 'bg-red-100 text-red-800';
+                case 'pending': return 'bg-yellow-100 text-yellow-800';
+                default: return 'bg-gray-100 text-gray-800';
+            }
+        }
+
+        function updateSummaryCards(requests) {
+            const pending = requests.filter(r => r.status === 'pending').length;
+            const approved = requests.filter(r => r.status === 'approved').length;
+            const rejected = requests.filter(r => r.status === 'rejected').length;
+            const today = new Date().toISOString().split('T')[0];
+            const onLeaveToday = requests.filter(r => 
+                r.status === 'approved' && 
+                r.startDate <= today && 
+                r.endDate >= today
+            ).length;
+
+            document.getElementById('pendingCount').textContent = pending;
+            document.getElementById('approvedCount').textContent = approved;
+            document.getElementById('rejectedCount').textContent = rejected;
+            document.getElementById('todayCount').textContent = onLeaveToday;
+        }
+
+        function showActionModal(requestId, action) {
+            currentRequestId = requestId;
+            currentAction = action;
+            
+            const modal = document.getElementById('actionModal');
+            const title = document.getElementById('modalTitle');
+            const message = document.getElementById('modalMessage');
+            const confirmBtn = document.getElementById('confirmAction');
+            
+            const request = allLeaveRequests.find(r => r.id === requestId);
+            
+            if (action === 'approve') {
+                title.textContent = 'Approve Leave Request';
+                message.textContent = `Are you sure you want to approve the leave request for ${request.employeeName}?`;
+                confirmBtn.className = 'px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors';
+                confirmBtn.textContent = 'Approve';
+            } else {
+                title.textContent = 'Reject Leave Request';
+                message.textContent = `Are you sure you want to reject the leave request for ${request.employeeName}?`;
+                confirmBtn.className = 'px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors';
+                confirmBtn.textContent = 'Reject';
+            }
+            
+            confirmBtn.onclick = () => processAction();
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('actionModal').classList.add('hidden');
+            document.getElementById('actionComment').value = '';
+            currentRequestId = null;
+            currentAction = null;
+        }
+
+        async function processAction() {
+            const comment = document.getElementById('actionComment').value;
+            
+            try {
+                const response = await fetch(`/api/leave-requests/${currentRequestId}/action`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token') || 'demo-token'}`
+                    },
+                    body: JSON.stringify({ action: currentAction, comment })
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success) {
+                        showNotification(`Leave request ${currentAction}d successfully!`, 'success');
+                        loadLeaveRequests(); // Reload data
+                        closeModal();
+                        return;
+                    }
+                }
+                
+                // Fallback to demo mode
+                const request = allLeaveRequests.find(r => r.id === currentRequestId);
+                if (request) {
+                    request.status = currentAction === 'approve' ? 'approved' : 'rejected';
+                    if (comment) {
+                        request.adminComment = comment;
+                    }
+                    displayLeaveRequests(allLeaveRequests);
+                    updateSummaryCards(allLeaveRequests);
+                    showNotification(`Leave request ${currentAction}d successfully! (Demo mode)`, 'success');
+                }
+                
+            } catch (error) {
+                console.error('Error processing action:', error);
+                showNotification('Error processing request. Please try again.', 'error');
+            }
+            
+            closeModal();
+        }
+
+        function viewRequest(requestId) {
+            const request = allLeaveRequests.find(r => r.id === requestId);
+            if (request) {
+                const startDate = new Date(request.startDate).toLocaleDateString();
+                const endDate = new Date(request.endDate).toLocaleDateString();
+                alert(`Request Details:\n\nEmployee: ${request.employeeName} (${request.employeeId})\nType: ${request.leaveType}\nDates: ${startDate} to ${endDate}\nDuration: ${request.duration} days\nReason: ${request.reason}\nStatus: ${request.status}\nSubmitted: ${new Date(request.submittedDate).toLocaleDateString()}`);
+            }
+        }
+
+        async function refreshLeaveData() {
+            await loadLeaveRequests();
+            showNotification('Data refreshed successfully!', 'info');
+        }
+
+        function showNotification(message, type) {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 transition-all duration-300 ${
+                type === 'success' ? 'bg-green-500 text-white' : 
+                type === 'error' ? 'bg-red-500 text-white' : 
+                'bg-blue-500 text-white'
+            }`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            // Auto remove after 3 seconds
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        // Filter functionality
+        document.getElementById('statusFilter').addEventListener('change', function() {
+            applyFilters();
+        });
+
+        document.getElementById('leaveTypeFilter').addEventListener('change', function() {
+            applyFilters();
+        });
+        
+        function applyFilters() {
+            const statusFilter = document.getElementById('statusFilter').value;
+            const leaveTypeFilter = document.getElementById('leaveTypeFilter').value;
+            
+            let filteredRequests = [...allLeaveRequests];
+            
+            if (statusFilter) {
+                filteredRequests = filteredRequests.filter(request => request.status === statusFilter);
+            }
+            
+            if (leaveTypeFilter) {
+                filteredRequests = filteredRequests.filter(request => request.leaveType === leaveTypeFilter);
+            }
+            
+            displayLeaveRequests(filteredRequests);
+        }
+
+        // Load data when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadLeaveRequests();
+        });
+    </script>
+</body>
+</html>

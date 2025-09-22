@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR Comments Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-4 py-6">
+        <!-- Header -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
+                <h1 class="text-2xl font-bold text-gray-900 mb-4 md:mb-0">AR Comments Management & Analytics</h1>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <select id="statusFilter" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">All Statuses</option>
+                        <option value="pending">Pending</option>
+                        <option value="resolved">Resolved</option>
+                        <option value="escalated">Escalated</option>
+                    </select>
+                    <select id="priorityFilter" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">All Priorities</option>
+                        <option value="high">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="low">Low</option>
+                    </select>
+                    <input type="date" id="dateFilter" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button onclick="refreshComments()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-sync-alt mr-2"></i>Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Total Comments</p>
+                        <p class="text-3xl font-bold text-blue-600" id="totalComments">--</p>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-comments text-blue-600 text-xl"></i>
+                    </div>
+                </div>
+                <p class="text-sm text-gray-500 mt-2" id="commentsToday">-- added today</p>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Pending Resolution</p>
+                        <p class="text-3xl font-bold text-yellow-600" id="pendingComments">--</p>
+                    </div>
+                    <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-hourglass-half text-yellow-600 text-xl"></i>
+                    </div>
+                </div>
+                <p class="text-sm text-gray-500 mt-2" id="avgResolutionTime">Avg: -- hours</p>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">High Priority</p>
+                        <p class="text-3xl font-bold text-red-600" id="highPriorityComments">--</p>
+                    </div>
+                    <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                    </div>
+                </div>
+                <p class="text-sm text-gray-500 mt-2" id="escalatedComments">-- escalated</p>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Resolution Rate</p>
+                        <p class="text-3xl font-bold text-green-600" id="resolutionRate">--%</p>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                    </div>
+                </div>
+                <p class="text-sm text-gray-500 mt-2" id="resolutionTrend">-- vs yesterday</p>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Comment Status Distribution</h3>
+                <canvas id="statusChart" width="400" height="200"></canvas>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Daily Comments Trend</h3>
+                <canvas id="trendChart" width="400" height="200"></canvas>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Priority Breakdown</h3>
+                <canvas id="priorityChart" width="400" height="200"></canvas>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Employee Performance</h3>
+                <canvas id="employeePerformanceChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <button onclick="bulkAssign()" class="flex items-center justify-center p-4 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
+                    <i class="fas fa-users text-blue-600 text-xl mr-3"></i>
+                    <span class="text-blue-900 font-medium">Bulk Assign</span>
+                </button>
+                <button onclick="exportComments()" class="flex items-center justify-center p-4 bg-green-50 hover:bg-green-100 rounded-lg transition-colors">
+                    <i class="fas fa-download text-green-600 text-xl mr-3"></i>
+                    <span class="text-green-900 font-medium">Export Data</span>
+                </button>
+                <button onclick="generateReport()" class="flex items-center justify-center p-4 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors">
+                    <i class="fas fa-chart-bar text-purple-600 text-xl mr-3"></i>
+                    <span class="text-purple-900 font-medium">Generate Report</span>
+                </button>
+                <button onclick="addTemplate()" class="flex items-center justify-center p-4 bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors">
+                    <i class="fas fa-file-alt text-orange-600 text-xl mr-3"></i>
+                    <span class="text-orange-900 font-medium">Add Template</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Comments Management Table -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">AR Comments Management</h3>
+                <div class="flex gap-2">
+                    <input type="text" id="searchInput" placeholder="Search comments..." class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button onclick="addNewComment()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-plus mr-2"></i>New Comment
+                    </button>
+                </div>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <input type="checkbox" id="selectAll" class="rounded">
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Account</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Comment</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assigned To</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="commentsTableBody" class="bg-white divide-y divide-gray-200">
+                        <!-- Comments data will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="flex items-center justify-between mt-6">
+                <div class="text-sm text-gray-700">
+                    Showing <span id="showingStart">1</span> to <span id="showingEnd">10</span> of <span id="totalRecords">0</span> results
+                </div>
+                <div class="flex space-x-2">
+                    <button onclick="previousPage()" class="px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50">Previous</button>
+                    <button onclick="nextPage()" class="px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50">Next</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Priority Comments Widget -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">High Priority & Escalated Comments</h3>
+            <div id="priorityCommentsWidget" class="space-y-4">
+                <!-- High priority comments will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Comment Modal -->
+    <div id="commentModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <h3 class="text-lg font-bold text-gray-900 mb-4" id="modalTitle">Add New AR Comment</h3>
+                <form id="commentForm">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Account Number</label>
+                            <input type="text" id="accountNumber" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Patient Name</label>
+                            <input type="text" id="patientName" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Priority</label>
+                            <select id="commentPriority" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Status</label>
+                            <select id="commentStatus" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                                <option value="pending">Pending</option>
+                                <option value="resolved">Resolved</option>
+                                <option value="escalated">Escalated</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Assigned To</label>
+                            <select id="assignedTo" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">Select Employee</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Category</label>
+                            <select id="commentCategory" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="insurance-verification">Insurance Verification</option>
+                                <option value="payment-issue">Payment Issue</option>
+                                <option value="claim-follow-up">Claim Follow-up</option>
+                                <option value="patient-contact">Patient Contact</option>
+                                <option value="documentation">Documentation</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700">Comment Details</label>
+                        <textarea id="commentText" rows="4" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter detailed comment..." required></textarea>
+                    </div>
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700">Follow-up Date</label>
+                        <input type="date" id="followUpDate" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="flex justify-end space-x-3 mt-6">
+                        <button type="button" onclick="closeModal()" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400 transition-colors">Cancel</button>
+                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">Save Comment</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:5000/api';
+        let commentsData = [];
+        let employeesData = [];
+        let statusChart, trendChart, priorityChart, employeePerformanceChart;
+        let currentPage = 1;
+        const itemsPerPage = 10;
+
+        // Mock AR comments data
+        const mockCommentsData = [
+            {
+                id: 'AR001',
+                accountNumber: 'ACC12345',
+                patientName: 'John Smith',
+                comment: 'Insurance verification needed for treatment plan approval',
+                priority: 'high',
+                status: 'pending',
+                assignedTo: 'EMP001',
+                assignedName: 'Alice Johnson',
+                category: 'insurance-verification',
+                createdDate: '2024-01-20',
+                followUpDate: '2024-01-22',
+                createdBy: 'Admin'
+            },
+            {
+                id: 'AR002',
+                accountNumber: 'ACC67890',
+                patientName: 'Sarah Wilson',
+                comment: 'Patient payment plan setup required',
+                priority: 'medium',
+                status: 'resolved',
+                assignedTo: 'EMP002',
+                assignedName: 'Bob Martinez',
+                category: 'payment-issue',
+                createdDate: '2024-01-18',
+                followUpDate: null,
+                createdBy: 'Alice Johnson'
+            },
+            {
+                id: 'AR003',
+                accountNumber: 'ACC54321',
+                patientName: 'Mike Davis',
+                comment: 'Claim denied - need to appeal with additional documentation',
+                priority: 'high',
+                status: 'escalated',
+                assignedTo: 'EMP001',
+                assignedName: 'Alice Johnson',
+                category: 'claim-follow-up',
+                createdDate: '2024-01-19',
+                followUpDate: '2024-01-23',
+                createdBy: 'Bob Martinez'
+            }
+        ];
+
+        async function loadEmployees() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/employees`);
+                employeesData = await response.json();
+                
+                // Populate assigned to dropdown
+                const assignedTo = document.getElementById('assignedTo');
+                employeesData.forEach(emp => {
+                    const option = document.createElement('option');
+                    option.value = emp._id;
+                    option.textContent = `${emp.firstName} ${emp.lastName}`;
+                    assignedTo.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading employees:', error);
+                employeesData = [];
+            }
+        }
+
+        async function loadCommentsData() {
+            try {
+                // TODO: Replace with actual API call
+                // const response = await fetch(`${API_BASE_URL}/ar-comments`);
+                // commentsData = await response.json();
+                
+                // Using mock data for now
+                commentsData = mockCommentsData;
+                
+                updateSummaryCards();
+                generateCharts();
+                updateCommentsTable();
+                updatePriorityWidget();
+            } catch (error) {
+                console.error('Error loading comments data:', error);
+                commentsData = mockCommentsData;
+                updateSummaryCards();
+                generateCharts();
+                updateCommentsTable();
+                updatePriorityWidget();
+            }
+        }
+
+        function updateSummaryCards() {
+            const total = commentsData.length;
+            const pending = commentsData.filter(c => c.status === 'pending').length;
+            const highPriority = commentsData.filter(c => c.priority === 'high').length;
+            const escalated = commentsData.filter(c => c.status === 'escalated').length;
+            const resolved = commentsData.filter(c => c.status === 'resolved').length;
+            
+            const resolutionRate = total > 0 ? Math.round((resolved / total) * 100) : 0;
+            const todaysComments = commentsData.filter(c => {
+                const today = new Date().toISOString().split('T')[0];
+                return c.createdDate === today;
+            }).length;
+
+            document.getElementById('totalComments').textContent = total;
+            document.getElementById('pendingComments').textContent = pending;
+            document.getElementById('highPriorityComments').textContent = highPriority;
+            document.getElementById('resolutionRate').textContent = `${resolutionRate}%`;
+            
+            document.getElementById('commentsToday').textContent = `${todaysComments} added today`;
+            document.getElementById('avgResolutionTime').textContent = 'Avg: 24 hours';
+            document.getElementById('escalatedComments').textContent = `${escalated} escalated`;
+            document.getElementById('resolutionTrend').textContent = '+5% vs yesterday';
+        }
+
+        function generateCharts() {
+            generateStatusChart();
+            generateTrendChart();
+            generatePriorityChart();
+            generateEmployeePerformanceChart();
+        }
+
+        function generateStatusChart() {
+            const statusCounts = {
+                pending: 0,
+                resolved: 0,
+                escalated: 0
+            };
+
+            commentsData.forEach(comment => {
+                statusCounts[comment.status]++;
+            });
+
+            const ctx = document.getElementById('statusChart').getContext('2d');
+            if (statusChart) statusChart.destroy();
+            
+            statusChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Pending', 'Resolved', 'Escalated'],
+                    datasets: [{
+                        data: [statusCounts.pending, statusCounts.resolved, statusCounts.escalated],
+                        backgroundColor: ['#F59E0B', '#10B981', '#EF4444']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        function generateTrendChart() {
+            const last7Days = [];
+            const commentCounts = [];
+            
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                const dateStr = date.toISOString().split('T')[0];
+                last7Days.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+                
+                const count = commentsData.filter(c => c.createdDate === dateStr).length;
+                commentCounts.push(count);
+            }
+
+            const ctx = document.getElementById('trendChart').getContext('2d');
+            if (trendChart) trendChart.destroy();
+            
+            trendChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: last7Days,
+                    datasets: [{
+                        label: 'New Comments',
+                        data: commentCounts,
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function generatePriorityChart() {
+            const priorityCounts = {
+                low: 0,
+                medium: 0,
+                high: 0
+            };
+
+            commentsData.forEach(comment => {
+                priorityCounts[comment.priority]++;
+            });
+
+            const ctx = document.getElementById('priorityChart').getContext('2d');
+            if (priorityChart) priorityChart.destroy();
+            
+            priorityChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Low', 'Medium', 'High'],
+                    datasets: [{
+                        label: 'Comments Count',
+                        data: [priorityCounts.low, priorityCounts.medium, priorityCounts.high],
+                        backgroundColor: ['#10B981', '#F59E0B', '#EF4444']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function generateEmployeePerformanceChart() {
+            const employeeStats = {};
+            
+            commentsData.forEach(comment => {
+                const name = comment.assignedName || 'Unassigned';
+                if (!employeeStats[name]) {
+                    employeeStats[name] = { resolved: 0, total: 0 };
+                }
+                employeeStats[name].total++;
+                if (comment.status === 'resolved') {
+                    employeeStats[name].resolved++;
+                }
+            });
+
+            const labels = Object.keys(employeeStats);
+            const resolutionRates = labels.map(name => 
+                employeeStats[name].total > 0 ? 
+                Math.round((employeeStats[name].resolved / employeeStats[name].total) * 100) : 0
+            );
+
+            const ctx = document.getElementById('employeePerformanceChart').getContext('2d');
+            if (employeePerformanceChart) employeePerformanceChart.destroy();
+            
+            employeePerformanceChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Resolution Rate (%)',
+                        data: resolutionRates,
+                        backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                        borderColor: 'rgb(59, 130, 246)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateCommentsTable() {
+            const tbody = document.getElementById('commentsTableBody');
+            const statusFilter = document.getElementById('statusFilter').value;
+            const priorityFilter = document.getElementById('priorityFilter').value;
+            const dateFilter = document.getElementById('dateFilter').value;
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            let filteredComments = commentsData.filter(comment => {
+                const matchesStatus = !statusFilter || comment.status === statusFilter;
+                const matchesPriority = !priorityFilter || comment.priority === priorityFilter;
+                const matchesDate = !dateFilter || comment.createdDate === dateFilter;
+                const matchesSearch = !searchTerm || 
+                    comment.patientName.toLowerCase().includes(searchTerm) ||
+                    comment.accountNumber.toLowerCase().includes(searchTerm) ||
+                    comment.comment.toLowerCase().includes(searchTerm);
+                
+                return matchesStatus && matchesPriority && matchesDate && matchesSearch;
+            });
+
+            const totalRecords = filteredComments.length;
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, totalRecords);
+            const paginatedComments = filteredComments.slice(startIndex, endIndex);
+
+            if (paginatedComments.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="px-6 py-4 text-center text-gray-500">
+                            No comments found matching the selected criteria
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = paginatedComments.map(comment => {
+                const priorityColors = {
+                    'low': 'bg-green-100 text-green-800',
+                    'medium': 'bg-yellow-100 text-yellow-800',
+                    'high': 'bg-red-100 text-red-800'
+                };
+
+                const statusColors = {
+                    'pending': 'bg-yellow-100 text-yellow-800',
+                    'resolved': 'bg-green-100 text-green-800',
+                    'escalated': 'bg-red-100 text-red-800'
+                };
+
+                return `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <input type="checkbox" class="rounded comment-checkbox" value="${comment.id}">
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900">${comment.accountNumber}</div>
+                            <div class="text-sm text-gray-500">${comment.patientName}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm text-gray-900 max-w-xs truncate" title="${comment.comment}">
+                                ${comment.comment}
+                            </div>
+                            <div class="text-xs text-gray-500">${comment.category.replace('-', ' ')}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${priorityColors[comment.priority]}">
+                                ${comment.priority}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColors[comment.status]}">
+                                ${comment.status}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ${comment.assignedName || 'Unassigned'}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ${new Date(comment.createdDate).toLocaleDateString()}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <button onclick="editComment('${comment.id}')" class="text-blue-600 hover:text-blue-900 mr-3">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="resolveComment('${comment.id}')" class="text-green-600 hover:text-green-900 mr-3">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            <button onclick="deleteComment('${comment.id}')" class="text-red-600 hover:text-red-900">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            // Update pagination info
+            document.getElementById('showingStart').textContent = startIndex + 1;
+            document.getElementById('showingEnd').textContent = endIndex;
+            document.getElementById('totalRecords').textContent = totalRecords;
+        }
+
+        function updatePriorityWidget() {
+            const priorityComments = commentsData
+                .filter(comment => comment.priority === 'high' || comment.status === 'escalated')
+                .slice(0, 5);
+
+            const container = document.getElementById('priorityCommentsWidget');
+            
+            if (priorityComments.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        <i class="fas fa-check-circle text-4xl mb-4"></i>
+                        <p>No high priority comments at this time</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = priorityComments.map(comment => {
+                const isEscalated = comment.status === 'escalated';
+                const cardClass = isEscalated ? 'border-red-200 bg-red-50' : 'border-yellow-200 bg-yellow-50';
+                const iconClass = isEscalated ? 'text-red-600' : 'text-yellow-600';
+
+                return `
+                    <div class="border ${cardClass} rounded-lg p-4">
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1">
+                                <div class="flex items-center mb-2">
+                                    <i class="fas fa-exclamation-triangle ${iconClass} mr-2"></i>
+                                    <h4 class="font-semibold text-gray-900">${comment.accountNumber} - ${comment.patientName}</h4>
+                                </div>
+                                <p class="text-sm text-gray-700 mb-2">${comment.comment}</p>
+                                <div class="flex items-center text-xs text-gray-500 space-x-4">
+                                    <span>Assigned: ${comment.assignedName || 'Unassigned'}</span>
+                                    <span>Created: ${new Date(comment.createdDate).toLocaleDateString()}</span>
+                                    ${comment.followUpDate ? `<span>Follow-up: ${new Date(comment.followUpDate).toLocaleDateString()}</span>` : ''}
+                                </div>
+                            </div>
+                            <div class="flex flex-col space-y-2">
+                                <span class="text-xs px-2 py-1 rounded-full ${isEscalated ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}">
+                                    ${comment.status.toUpperCase()}
+                                </span>
+                                <button onclick="editComment('${comment.id}')" class="text-xs bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">
+                                    Edit
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Filter functions
+        function refreshComments() {
+            loadCommentsData();
+        }
+
+        function addNewComment() {
+            document.getElementById('modalTitle').textContent = 'Add New AR Comment';
+            document.getElementById('commentForm').reset();
+            document.getElementById('commentModal').classList.remove('hidden');
+        }
+
+        function editComment(commentId) {
+            const comment = commentsData.find(c => c.id === commentId);
+            if (!comment) return;
+
+            document.getElementById('modalTitle').textContent = 'Edit AR Comment';
+            document.getElementById('accountNumber').value = comment.accountNumber;
+            document.getElementById('patientName').value = comment.patientName;
+            document.getElementById('commentPriority').value = comment.priority;
+            document.getElementById('commentStatus').value = comment.status;
+            document.getElementById('assignedTo').value = comment.assignedTo;
+            document.getElementById('commentCategory').value = comment.category;
+            document.getElementById('commentText').value = comment.comment;
+            document.getElementById('followUpDate').value = comment.followUpDate || '';
+            
+            document.getElementById('commentModal').classList.remove('hidden');
+        }
+
+        function resolveComment(commentId) {
+            const comment = commentsData.find(c => c.id === commentId);
+            if (comment) {
+                comment.status = 'resolved';
+                updateCommentsTable();
+                updateSummaryCards();
+                updatePriorityWidget();
+            }
+        }
+
+        function deleteComment(commentId) {
+            if (confirm('Are you sure you want to delete this comment?')) {
+                commentsData = commentsData.filter(comment => comment.id !== commentId);
+                updateCommentsTable();
+                updateSummaryCards();
+                updatePriorityWidget();
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('commentModal').classList.add('hidden');
+        }
+
+        function bulkAssign() {
+            const selected = Array.from(document.querySelectorAll('.comment-checkbox:checked')).map(cb => cb.value);
+            if (selected.length === 0) {
+                alert('Please select comments to assign');
+                return;
+            }
+            // TODO: Implement bulk assignment functionality
+            alert(`Bulk assign functionality for ${selected.length} comments - to be implemented`);
+        }
+
+        function exportComments() {
+            const headers = ['Account', 'Patient', 'Comment', 'Priority', 'Status', 'Assigned To', 'Created', 'Category'];
+            const csvContent = [
+                headers.join(','),
+                ...commentsData.map(comment => [
+                    comment.accountNumber,
+                    `"${comment.patientName}"`,
+                    `"${comment.comment}"`,
+                    comment.priority,
+                    comment.status,
+                    `"${comment.assignedName || 'Unassigned'}"`,
+                    comment.createdDate,
+                    comment.category
+                ].join(','))
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `ar-comments-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        function generateReport() {
+            // TODO: Implement report generation
+            alert('Report generation functionality - to be implemented');
+        }
+
+        function addTemplate() {
+            // TODO: Implement template functionality
+            alert('Template functionality - to be implemented');
+        }
+
+        function previousPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                updateCommentsTable();
+            }
+        }
+
+        function nextPage() {
+            const totalRecords = document.getElementById('totalRecords').textContent;
+            const maxPages = Math.ceil(totalRecords / itemsPerPage);
+            if (currentPage < maxPages) {
+                currentPage++;
+                updateCommentsTable();
+            }
+        }
+
+        // Event listeners
+        document.getElementById('statusFilter').addEventListener('change', () => {
+            currentPage = 1;
+            updateCommentsTable();
+        });
+
+        document.getElementById('priorityFilter').addEventListener('change', () => {
+            currentPage = 1;
+            updateCommentsTable();
+        });
+
+        document.getElementById('dateFilter').addEventListener('change', () => {
+            currentPage = 1;
+            updateCommentsTable();
+        });
+
+        document.getElementById('searchInput').addEventListener('input', () => {
+            currentPage = 1;
+            updateCommentsTable();
+        });
+
+        document.getElementById('selectAll').addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.comment-checkbox');
+            checkboxes.forEach(cb => cb.checked = this.checked);
+        });
+
+        document.getElementById('commentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                id: 'AR' + (commentsData.length + 1).toString().padStart(3, '0'),
+                accountNumber: document.getElementById('accountNumber').value,
+                patientName: document.getElementById('patientName').value,
+                comment: document.getElementById('commentText').value,
+                priority: document.getElementById('commentPriority').value,
+                status: document.getElementById('commentStatus').value,
+                assignedTo: document.getElementById('assignedTo').value,
+                assignedName: employeesData.find(emp => emp._id === document.getElementById('assignedTo').value)?.firstName + ' ' + 
+                             employeesData.find(emp => emp._id === document.getElementById('assignedTo').value)?.lastName || 'Unassigned',
+                category: document.getElementById('commentCategory').value,
+                createdDate: new Date().toISOString().split('T')[0],
+                followUpDate: document.getElementById('followUpDate').value || null,
+                createdBy: 'Admin'
+            };
+
+            // TODO: Save to actual API
+            commentsData.push(formData);
+            
+            closeModal();
+            refreshComments();
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadEmployees();
+            loadCommentsData();
+        });
+    </script>
+</body>
+</html>

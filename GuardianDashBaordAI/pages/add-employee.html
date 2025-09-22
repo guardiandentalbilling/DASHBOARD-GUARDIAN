@@ -1,0 +1,571 @@
+<div class="space-y-8">
+    <div class="flex items-center justify-between">
+        <h2 class="text-3xl font-bold text-gray-800">Add New Employee</h2>
+        <a href="#" data-page="Employees" class="text-sm font-medium text-indigo-600 hover:text-indigo-800">
+            &larr; Back to Employee List
+        </a>
+    </div>
+
+    <div class="bg-white p-8 rounded-xl shadow-lg">
+        <form id="add-employee-form" class="space-y-8">
+            <div>
+                <h3 class="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">Personal Information</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="firstName" class="block text-sm font-medium text-gray-600">First Name</label>
+                        <input type="text" id="firstName" name="firstName" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" required>
+                    </div>
+                    <div>
+                        <label for="lastName" class="block text-sm font-medium text-gray-600">Last Name</label>
+                        <input type="text" id="lastName" name="lastName" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" required>
+                    </div>
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-600">Email Address</label>
+                        <input type="email" id="email" name="email" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" required>
+                    </div>
+                    <div>
+                        <label for="phone" class="block text-sm font-medium text-gray-600">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <h3 class="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">Login Credentials</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="username" class="block text-sm font-medium text-gray-600">Username</label>
+                        <input type="text" id="username" name="username" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" required placeholder="john.doe">
+                        <p class="text-xs text-gray-500 mt-1">This will be used for login. Make it unique.</p>
+                    </div>
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-600">Temporary Password</label>
+                        <div class="relative">
+                            <input type="password" id="password" name="password" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" required placeholder="Temp123@456">
+                            <button type="button" onclick="togglePassword()" class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                <i id="password-toggle-icon" class="fas fa-eye text-gray-400"></i>
+                            </button>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">Employee can change this in their profile.</p>
+                    </div>
+                    <div>
+                        <label for="userRole" class="block text-sm font-medium text-gray-600">User Role</label>
+                        <select id="userRole" name="userRole" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" required>
+                            <option value="">Select user role</option>
+                            <option value="employee">Employee</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                        <p class="text-xs text-gray-500 mt-1">Determines system access level.</p>
+                    </div>
+                    <div>
+                        <button type="button" onclick="generatePassword()" class="mt-6 px-4 py-2 bg-blue-100 text-blue-700 font-medium rounded-lg hover:bg-blue-200 transition-colors">
+                            <i class="fas fa-key mr-2"></i>Generate Secure Password
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <h3 class="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">Employment Details</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="role" class="block text-sm font-medium text-gray-600">Job Position</label>
+                        <select id="role" name="role" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                            <option>Billing Specialist</option>
+                            <option>Team Lead</option>
+                            <option>AR Specialist</option>
+                            <option>Account Manager</option>
+                            <option>HR Manager</option>
+                            <option>IT Support</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="status" class="block text-sm font-medium text-gray-600">Status</label>
+                        <select id="status" name="status" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                            <option value="Active">Active</option>
+                            <option value="On Leave">On Leave</option>
+                            <option value="Resigned">Resigned</option>
+                            <option value="Retired">Retired</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                     <div>
+                        <label for="joiningDate" class="block text-sm font-medium text-gray-600">Joining Date</label>
+                        <input type="date" id="joiningDate" name="joiningDate" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <h3 class="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">Salary & Compensation</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="salaryPKR" class="block text-sm font-medium text-gray-600">Salary (PKR)</label>
+                        <input type="number" id="salaryPKR" name="salaryPKR" placeholder="120000" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" required>
+                    </div>
+                    <div>
+                        <label for="overtime" class="block text-sm font-medium text-gray-600">Overtime Rate (per hour, PKR)</label>
+                        <input type="number" id="overtime" name="overtime" placeholder="500" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                </div>
+            </div>
+
+             <div>
+                 <h3 class="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">Documents & Assignments</h3>
+                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="profileImage" class="block text-sm font-medium text-gray-600">Profile Image</label>
+                        <input type="file" id="profileImage" name="profileImage" accept="image/*" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                    </div>
+                    <div>
+                        <label for="employeeDocs" class="block text-sm font-medium text-gray-600">Employee Documents</label>
+                        <input type="file" id="employeeDocs" name="employeeDocs" multiple class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                    </div>
+                    <div>
+                        <label for="client-select" class="block text-sm font-medium text-gray-600">Assign Client</label>
+                        <select id="client-select" name="client" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm">
+                            </select>
+                    </div>
+                    <div>
+                        <label for="task-select" class="block text-sm font-medium text-gray-600">Assign Initial Task</label>
+                        <select id="task-select" name="task" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm">
+                            </select>
+                    </div>
+                 </div>
+            </div>
+
+            <div class="flex justify-end space-x-4 pt-4 border-t">
+                <button type="button" data-page="Employees" class="px-6 py-2 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200">Cancel</button>
+                <button type="submit" class="px-6 py-2 bg-[#F46425] text-white font-semibold rounded-lg shadow-md hover:bg-opacity-90">Save Employee</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // --- Password Utility Functions ---
+        window.togglePassword = function() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.getElementById('password-toggle-icon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.className = 'fas fa-eye-slash text-gray-400';
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.className = 'fas fa-eye text-gray-400';
+            }
+        };
+
+        window.generatePassword = function() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+            let password = '';
+            for (let i = 0; i < 12; i++) {
+                password += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            document.getElementById('password').value = password;
+            
+            // Show generated password temporarily
+            const passwordInput = document.getElementById('password');
+            const originalType = passwordInput.type;
+            passwordInput.type = 'text';
+            setTimeout(() => {
+                passwordInput.type = originalType;
+            }, 3000);
+        };
+
+        // Auto-generate username from first and last name
+        document.getElementById('firstName').addEventListener('input', generateUsername);
+        document.getElementById('lastName').addEventListener('input', generateUsername);
+        
+        function generateUsername() {
+            const firstName = document.getElementById('firstName').value.toLowerCase().trim();
+            const lastName = document.getElementById('lastName').value.toLowerCase().trim();
+            
+            if (firstName && lastName) {
+                const username = `${firstName}.${lastName}`;
+                document.getElementById('username').value = username;
+            }
+        }
+
+        // --- Form Submission Logic ---
+        const form = document.getElementById('add-employee-form');
+        if (!form) return;
+
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const editingId = sessionStorage.getItem('editingEmployeeId');
+            const isEdit = !!editingId;
+            if (isEdit) {
+                const proceed = confirm('Save changes to this employee?');
+                if(!proceed) return;
+            } else {
+                const proceed = confirm('Add this new employee?');
+                if(!proceed) return;
+            }
+            
+            // Show loading state
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Adding Employee...';
+            submitBtn.disabled = true;
+
+            const formData = new FormData(form);
+            const employeeData = Object.fromEntries(formData.entries());
+
+            // Validate required fields
+            if (!employeeData.firstName || !employeeData.lastName || !employeeData.email) {
+                showMessage('❌ Please fill in all required fields (First Name, Last Name, Email)', 'error');
+                resetSubmitButton(submitBtn, originalText);
+                return;
+            }
+
+            if (!employeeData.username || !employeeData.password || !employeeData.userRole) {
+                showMessage('❌ Please fill in all login credential fields', 'error');
+                resetSubmitButton(submitBtn, originalText);
+                return;
+            }
+
+            try {
+                // Get API base URL from global config
+                const apiBaseUrl = window.GLOBAL_API_BASE_URL || 'http://localhost:5000/api';
+                
+                // Step 1: Create user account first
+                const userPayload = {
+                    name: `${employeeData.firstName} ${employeeData.lastName}`,
+                    email: employeeData.email,
+                    password: employeeData.password,
+                    role: employeeData.userRole
+                };
+
+                console.log('Creating user account...', userPayload);
+                
+                const userResponse = await fetch(`${apiBaseUrl}/users/register`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('authToken') || 'demo-token'}`
+                    },
+                    body: JSON.stringify(userPayload),
+                });
+                
+                let userData = null;
+                if (userResponse.ok) {
+                    userData = await userResponse.json();
+                    console.log('User account created:', userData);
+                } else {
+                    const errorData = await userResponse.json();
+                    if (errorData.message && errorData.message.includes('already exists')) {
+                        throw new Error('Email already exists. Please use a different email address.');
+                    }
+                    console.warn('User creation failed, continuing with employee creation...');
+                }
+
+                // Step 2: Create employee record
+                const employeePayload = {
+                    firstName: employeeData.firstName,
+                    lastName: employeeData.lastName,
+                    email: employeeData.email,
+                    phone: employeeData.phone || '',
+                    role: employeeData.role || 'Employee',
+                    joiningDate: employeeData.joiningDate || new Date().toISOString().split('T')[0],
+                    salaryPKR: parseInt(employeeData.salaryPKR) || 0,
+                    overtime: parseInt(employeeData.overtime) || 0,
+                    userId: userData?._id || null,
+                    username: employeeData.username,
+                    userRole: employeeData.userRole,
+                    status: employeeData.status || 'Active'
+                };
+
+                if (isEdit) {
+                    // Editing mode: update existing record locally (and optionally via API if endpoint exists)
+                    applyEditLocal(editingId, employeePayload);
+                    showMessage(`✅ Employee updated successfully!`, 'success');
+                    // Clean up editing state
+                    sessionStorage.removeItem('editingEmployeeId');
+                    setTimeout(async () => {
+                        if (window.parent && window.parent.loadContent) {
+                            await window.parent.loadContent('Employees');
+                        }
+                    }, 1200);
+                    return; // Skip create flow
+                }
+
+                console.log('Creating employee record...', employeePayload);
+                
+                const employeeResponse = await fetch(`${apiBaseUrl}/employees`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('authToken') || 'demo-token'}`
+                    },
+                    body: JSON.stringify(employeePayload),
+                });
+                
+                if (employeeResponse.ok) {
+                    const employeeResult = await employeeResponse.json();
+                    console.log('Employee created:', employeeResult);
+                    
+                    showMessage(`✅ Employee "${employeeData.firstName} ${employeeData.lastName}" added successfully!\n\nLogin Details:\n• Username: ${employeeData.username}\n• Password: ${employeeData.password}\n\nPlease provide these credentials to the employee.`, 'success');
+                    
+                    // Also save to localStorage for immediate display
+                    saveToLocalStorage(employeePayload);
+                    
+                    // Reset form and go back to employee list after 3 seconds
+                    setTimeout(async () => {
+                        form.reset();
+                        // Use parent loadContent if available and retry once on failure
+                        try {
+                            if (window.parent && window.parent.loadContent) {
+                                await window.parent.loadContent('Employees');
+                            } else if (document.querySelector(`a[data-page='Employees']`)) {
+                                document.querySelector(`a[data-page='Employees']`).click();
+                            }
+                        } catch (navErr) {
+                            console.warn('Failed to navigate to Employees via parent.loadContent, retrying...', navErr);
+                            try {
+                                await new Promise(r => setTimeout(r, 300));
+                                if (window.parent && window.parent.loadContent) {
+                                    await window.parent.loadContent('Employees');
+                                }
+                            } catch (retryErr) {
+                                console.error('Navigation retry failed:', retryErr);
+                                showMessage('⚠️ Employee saved locally but unable to load the Employees page. Please click "Employees" in the sidebar.', 'error');
+                            }
+                        }
+                    }, 3000);
+                    
+                } else {
+                    const errorData = await employeeResponse.json();
+                    throw new Error(errorData.message || 'Failed to create employee record');
+                }
+                
+            } catch (error) {
+                console.error('Error creating employee/user:', error);
+                
+                // Fallback to localStorage for ANY error during API communication
+                console.warn('An error occurred. Using localStorage fallback to prevent data loss.');
+                
+                const employeePayload = {
+                    id: `local_${Date.now()}`,
+                    firstName: employeeData.firstName,
+                    lastName: employeeData.lastName,
+                    email: employeeData.email,
+                    phone: employeeData.phone || '',
+                    role: employeeData.role || 'Employee',
+                    joiningDate: employeeData.joiningDate || new Date().toISOString().split('T')[0],
+                    salaryPKR: parseInt(employeeData.salaryPKR) || 0,
+                    overtime: parseInt(employeeData.overtime) || 0,
+                    username: employeeData.username,
+                    userRole: employeeData.userRole,
+                    status: employeeData.status || 'Active',
+                    createdAt: new Date().toISOString()
+                };
+
+                const editingId = sessionStorage.getItem('editingEmployeeId');
+                if (editingId) {
+                    applyEditLocal(editingId, employeePayload);
+                    sessionStorage.removeItem('editingEmployeeId');
+                    showMessage('✅ Employee updated locally (Demo Mode).', 'success');
+                    setTimeout(async () => {
+                        if (window.parent && window.parent.loadContent) {
+                            try { await window.parent.loadContent('Employees'); } catch {}
+                        }
+                    }, 1500);
+                    resetSubmitButton(submitBtn, originalText);
+                    return;
+                }
+                
+                saveToLocalStorage(employeePayload);
+                
+                showMessage(`✅ Employee "${employeeData.firstName} ${employeeData.lastName}" added successfully (Demo Mode)!\n\nLogin Details:\n• Username: ${employeeData.username}\n• Password: ${employeeData.password}\n\nNote: Data saved locally due to a server issue. It will sync when available.\n\nRedirecting to employee list...`, 'success');
+                
+                // Reset form and go back to employee list after a delay
+                setTimeout(async () => {
+                    form.reset();
+                    
+                        // Navigate back to employee list (use parent.loadContent where possible)
+                        const employeeLink = document.querySelector(`a[data-page='Employees']`);
+                        if (employeeLink) {
+                            employeeLink.click();
+                        } else if (window.parent && window.parent.loadContent) {
+                            try {
+                                await window.parent.loadContent('Employees');
+                            } catch (navErr) {
+                                console.warn('Could not load Employees from parent, please navigate using sidebar', navErr);
+                                showMessage('⚠️ Employee saved locally but the Employees page failed to load automatically. Please click "Employees" in the sidebar.', 'error');
+                            }
+                        } else if (window.loadContent) {
+                            try {
+                                await window.loadContent('Employees');
+                            } catch (navErr) {
+                                console.warn('Could not load Employees, please navigate using sidebar', navErr);
+                                showMessage('⚠️ Employee saved locally but the Employees page failed to load automatically. Please click "Employees" in the sidebar.', 'error');
+                            }
+                        }
+                }, 3500);
+                
+            } finally {
+                resetSubmitButton(submitBtn, originalText);
+            }
+        });
+
+        // Helper function to save employee to localStorage
+        function saveToLocalStorage(employeeData) {
+            // Get current user data to associate employee with admin
+            const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+            const adminId = userData.id || 'default-admin';
+            
+            // Use admin-specific localStorage key
+            const storageKey = `employees_${adminId}`;
+            const employees = JSON.parse(localStorage.getItem(storageKey) || '[]');
+            
+            // Also save to general employees key for backward compatibility
+            const generalEmployees = JSON.parse(localStorage.getItem('employees') || '[]');
+            
+            employees.push(employeeData);
+            generalEmployees.push(employeeData);
+            
+            localStorage.setItem(storageKey, JSON.stringify(employees));
+            localStorage.setItem('employees', JSON.stringify(generalEmployees));
+            
+            console.log('Employee saved to localStorage:', employeeData);
+            console.log(`Total employees for admin ${adminId}:`, employees.length);
+            console.log('All employees in localStorage:', employees);
+            
+            // Trigger custom event for other pages to refresh
+            window.dispatchEvent(new CustomEvent('employeeAdded', {
+                detail: employeeData
+            }));
+            
+            // Also try to call the refresh function directly if available
+            if (window.refreshEmployeeList) {
+                console.log('Calling window.refreshEmployeeList directly');
+                setTimeout(() => window.refreshEmployeeList(), 100);
+            }
+        }
+
+        function applyEditLocal(editingId, newData) {
+            const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+            const adminId = userData.id || 'default-admin';
+            const storageKey = `employees_${adminId}`;
+            const employees = JSON.parse(localStorage.getItem(storageKey) || '[]');
+            const generalEmployees = JSON.parse(localStorage.getItem('employees') || '[]');
+            const updateIn = (arr) => {
+                const idx = arr.findIndex(e => (e.id || e._id) === editingId);
+                if (idx !== -1) {
+                    arr[idx] = { ...(arr[idx]), ...newData, id: arr[idx].id || arr[idx]._id || editingId };
+                }
+            };
+            updateIn(employees);
+            updateIn(generalEmployees);
+            localStorage.setItem(storageKey, JSON.stringify(employees));
+            localStorage.setItem('employees', JSON.stringify(generalEmployees));
+            window.dispatchEvent(new CustomEvent('employeeAdded', { detail: newData }));
+        }
+
+        // Helper function to reset submit button
+        function resetSubmitButton(button, originalText) {
+            button.textContent = originalText;
+            button.disabled = false;
+        }
+
+        // Enhanced message display function
+        function showMessage(message, type = 'info') {
+            // Remove existing message if any
+            const existingMessage = document.querySelector('.custom-message');
+            if (existingMessage) {
+                existingMessage.remove();
+            }
+
+            // Create message element
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `custom-message fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 max-w-md`;
+            
+            if (type === 'success') {
+                messageDiv.className += ' bg-green-100 border border-green-400 text-green-700';
+            } else if (type === 'error') {
+                messageDiv.className += ' bg-red-100 border border-red-400 text-red-700';
+            } else {
+                messageDiv.className += ' bg-blue-100 border border-blue-400 text-blue-700';
+            }
+
+            messageDiv.innerHTML = `
+                <div class="flex justify-between items-start">
+                    <div class="flex-1 whitespace-pre-line">${message}</div>
+                    <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+
+            document.body.appendChild(messageDiv);
+
+            // Auto-remove success messages after 5 seconds
+            if (type === 'success') {
+                setTimeout(() => {
+                    if (messageDiv.parentNode) {
+                        messageDiv.remove();
+                    }
+                }, 5000);
+            }
+        }
+
+        // --- Dropdown Loading Logic ---
+        function loadDropdown(id, items, defaultOptionText) {
+            const select = document.getElementById(id);
+            select.innerHTML = `<option value="">${defaultOptionText}</option>`;
+            items.forEach(item => {
+                const opt = document.createElement('option');
+                opt.value = item; 
+                opt.textContent = item;
+                select.appendChild(opt);
+            });
+        }
+        
+        // In a real app, this data would come from the database. For now, we use placeholders.
+        const clients = ["Ortho Solutions", "Bright Smiles LLC", "Dental Care Inc.", "Guardian AI"];
+        const tasks = ["Insurance Verification", "Claims Processing", "Client Onboarding", "Data Entry"];
+
+        loadDropdown('client-select', clients, 'Select a client');
+        loadDropdown('task-select', tasks, 'Select a task');
+
+        // Set default user role & status
+        document.getElementById('userRole').value = 'employee';
+        document.getElementById('status').value = 'Active';
+
+        // If editing, prefill
+        const editingId = sessionStorage.getItem('editingEmployeeId');
+        if (editingId) {
+            try {
+                const all = JSON.parse(localStorage.getItem('employees') || '[]');
+                const match = all.find(e => (e.id || e._id) === editingId);
+                if (match) {
+                    document.querySelector('h2').textContent = 'Edit Employee';
+                    document.querySelector('button[type="submit"]').textContent = 'Save Changes';
+                    // Basic fields
+                    document.getElementById('firstName').value = match.firstName || '';
+                    document.getElementById('lastName').value = match.lastName || '';
+                    document.getElementById('email').value = match.email || '';
+                    document.getElementById('phone').value = match.phone || '';
+                    document.getElementById('username').value = match.username || '';
+                    document.getElementById('userRole').value = match.userRole || 'employee';
+                    document.getElementById('role').value = match.role || 'Billing Specialist';
+                    document.getElementById('joiningDate').value = match.joiningDate || '';
+                    document.getElementById('salaryPKR').value = match.salaryPKR || 0;
+                    document.getElementById('overtime').value = match.overtime || 0;
+                    document.getElementById('status').value = match.status || 'Active';
+                    // Hide password fields when editing
+                    document.getElementById('password').closest('div').style.display = 'none';
+                    document.getElementById('username').readOnly = true;
+                } else {
+                    console.warn('Editing ID not found, clearing edit state');
+                    sessionStorage.removeItem('editingEmployeeId');
+                }
+            } catch (err) {
+                console.error('Error pre-filling edit form', err);
+            }
+        }
+    })();
+</script>

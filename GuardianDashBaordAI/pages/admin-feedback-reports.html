@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Feedback & Complaints Reports</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-4 py-6">
+        <!-- Header -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
+                <h1 class="text-2xl font-bold text-gray-900 mb-4 md:mb-0">Employee Feedback & Complaints Analytics</h1>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <select id="feedbackTypeFilter" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">All Types</option>
+                        <option value="suggestion">Suggestions</option>
+                        <option value="complaint">Complaints</option>
+                        <option value="praise">Praise</option>
+                        <option value="bug-report">Bug Reports</option>
+                    </select>
+                    <select id="statusFilter" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">All Statuses</option>
+                        <option value="open">Open</option>
+                        <option value="in-progress">In Progress</option>
+                        <option value="resolved">Resolved</option>
+                        <option value="closed">Closed</option>
+                    </select>
+                    <input type="date" id="dateRangeStart" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="date" id="dateRangeEnd" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button onclick="refreshFeedbackData()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-sync-alt mr-2"></i>Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Total Feedback</p>
+                        <p class="text-3xl font-bold text-blue-600" id="totalFeedback">--</p>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-comments text-blue-600 text-xl"></i>
+                    </div>
+                </div>
+                <p class="text-sm text-gray-500 mt-2" id="feedbackThisWeek">-- this week</p>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Open Issues</p>
+                        <p class="text-3xl font-bold text-red-600" id="openIssues">--</p>
+                    </div>
+                    <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-exclamation-circle text-red-600 text-xl"></i>
+                    </div>
+                </div>
+                <p class="text-sm text-gray-500 mt-2" id="avgResponseTime">Avg response: -- hours</p>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Satisfaction Score</p>
+                        <p class="text-3xl font-bold text-green-600" id="satisfactionScore">--</p>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-star text-green-600 text-xl"></i>
+                    </div>
+                </div>
+                <p class="text-sm text-gray-500 mt-2" id="satisfactionTrend">-- vs last month</p>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Resolution Rate</p>
+                        <p class="text-3xl font-bold text-purple-600" id="resolutionRate">--%</p>
+                    </div>
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-check-circle text-purple-600 text-xl"></i>
+                    </div>
+                </div>
+                <p class="text-sm text-gray-500 mt-2" id="avgResolutionTime">Avg: -- days</p>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Feedback Type Distribution</h3>
+                <canvas id="feedbackTypeChart" width="400" height="200"></canvas>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Monthly Feedback Trend</h3>
+                <canvas id="feedbackTrendChart" width="400" height="200"></canvas>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Department Feedback Analysis</h3>
+                <canvas id="departmentChart" width="400" height="200"></canvas>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Response Time Analysis</h3>
+                <canvas id="responseTimeChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- Sentiment Analysis -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Sentiment Analysis & Key Topics</h3>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div>
+                    <h4 class="text-md font-medium text-gray-700 mb-3">Overall Sentiment</h4>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">Positive</span>
+                            <div class="flex items-center">
+                                <div class="w-32 bg-gray-200 rounded-full h-2 mr-3">
+                                    <div class="bg-green-500 h-2 rounded-full" style="width: 65%" id="positiveSentiment"></div>
+                                </div>
+                                <span class="text-sm font-medium text-gray-900" id="positivePercent">65%</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">Neutral</span>
+                            <div class="flex items-center">
+                                <div class="w-32 bg-gray-200 rounded-full h-2 mr-3">
+                                    <div class="bg-yellow-500 h-2 rounded-full" style="width: 25%" id="neutralSentiment"></div>
+                                </div>
+                                <span class="text-sm font-medium text-gray-900" id="neutralPercent">25%</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">Negative</span>
+                            <div class="flex items-center">
+                                <div class="w-32 bg-gray-200 rounded-full h-2 mr-3">
+                                    <div class="bg-red-500 h-2 rounded-full" style="width: 10%" id="negativeSentiment"></div>
+                                </div>
+                                <span class="text-sm font-medium text-gray-900" id="negativePercent">10%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-md font-medium text-gray-700 mb-3">Top Feedback Topics</h4>
+                    <div id="topTopics" class="space-y-2">
+                        <!-- Topics will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Priority Issues -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Priority Issues & Action Items</h3>
+            <div id="priorityIssues" class="space-y-4">
+                <!-- Priority issues will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Detailed Feedback Table -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Detailed Feedback Records</h3>
+                <div class="flex gap-2">
+                    <input type="text" id="searchInput" placeholder="Search feedback..." class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button onclick="exportFeedbackData()" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors">
+                        <i class="fas fa-download mr-2"></i>Export
+                    </button>
+                    <button onclick="generateActionPlan()" class="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors">
+                        <i class="fas fa-clipboard-list mr-2"></i>Action Plan
+                    </button>
+                </div>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employee</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Submitted</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="feedbackTableBody" class="bg-white divide-y divide-gray-200">
+                        <!-- Feedback data will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="flex items-center justify-between mt-6">
+                <div class="text-sm text-gray-700">
+                    Showing <span id="showingStart">1</span> to <span id="showingEnd">10</span> of <span id="totalRecords">0</span> results
+                </div>
+                <div class="flex space-x-2">
+                    <button onclick="previousPage()" class="px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50">Previous</button>
+                    <button onclick="nextPage()" class="px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50">Next</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Detail Modal -->
+    <div id="feedbackModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-full max-w-4xl shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold text-gray-900" id="modalTitle">Feedback Details</h3>
+                    <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="modalContent" class="space-y-4">
+                    <!-- Feedback details will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:5000/api';
+        let feedbackData = [];
+        let employeesData = [];
+        let feedbackTypeChart, feedbackTrendChart, departmentChart, responseTimeChart;
+        let currentPage = 1;
+        const itemsPerPage = 10;
+
+        // Mock feedback data
+        const mockFeedbackData = [
+            {
+                id: 'FB001',
+                employeeId: 'EMP001',
+                employeeName: 'Alice Johnson',
+                department: 'Customer Service',
+                type: 'suggestion',
+                subject: 'Improve Guardian AI response time',
+                content: 'The Guardian AI system sometimes takes too long to respond during peak hours. Could we optimize the response algorithms?',
+                priority: 'medium',
+                status: 'in-progress',
+                sentiment: 'neutral',
+                submittedDate: '2024-01-20',
+                responseDate: '2024-01-21',
+                assignedTo: 'IT Team',
+                satisfaction: 4,
+                tags: ['performance', 'guardian-ai', 'optimization']
+            },
+            {
+                id: 'FB002',
+                employeeId: 'EMP002',
+                employeeName: 'Bob Martinez',
+                department: 'Claims Processing',
+                type: 'complaint',
+                subject: 'Speech practice module bug',
+                content: 'The speech practice module crashes when I try to record longer phrases. This is affecting my training progress.',
+                priority: 'high',
+                status: 'open',
+                sentiment: 'negative',
+                submittedDate: '2024-01-22',
+                responseDate: null,
+                assignedTo: null,
+                satisfaction: 2,
+                tags: ['bug', 'speech-practice', 'training']
+            },
+            {
+                id: 'FB003',
+                employeeId: 'EMP003',
+                employeeName: 'Carol Smith',
+                department: 'Patient Care',
+                type: 'praise',
+                subject: 'Excellent TTS feature',
+                content: 'The new text-to-speech feature has been incredibly helpful for my patient interactions. Thank you for this improvement!',
+                priority: 'low',
+                status: 'closed',
+                sentiment: 'positive',
+                submittedDate: '2024-01-18',
+                responseDate: '2024-01-19',
+                assignedTo: 'Product Team',
+                satisfaction: 5,
+                tags: ['tts', 'patient-care', 'feature-request']
+            },
+            {
+                id: 'FB004',
+                employeeId: 'EMP001',
+                employeeName: 'Alice Johnson',
+                department: 'Customer Service',
+                type: 'bug-report',
+                subject: 'Eligibility verification timeout',
+                content: 'The eligibility verification system times out frequently when checking complex insurance policies.',
+                priority: 'high',
+                status: 'resolved',
+                sentiment: 'negative',
+                submittedDate: '2024-01-15',
+                responseDate: '2024-01-16',
+                assignedTo: 'Technical Team',
+                satisfaction: 4,
+                tags: ['eligibility', 'timeout', 'insurance']
+            }
+        ];
+
+        async function loadEmployees() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/employees`);
+                employeesData = await response.json();
+            } catch (error) {
+                console.error('Error loading employees:', error);
+                employeesData = [];
+            }
+        }
+
+        async function loadFeedbackData() {
+            try {
+                // TODO: Replace with actual API call
+                // const response = await fetch(`${API_BASE_URL}/feedback`);
+                // feedbackData = await response.json();
+                
+                // Using mock data for now
+                feedbackData = mockFeedbackData;
+                
+                updateSummaryCards();
+                generateCharts();
+                updateSentimentAnalysis();
+                updateTopTopics();
+                updatePriorityIssues();
+                updateFeedbackTable();
+            } catch (error) {
+                console.error('Error loading feedback data:', error);
+                feedbackData = mockFeedbackData;
+                updateSummaryCards();
+                generateCharts();
+                updateSentimentAnalysis();
+                updateTopTopics();
+                updatePriorityIssues();
+                updateFeedbackTable();
+            }
+        }
+
+        function updateSummaryCards() {
+            const total = feedbackData.length;
+            const openIssues = feedbackData.filter(f => f.status === 'open' || f.status === 'in-progress').length;
+            const resolved = feedbackData.filter(f => f.status === 'resolved' || f.status === 'closed').length;
+            const avgSatisfaction = feedbackData.reduce((sum, f) => sum + f.satisfaction, 0) / feedbackData.length;
+            const resolutionRate = total > 0 ? Math.round((resolved / total) * 100) : 0;
+            
+            // Mock calculations for this week
+            const thisWeek = Math.floor(total * 0.3);
+            const avgResponseHours = 18;
+            const avgResolutionDays = 3.2;
+
+            document.getElementById('totalFeedback').textContent = total;
+            document.getElementById('openIssues').textContent = openIssues;
+            document.getElementById('satisfactionScore').textContent = avgSatisfaction.toFixed(1);
+            document.getElementById('resolutionRate').textContent = `${resolutionRate}%`;
+            
+            document.getElementById('feedbackThisWeek').textContent = `${thisWeek} this week`;
+            document.getElementById('avgResponseTime').textContent = `Avg response: ${avgResponseHours} hours`;
+            document.getElementById('satisfactionTrend').textContent = '+0.3 vs last month';
+            document.getElementById('avgResolutionTime').textContent = `Avg: ${avgResolutionDays} days`;
+        }
+
+        function generateCharts() {
+            generateFeedbackTypeChart();
+            generateFeedbackTrendChart();
+            generateDepartmentChart();
+            generateResponseTimeChart();
+        }
+
+        function generateFeedbackTypeChart() {
+            const typeCounts = {
+                suggestion: 0,
+                complaint: 0,
+                praise: 0,
+                'bug-report': 0
+            };
+
+            feedbackData.forEach(feedback => {
+                typeCounts[feedback.type]++;
+            });
+
+            const ctx = document.getElementById('feedbackTypeChart').getContext('2d');
+            if (feedbackTypeChart) feedbackTypeChart.destroy();
+            
+            feedbackTypeChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Suggestions', 'Complaints', 'Praise', 'Bug Reports'],
+                    datasets: [{
+                        data: [typeCounts.suggestion, typeCounts.complaint, typeCounts.praise, typeCounts['bug-report']],
+                        backgroundColor: ['#3B82F6', '#EF4444', '#10B981', '#F59E0B']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        function generateFeedbackTrendChart() {
+            const last6Months = [];
+            const feedbackCounts = [];
+            
+            for (let i = 5; i >= 0; i--) {
+                const date = new Date();
+                date.setMonth(date.getMonth() - i);
+                last6Months.push(date.toLocaleDateString('en-US', { month: 'short' }));
+                
+                // Mock trend calculation
+                const count = Math.floor(Math.random() * 15) + 5;
+                feedbackCounts.push(count);
+            }
+
+            const ctx = document.getElementById('feedbackTrendChart').getContext('2d');
+            if (feedbackTrendChart) feedbackTrendChart.destroy();
+            
+            feedbackTrendChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: last6Months,
+                    datasets: [{
+                        label: 'Feedback Submissions',
+                        data: feedbackCounts,
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function generateDepartmentChart() {
+            const deptCounts = {};
+            feedbackData.forEach(feedback => {
+                const dept = feedback.department;
+                deptCounts[dept] = (deptCounts[dept] || 0) + 1;
+            });
+
+            const ctx = document.getElementById('departmentChart').getContext('2d');
+            if (departmentChart) departmentChart.destroy();
+            
+            departmentChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(deptCounts),
+                    datasets: [{
+                        label: 'Feedback Count',
+                        data: Object.values(deptCounts),
+                        backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                        borderColor: 'rgb(59, 130, 246)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function generateResponseTimeChart() {
+            const responseRanges = {
+                '< 4 hours': 0,
+                '4-12 hours': 0,
+                '1-3 days': 0,
+                '3+ days': 0
+            };
+
+            // Mock response time calculation
+            feedbackData.forEach(feedback => {
+                if (feedback.responseDate) {
+                    const hours = Math.floor(Math.random() * 120) + 1;
+                    if (hours < 4) responseRanges['< 4 hours']++;
+                    else if (hours < 12) responseRanges['4-12 hours']++;
+                    else if (hours < 72) responseRanges['1-3 days']++;
+                    else responseRanges['3+ days']++;
+                }
+            });
+
+            const ctx = document.getElementById('responseTimeChart').getContext('2d');
+            if (responseTimeChart) responseTimeChart.destroy();
+            
+            responseTimeChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(responseRanges),
+                    datasets: [{
+                        label: 'Response Count',
+                        data: Object.values(responseRanges),
+                        backgroundColor: [
+                            '#10B981',
+                            '#3B82F6',
+                            '#F59E0B',
+                            '#EF4444'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateSentimentAnalysis() {
+            const sentimentCounts = {
+                positive: 0,
+                neutral: 0,
+                negative: 0
+            };
+
+            feedbackData.forEach(feedback => {
+                sentimentCounts[feedback.sentiment]++;
+            });
+
+            const total = feedbackData.length;
+            const positivePercent = Math.round((sentimentCounts.positive / total) * 100);
+            const neutralPercent = Math.round((sentimentCounts.neutral / total) * 100);
+            const negativePercent = Math.round((sentimentCounts.negative / total) * 100);
+
+            document.getElementById('positiveSentiment').style.width = `${positivePercent}%`;
+            document.getElementById('neutralSentiment').style.width = `${neutralPercent}%`;
+            document.getElementById('negativeSentiment').style.width = `${negativePercent}%`;
+            
+            document.getElementById('positivePercent').textContent = `${positivePercent}%`;
+            document.getElementById('neutralPercent').textContent = `${neutralPercent}%`;
+            document.getElementById('negativePercent').textContent = `${negativePercent}%`;
+        }
+
+        function updateTopTopics() {
+            const topicCounts = {};
+            feedbackData.forEach(feedback => {
+                feedback.tags.forEach(tag => {
+                    topicCounts[tag] = (topicCounts[tag] || 0) + 1;
+                });
+            });
+
+            const sortedTopics = Object.entries(topicCounts)
+                .sort(([,a], [,b]) => b - a)
+                .slice(0, 8);
+
+            const container = document.getElementById('topTopics');
+            container.innerHTML = sortedTopics.map(([topic, count]) => `
+                <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
+                    <span class="text-sm font-medium text-gray-700">${topic.replace('-', ' ')}</span>
+                    <span class="text-sm font-bold text-blue-600">${count}</span>
+                </div>
+            `).join('');
+        }
+
+        function updatePriorityIssues() {
+            const priorityIssues = feedbackData
+                .filter(f => f.status === 'open' && (f.priority === 'high' || f.type === 'complaint'))
+                .slice(0, 5);
+
+            const container = document.getElementById('priorityIssues');
+            
+            if (priorityIssues.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        <i class="fas fa-check-circle text-4xl mb-4"></i>
+                        <p>No urgent issues at this time</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = priorityIssues.map(issue => {
+                const urgencyClass = issue.priority === 'high' ? 'border-red-200 bg-red-50' : 'border-yellow-200 bg-yellow-50';
+                const iconColor = issue.priority === 'high' ? 'text-red-600' : 'text-yellow-600';
+
+                return `
+                    <div class="border ${urgencyClass} rounded-lg p-4">
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1">
+                                <div class="flex items-center mb-2">
+                                    <i class="fas fa-exclamation-triangle ${iconColor} mr-2"></i>
+                                    <h4 class="font-semibold text-gray-900">${issue.subject}</h4>
+                                </div>
+                                <p class="text-sm text-gray-700 mb-2">${issue.content.substring(0, 100)}...</p>
+                                <div class="flex items-center text-xs text-gray-500 space-x-4">
+                                    <span>From: ${issue.employeeName}</span>
+                                    <span>Type: ${issue.type.replace('-', ' ')}</span>
+                                    <span>Submitted: ${new Date(issue.submittedDate).toLocaleDateString()}</span>
+                                </div>
+                            </div>
+                            <div class="flex flex-col space-y-2">
+                                <span class="text-xs px-2 py-1 rounded-full ${issue.priority === 'high' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}">
+                                    ${issue.priority.toUpperCase()}
+                                </span>
+                                <button onclick="viewFeedback('${issue.id}')" class="text-xs bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateFeedbackTable() {
+            const tbody = document.getElementById('feedbackTableBody');
+            const typeFilter = document.getElementById('feedbackTypeFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            let filteredFeedback = feedbackData.filter(feedback => {
+                const matchesType = !typeFilter || feedback.type === typeFilter;
+                const matchesStatus = !statusFilter || feedback.status === statusFilter;
+                const matchesSearch = !searchTerm || 
+                    feedback.subject.toLowerCase().includes(searchTerm) ||
+                    feedback.employeeName.toLowerCase().includes(searchTerm) ||
+                    feedback.content.toLowerCase().includes(searchTerm);
+                
+                return matchesType && matchesStatus && matchesSearch;
+            });
+
+            const totalRecords = filteredFeedback.length;
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, totalRecords);
+            const paginatedFeedback = filteredFeedback.slice(startIndex, endIndex);
+
+            if (paginatedFeedback.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="px-6 py-4 text-center text-gray-500">
+                            No feedback found matching the selected criteria
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = paginatedFeedback.map(feedback => {
+                const typeColors = {
+                    'suggestion': 'bg-blue-100 text-blue-800',
+                    'complaint': 'bg-red-100 text-red-800',
+                    'praise': 'bg-green-100 text-green-800',
+                    'bug-report': 'bg-yellow-100 text-yellow-800'
+                };
+
+                const statusColors = {
+                    'open': 'bg-red-100 text-red-800',
+                    'in-progress': 'bg-yellow-100 text-yellow-800',
+                    'resolved': 'bg-green-100 text-green-800',
+                    'closed': 'bg-gray-100 text-gray-800'
+                };
+
+                const priorityColors = {
+                    'low': 'bg-green-100 text-green-800',
+                    'medium': 'bg-yellow-100 text-yellow-800',
+                    'high': 'bg-red-100 text-red-800'
+                };
+
+                return `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${feedback.id}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900">${feedback.employeeName}</div>
+                            <div class="text-sm text-gray-500">${feedback.department}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${typeColors[feedback.type]}">
+                                ${feedback.type.replace('-', ' ')}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm text-gray-900 max-w-xs truncate" title="${feedback.subject}">
+                                ${feedback.subject}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${priorityColors[feedback.priority]}">
+                                ${feedback.priority}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColors[feedback.status]}">
+                                ${feedback.status.replace('-', ' ')}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ${new Date(feedback.submittedDate).toLocaleDateString()}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <button onclick="viewFeedback('${feedback.id}')" class="text-blue-600 hover:text-blue-900 mr-3">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button onclick="respondToFeedback('${feedback.id}')" class="text-green-600 hover:text-green-900 mr-3">
+                                <i class="fas fa-reply"></i>
+                            </button>
+                            <button onclick="assignFeedback('${feedback.id}')" class="text-purple-600 hover:text-purple-900">
+                                <i class="fas fa-user-plus"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            // Update pagination info
+            document.getElementById('showingStart').textContent = startIndex + 1;
+            document.getElementById('showingEnd').textContent = endIndex;
+            document.getElementById('totalRecords').textContent = totalRecords;
+        }
+
+        function viewFeedback(feedbackId) {
+            const feedback = feedbackData.find(f => f.id === feedbackId);
+            if (!feedback) return;
+
+            const modalContent = document.getElementById('modalContent');
+            modalContent.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <h4 class="font-semibold text-gray-900">Feedback Information</h4>
+                        <div class="mt-2 space-y-2 text-sm">
+                            <p><span class="font-medium">ID:</span> ${feedback.id}</p>
+                            <p><span class="font-medium">Employee:</span> ${feedback.employeeName}</p>
+                            <p><span class="font-medium">Department:</span> ${feedback.department}</p>
+                            <p><span class="font-medium">Type:</span> ${feedback.type.replace('-', ' ')}</p>
+                            <p><span class="font-medium">Priority:</span> ${feedback.priority}</p>
+                            <p><span class="font-medium">Status:</span> ${feedback.status.replace('-', ' ')}</p>
+                            <p><span class="font-medium">Submitted:</span> ${new Date(feedback.submittedDate).toLocaleDateString()}</p>
+                            <p><span class="font-medium">Satisfaction:</span> ${'★'.repeat(feedback.satisfaction)}${'☆'.repeat(5-feedback.satisfaction)}</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-900">Subject</h4>
+                        <p class="mt-2 text-sm text-gray-700">${feedback.subject}</p>
+                        
+                        <h4 class="font-semibold text-gray-900 mt-4">Content</h4>
+                        <p class="mt-2 text-sm text-gray-700">${feedback.content}</p>
+                        
+                        <h4 class="font-semibold text-gray-900 mt-4">Tags</h4>
+                        <div class="mt-2 flex flex-wrap gap-1">
+                            ${feedback.tags.map(tag => `
+                                <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">${tag}</span>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-6 flex justify-end space-x-3">
+                    <button onclick="respondToFeedback('${feedback.id}')" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">
+                        Respond
+                    </button>
+                    <button onclick="closeModal()" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400">
+                        Close
+                    </button>
+                </div>
+            `;
+
+            document.getElementById('feedbackModal').classList.remove('hidden');
+        }
+
+        function respondToFeedback(feedbackId) {
+            // TODO: Implement response functionality
+            alert(`Respond to feedback ${feedbackId} - functionality to be implemented`);
+        }
+
+        function assignFeedback(feedbackId) {
+            // TODO: Implement assignment functionality
+            alert(`Assign feedback ${feedbackId} - functionality to be implemented`);
+        }
+
+        function closeModal() {
+            document.getElementById('feedbackModal').classList.add('hidden');
+        }
+
+        function refreshFeedbackData() {
+            loadFeedbackData();
+        }
+
+        function exportFeedbackData() {
+            const headers = ['ID', 'Employee', 'Department', 'Type', 'Subject', 'Priority', 'Status', 'Submitted', 'Satisfaction'];
+            const csvContent = [
+                headers.join(','),
+                ...feedbackData.map(feedback => [
+                    feedback.id,
+                    `"${feedback.employeeName}"`,
+                    `"${feedback.department}"`,
+                    feedback.type,
+                    `"${feedback.subject}"`,
+                    feedback.priority,
+                    feedback.status,
+                    feedback.submittedDate,
+                    feedback.satisfaction
+                ].join(','))
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `feedback-report-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        function generateActionPlan() {
+            // TODO: Implement action plan generation
+            alert('Action plan generation functionality - to be implemented');
+        }
+
+        function previousPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                updateFeedbackTable();
+            }
+        }
+
+        function nextPage() {
+            const totalRecords = document.getElementById('totalRecords').textContent;
+            const maxPages = Math.ceil(totalRecords / itemsPerPage);
+            if (currentPage < maxPages) {
+                currentPage++;
+                updateFeedbackTable();
+            }
+        }
+
+        // Set default date range (last 30 days)
+        function setDefaultDates() {
+            const endDate = new Date();
+            const startDate = new Date();
+            startDate.setDate(endDate.getDate() - 30);
+            
+            document.getElementById('dateRangeEnd').value = endDate.toISOString().split('T')[0];
+            document.getElementById('dateRangeStart').value = startDate.toISOString().split('T')[0];
+        }
+
+        // Event listeners
+        document.getElementById('feedbackTypeFilter').addEventListener('change', () => {
+            currentPage = 1;
+            updateFeedbackTable();
+        });
+
+        document.getElementById('statusFilter').addEventListener('change', () => {
+            currentPage = 1;
+            updateFeedbackTable();
+        });
+
+        document.getElementById('searchInput').addEventListener('input', () => {
+            currentPage = 1;
+            updateFeedbackTable();
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            setDefaultDates();
+            loadEmployees();
+            loadFeedbackData();
+        });
+    </script>
+</body>
+</html>
