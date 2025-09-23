@@ -1,5 +1,6 @@
 const express = require('express');
-const fetch = require('node-fetch');
+// Node 18+ provides global fetch; avoid requiring node-fetch (ESM) which can crash in CommonJS
+const fetchFn = (typeof fetch !== 'undefined') ? fetch : null;
 
 // Secure proxy to Google Generative Language API.
 // Prevents exposing raw API key to the browser. Clients POST payload and server attaches key.
@@ -32,6 +33,10 @@ router.post('/:model', rateLimit, async (req, res) => {
       return res.status(500).json({ error: 'Gemini API key not configured on server' });
     }
 
+    if(!fetchFn){
+      return res.status(500).json({ error: 'Fetch API not available in runtime' });
+    }
+
     const payload = req.body;
     if (!payload || typeof payload !== 'object') {
       return res.status(400).json({ error: 'Invalid payload' });
@@ -39,7 +44,7 @@ router.post('/:model', rateLimit, async (req, res) => {
 
     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${process.env.GEMINI_API_KEY}`;
 
-    const upstream = await fetch(endpoint, {
+    const upstream = await fetchFn(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
