@@ -1,12 +1,11 @@
 {
   "name": "dashboard-monorepo-root",
   "private": true,
+  "workspaces": [
+    "GuardianDashBaordAI"
+  ],
   "scripts": {
-    "start": "cd GuardianDashBaordAI && npm start",
-    "install:all": "cd GuardianDashBaordAI && npm install",
-    "postinstall": "cd GuardianDashBaordAI && npm install"
-  },
-  "dependencies": {
-    "mongodb": "^6.20.0"
+    "start": "npm --workspace GuardianDashBaordAI run start",
+    "postinstall": "npm --workspace GuardianDashBaordAI install"
   }
 }
