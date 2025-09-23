@@ -1,40 +1,39 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const dotenv = require('dotenv');
 const path = require('path');
 const helmet = require('helmet');
 const compression = require('compression');
 const rateLimit = require('express-rate-limit');
 const morgan = require('morgan');
-
-dotenv.config();
+const config = require('./backend/config');
+const logger = require('./backend/utils/logger');
+const requestLogger = require('./backend/middleware/requestLogger');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = config.port;
 
-// Parse environment-based configuration early
-const RAW_ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS || '';
-const PROD_ALLOWED_ORIGINS = RAW_ALLOWED_ORIGINS.split(',').map(o => o.trim()).filter(Boolean);
-const API_RATE_LIMIT_MAX = parseInt(process.env.API_RATE_LIMIT || (process.env.NODE_ENV === 'production' ? '100' : '1000'), 10);
+// Derived config
+const PROD_ALLOWED_ORIGINS = config.security.allowedOrigins;
+const API_RATE_LIMIT_MAX = config.security.apiRateLimit;
 
 const connectDB = async () => {
     try {
         // Try to connect to MongoDB with shorter timeouts so platform doesn't kill cold start
-        const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/employee_dashboard';
-        const serverSelectionTimeoutMS = parseInt(process.env.MONGO_SERVER_SELECTION_TIMEOUT_MS || '5000', 10);
-        const connectTimeoutMS = parseInt(process.env.MONGO_CONNECT_TIMEOUT_MS || '5000', 10);
+    const mongoUri = config.mongo.uri || 'mongodb://localhost:27017/employee_dashboard';
+    const serverSelectionTimeoutMS = config.mongo.serverSelectionTimeoutMS;
+    const connectTimeoutMS = config.mongo.connectTimeoutMS;
         const startTs = Date.now();
-        console.log(`[DB] Attempting Mongo connect timeout(serverSelection=${serverSelectionTimeoutMS}ms connect=${connectTimeoutMS}ms)...`);
+        logger.info({ serverSelectionTimeoutMS, connectTimeoutMS }, 'attempting mongo connect');
         await mongoose.connect(mongoUri, { serverSelectionTimeoutMS, connectTimeoutMS });
         const dur = Date.now() - startTs;
-        console.log(`MongoDB Connected Successfully in ${dur}ms`);
+        logger.info({ durationMs: dur }, 'mongo connected successfully');
         global.mongoConnected = true;
         if (mongoose.connection.readyState === 1) {
-            console.log('[DB] state=connected uri=' + mongoUri.replace(/:[^@]*@/, ':****@'));
+            logger.info({ uri: mongoUri.replace(/:[^@]*@/, ':****@') }, 'mongo state=connected');
         }
     } catch (error) {
-        console.error('MongoDB Connection Failed (continuing in demo mode):', error.message);
+        logger.error({ err: error.message }, 'mongo connection failed');
         global.mongoConnected = false;
     }
 };
@@ -70,15 +69,15 @@ app.use('/api/', limiter);
 app.use(compression());
 
 // Logging middleware
-if (process.env.NODE_ENV === 'production') {
-    app.use(morgan('combined'));
-} else {
-    app.use(morgan('dev'));
-}
+// Keep morgan for now (can be removed later once pino HTTP transport added)
+if (config.env === 'production') { app.use(morgan('combined')); } else { app.use(morgan('dev')); }
+
+// Structured request logging
+app.use(requestLogger);
 
 // CORS configuration
 const DEV_FALLBACK_ALLOW = ['http://localhost:3000','http://localhost:5000','http://127.0.0.1:5000'];
-if (process.env.NODE_ENV === 'production' && PROD_ALLOWED_ORIGINS.length === 0) {
+if (config.env === 'production' && PROD_ALLOWED_ORIGINS.length === 0) {
     console.warn('[CORS] WARNING: No ALLOWED_ORIGINS configured in environment. All requests will be blocked except same-origin.');
 }
 const corsOptions = {
@@ -86,7 +85,7 @@ const corsOptions = {
         // Allow same-origin / server-to-server (no origin header)
         if(!origin){ return callback(null,true); }
 
-        const isDev = process.env.NODE_ENV !== 'production';
+        const isDev = config.env !== 'production';
         if(isDev){
             if(origin === 'null' || origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1')){
                 return callback(null,true);
@@ -105,20 +104,13 @@ const corsOptions = {
 };
 app.use((req,res,next)=>{ if(req.headers.origin) console.log('[ORIGIN]', req.headers.origin); next(); });
 app.use(cors(corsOptions));
-console.log('[CORS] Mode:', process.env.NODE_ENV || 'development');
-console.log('[CORS] Allowed (prod):', PROD_ALLOWED_ORIGINS);
-console.log('[RATE_LIMIT] window=15m max=', API_RATE_LIMIT_MAX);
+logger.info({ mode: config.env, allowedOrigins: PROD_ALLOWED_ORIGINS, rateLimitMax: API_RATE_LIMIT_MAX }, 'startup cors & rate limit config');
 
 // Request correlation / basic diagnostics
 app.use((req, res, next) => {
     req.reqId = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
     res.setHeader('X-Request-Id', req.reqId);
-    console.log(`[REQ ${req.reqId}] ${req.method} ${req.url}`);
-    const start = Date.now();
-    res.on('finish', () => {
-        const ms = Date.now() - start;
-        console.log(`[RES ${req.reqId}] ${res.statusCode} ${req.method} ${req.url} ${ms}ms`);
-    });
+    // Request/response detail now handled by requestLogger; keep reqId set here for compatibility
     next();
 });
 
@@ -138,23 +130,23 @@ app.use('/api/gemini', require('./backend/routes/geminiRoutes'));
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-    res.json({ 
-        status: 'OK', 
+    res.json({
+        status: 'OK',
         message: 'Server is running',
         port: PORT,
-        mode: process.env.NODE_ENV || 'development',
+        mode: config.env,
         mongoConnected: global.mongoConnected || false
     });
 });
 
 // Debug endpoint to introspect request (development only)
-if(process.env.NODE_ENV !== 'production'){
+if(config.env !== 'production'){
     app.get('/api/debug/env', (req,res)=>{
         res.json({
             time: new Date().toISOString(),
             originHeader: req.headers.origin || null,
             host: req.headers.host,
-            mode: process.env.NODE_ENV || 'development',
+            mode: config.env,
             mongoConnected: !!global.mongoConnected
         });
     });
@@ -181,7 +173,7 @@ app.get('/', (req, res) => {
         app: 'Guardian Dashboard API',
         status: 'running',
         health: '/health',
-        docs: 'Add documentation route here later',
+        docs: '/api/docs',
         time: new Date().toISOString()
     });
 });
@@ -212,8 +204,8 @@ function mountApiRoutes() {
         app.use('/api/revenue', require('./backend/routes/revenueRoutes'));
     app.use('/api/time-tracking', require('./backend/routes/timeTrackingRoutes'));
     app.use('/api/chat', require('./backend/routes/chatRoutes'));
-    } else {
-        console.warn('MongoDB not connected - mounting demo API handlers to keep UI available');
+    } else if(config.features.allowDemoFallback) {
+        console.warn('[DEMO-FALLBACK] Enabled and MongoDB not connected - mounting demo handlers. Disable ALLOW_DEMO_FALLBACK for full live enforcement.');
         app.use('/api/users', demoRouter());
         app.use('/api/employees', demoRouter());
         app.use('/api/loan-requests', demoRouter());
@@ -225,6 +217,9 @@ function mountApiRoutes() {
         app.use('/api/revenue', demoRouter());
     app.use('/api/time-tracking', demoRouter());
     app.use('/api/chat', demoRouter());
+    } else {
+        console.error('[FATAL] Database not connected and demo fallback disabled. Refusing to expose mutable API.');
+        app.get('/api/*', (req,res)=>res.status(503).json({success:false,message:'Service Unavailable - database offline'}));
     }
 
     // Error handling middleware
@@ -248,45 +243,35 @@ function mountApiRoutes() {
 
 }
 
-// Start server immediately (before DB) so platform health checks succeed fast
-const server = app.listen(PORT, () => {
-    console.log(`(Early Start) Server listening on port ${PORT}. Initial DB connect in progress...`);
-});
-
-// Attempt DB connect asynchronously, then mount API routes once (real or demo)
-connectDB()
-    .catch(err => {
-        console.error('DB connect async error (continuing with demo routes):', err.message);
-    })
-    .finally(() => {
-        try {
-            mountApiRoutes();
-        } catch (e) {
-            console.error('Failed to mount API routes:', e);
-        }
+// Export app for testing
+async function init(startServer = true){
+    await connectDB().catch(err => {
+        logger.error({ err: err.message }, 'db connect async error');
     });
+    try { mountApiRoutes(); } catch(e){ logger.fatal({ err: e }, 'failed to mount api routes'); }
+    if(startServer){
+        const server = app.listen(PORT, () => { logger.info({ port: PORT }, 'server listening'); });
 
-// Graceful shutdown
-process.on('SIGTERM', () => {
-    console.log('SIGTERM received. Shutting down gracefully...');
-    server.close(() => {
-        console.log('Process terminated');
-        mongoose.connection.close();
-    });
-});
+        // Graceful shutdown handlers
+        const shutdown = (signal) => {
+            logger.warn({ signal }, 'shutdown signal received');
+            server.close(() => {
+                logger.info('server closed');
+                mongoose.connection.close();
+            });
+        };
+        process.on('SIGTERM', () => shutdown('SIGTERM'));
+        process.on('SIGINT', () => shutdown('SIGINT'));
+    }
+    return app;
+}
 
-process.on('SIGINT', () => {
-    console.log('SIGINT received. Shutting down gracefully...');
-    server.close(() => {
-        console.log('Process terminated');
-        mongoose.connection.close();
-    });
-});
+// Global safety nets
+process.on('unhandledRejection', (reason) => { logger.error({ reason }, 'unhandled rejection'); });
+process.on('uncaughtException', (err) => { logger.fatal({ err }, 'uncaught exception'); });
 
-// Global safety nets (development resilience)
-process.on('unhandledRejection', (reason) => {
-    console.error('[UNHANDLED_REJECTION]', reason);
-});
-process.on('uncaughtException', (err) => {
-    console.error('[UNCAUGHT_EXCEPTION]', err);
-});
+if(require.main === module){
+    init(true);
+}
+
+module.exports = { app, init };
