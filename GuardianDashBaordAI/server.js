@@ -186,8 +186,8 @@ app.get('/', (req, res) => {
     });
 });
 
-// Mount API routes only after attempting DB connect. If DB is unavailable, mount demo-safe handlers
-async function mountRoutesAndStart() {
+// Mount API routes (can be called after DB connection attempt); if DB is unavailable, mount demo-safe handlers
+function mountApiRoutes() {
     // Simple demo router generator
     const demoRouter = () => {
         const r = express.Router();
@@ -246,33 +246,41 @@ async function mountRoutesAndStart() {
         }
     });
 
-    const server = app.listen(PORT, () => {
-        console.log(`Server is running on ${process.env.NODE_ENV === 'production' ? 'production' : 'development'} mode on port ${PORT}`);
-    });
-
-    // Graceful shutdown
-    process.on('SIGTERM', () => {
-        console.log('SIGTERM received. Shutting down gracefully...');
-        server.close(() => {
-            console.log('Process terminated');
-            mongoose.connection.close();
-        });
-    });
-
-    process.on('SIGINT', () => {
-        console.log('SIGINT received. Shutting down gracefully...');
-        server.close(() => {
-            console.log('Process terminated');
-            mongoose.connection.close();
-        });
-    });
 }
 
-// Start mounting routes and server after initial DB connect attempt
-connectDB().then(() => mountRoutesAndStart()).catch(err => {
-    console.error('Failed during startup:', err);
-    // ensure server still starts with demo handlers
-    mountRoutesAndStart();
+// Start server immediately (before DB) so platform health checks succeed fast
+const server = app.listen(PORT, () => {
+    console.log(`(Early Start) Server listening on port ${PORT}. Initial DB connect in progress...`);
+});
+
+// Attempt DB connect asynchronously, then mount API routes once (real or demo)
+connectDB()
+    .catch(err => {
+        console.error('DB connect async error (continuing with demo routes):', err.message);
+    })
+    .finally(() => {
+        try {
+            mountApiRoutes();
+        } catch (e) {
+            console.error('Failed to mount API routes:', e);
+        }
+    });
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+    console.log('SIGTERM received. Shutting down gracefully...');
+    server.close(() => {
+        console.log('Process terminated');
+        mongoose.connection.close();
+    });
+});
+
+process.on('SIGINT', () => {
+    console.log('SIGINT received. Shutting down gracefully...');
+    server.close(() => {
+        console.log('Process terminated');
+        mongoose.connection.close();
+    });
 });
 
 // Global safety nets (development resilience)
