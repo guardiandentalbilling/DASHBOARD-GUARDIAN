@@ -18,3 +18,5 @@ After each deploy you can verify the service quickly:
 
 If Mongo is unreachable the API still boots in demo mode so the frontend won’t hang.
 See employee-dashboard/README.md for service details.
+
+
