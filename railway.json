@@ -7,4 +7,14 @@
     "startCommand": "npm start",
     "restartPolicyType": "ON_FAILURE"
   }
-}
+}# Make sure you are in the root folder
+cd "D:\shakeel\Guardian Dental Billig LLC\upload-to-github\FINAL VERSION OF DASHBAORD\DASHBOARD-GUARDIAN"
+
+# Add the new file
+git add .
+
+# Commit the change
+git commit -m "fix: Add railway.json to configure deployment"
+
+# Push to GitHub
+git push origin main
