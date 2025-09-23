@@ -171,6 +171,11 @@ app.get('/dashboard', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// Basic health check (used by hosting platforms for uptime and build verification)
+app.get('/health', (req, res) => {
+    res.json({ status: 'ok', mongo: !!global.mongoConnected, time: new Date().toISOString() });
+});
+
 // Mount API routes only after attempting DB connect. If DB is unavailable, mount demo-safe handlers
 async function mountRoutesAndStart() {
     // Simple demo router generator

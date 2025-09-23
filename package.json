@@ -1,0 +1,11 @@
+{
+  "name": "dashboard-monorepo-root",
+  "private": true,
+  "scripts": {
+    "start": "cd GuardianDashBaordAI && npm start",
+    "install:all": "cd GuardianDashBaordAI && npm install"
+  },
+  "dependencies": {
+    "mongodb": "^6.20.0"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "build": {
+    "builder": "NIXPACKS",
+    "buildCommand": "npm install",
+    "watchPatterns": ["GuardianDashBaordAI/**/*"]
+  },
+  "deploy": {
+    "startCommand": "cd GuardianDashBaordAI && npm install && npm start",
+    "restartPolicyType": "ON_FAILURE"
+  }
+}
