@@ -4,6 +4,7 @@ This directory contains a cleaned subset structured for version control. The bac
 
 ## Deployment
 
+
 This project is configured for Netlify (frontend) and Railway (backend) deployment.
 
 ### Backend (Railway) Health Check
