@@ -1,9 +1,16 @@
 {
-  "name": "dashboard-monorepo-root",
+  "name": "guardian-dental-dashboard-monorepo",
   "private": true,
+  "version": "1.0.0",
+  "description": "Guardian Dental Billing Dashboard - Production Ready Deployment",
   "scripts": {
     "start": "cd GuardianDashBaordAI && npm start",
-    "build": "cd GuardianDashBaordAI && npm install",
-    "postinstall": "cd GuardianDashBaordAI && npm install"
-  }
+    "dev": "cd GuardianDashBaordAI && npm run dev",
+    "build": "cd GuardianDashBaordAI && npm install --production",
+    "postinstall": "cd GuardianDashBaordAI && npm install",
+    "health": "cd GuardianDashBaordAI && npm run health",
+    "seed": "cd GuardianDashBaordAI && npm run seed:prod"
+  },
+  "author": "Guardian Dental Billing LLC",
+  "license": "PROPRIETARY"
 }

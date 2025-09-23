@@ -20,8 +20,8 @@ const API_RATE_LIMIT_MAX = parseInt(process.env.API_RATE_LIMIT || (process.env.N
 
 const connectDB = async () => {
     try {
-        // Try to connect to MongoDB with shorter timeouts so platform doesn't kill cold start
-        const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/employee_dashboard';
+        // Use production database name for Guardian Dental
+        const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/guardian_dental_db';
         const serverSelectionTimeoutMS = parseInt(process.env.MONGO_SERVER_SELECTION_TIMEOUT_MS || '5000', 10);
         const connectTimeoutMS = parseInt(process.env.MONGO_CONNECT_TIMEOUT_MS || '5000', 10);
         const startTs = Date.now();
