@@ -23,7 +23,8 @@ function getApiBaseUrl() {
 }
 
 function getGeminiApiKey() {
-    return (typeof localStorage !== 'undefined' && localStorage.getItem('GEMINI_API_KEY')) || 'AIzaSyBI-1nm5J02NX1HBszEgeOClktTITPxAKc';
+    // Always use environment variable or user-set API key, never hardcode production keys
+    return (typeof localStorage !== 'undefined' && localStorage.getItem('GEMINI_API_KEY')) || '';
 }
 
 // Main API Configuration Object

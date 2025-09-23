@@ -72,12 +72,17 @@
                 window.originalFetch = window.fetch;
                 
                 window.fetch = function(url, options) {
-                    // Replace hardcoded localhost URLs
+                    // Replace development URLs with production URLs
                     if (typeof url === 'string') {
-                        if (url.includes('localhost:3000/api')) {
-                            url = url.replace('http://localhost:3000/api', newBaseUrl);
-                        } else if (url.includes('localhost:5000/api') && !newBaseUrl.includes('localhost:5000')) {
-                            url = url.replace('http://localhost:5000/api', newBaseUrl);
+                        // Replace localhost URLs for development to production migration
+                        if (url.includes('localhost:3000/api') || url.includes('localhost:5000/api')) {
+                            const productionApiUrl = 'https://api.dashboard.guardiandentalbilling.com/api';
+                            url = url.replace(/https?:\/\/localhost:\d+\/api/, newBaseUrl || productionApiUrl);
+                        }
+                        // Support for other development patterns
+                        if (url.includes('127.0.0.1') && url.includes('/api')) {
+                            const productionApiUrl = 'https://api.dashboard.guardiandentalbilling.com/api';
+                            url = url.replace(/https?:\/\/127\.0\.0\.1:\d+\/api/, newBaseUrl || productionApiUrl);
                         }
                     }
                     

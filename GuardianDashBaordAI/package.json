@@ -1,27 +1,32 @@
 {
-  "name": "employee-dashboard",
+  "name": "guardian-dental-dashboard",
   "version": "1.0.0",
-  "description": "Employee and Admin Dashboard with comprehensive analytics and management features",
+  "description": "Guardian Dental Billing - Employee Dashboard and Management System",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js",
+    "start": "NODE_ENV=production node server.js",
+    "dev": "NODE_ENV=development nodemon server.js",
     "seed": "node seedDatabase.js",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "lint": "eslint .",
-    "build": "echo 'No build step required for this project'"
+    "seed:prod": "NODE_ENV=production node seedDatabase.js",
+    "test": "jest --passWithNoTests",
+    "test:watch": "jest --watch --passWithNoTests",
+    "lint": "eslint . --fix",
+    "build": "echo 'Static files ready for deployment'",
+    "health": "curl -s http://localhost:5000/api/health || echo 'Server not running'"
   },
   "keywords": [
-    "employee-management",
-    "dashboard",
+    "dental-practice-management",
+    "employee-dashboard",
+    "guardian-dental-billing",
+    "healthcare-management",
     "attendance-tracking",
     "admin-panel",
     "mongodb",
-    "express"
+    "express",
+    "production-ready"
   ],
   "author": "Guardian Dental Billing LLC",
-  "license": "MIT",
+  "license": "PROPRIETARY",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "compression": "^1.8.1",

@@ -4,10 +4,16 @@ logs/
 *.log
 npm-debug.log*
 
-# Environment files
+# Environment files (exclude all except examples)
 .env
 .env.*
-!*.example
+!.env.example
+!env.*.example
+
+# Production configuration (never commit real secrets)
+.env.production
+*.env.production
+config/production.json
 
 # Build / deployment artifacts
 frontend-build/
@@ -19,6 +25,8 @@ win-unpacked/
 # Runtime data
 uploads/*
 !uploads/.gitkeep
+temp/
+tmp/
 
 # OS/editor
 .DS_Store
@@ -26,5 +34,30 @@ Thumbs.db
 .vscode/*
 !.vscode/extensions.json
 
-# Coverage
+# Coverage and testing
 coverage/
+.nyc_output/
+
+# Backup and temporary files
+*.backup
+*.bak
+*.tmp
+*.swp
+
+# SSL certificates and keys
+*.pem
+*.key
+*.crt
+*.cer
+
+# Database dumps
+*.sql
+*.db
+*.sqlite
+
+# IDE files
+.idea/
+*.sublime-*
+
+# Runtime process files
+*.pid
