@@ -20,19 +20,21 @@ const API_RATE_LIMIT_MAX = parseInt(process.env.API_RATE_LIMIT || (process.env.N
 
 const connectDB = async () => {
     try {
-        // Try to connect to MongoDB
-        let mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/employee_dashboard';
-        
-        await mongoose.connect(mongoUri);
-        console.log('MongoDB Connected Successfully');
+        // Try to connect to MongoDB with shorter timeouts so platform doesn't kill cold start
+        const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/employee_dashboard';
+        const serverSelectionTimeoutMS = parseInt(process.env.MONGO_SERVER_SELECTION_TIMEOUT_MS || '5000', 10);
+        const connectTimeoutMS = parseInt(process.env.MONGO_CONNECT_TIMEOUT_MS || '5000', 10);
+        const startTs = Date.now();
+        console.log(`[DB] Attempting Mongo connect timeout(serverSelection=${serverSelectionTimeoutMS}ms connect=${connectTimeoutMS}ms)...`);
+        await mongoose.connect(mongoUri, { serverSelectionTimeoutMS, connectTimeoutMS });
+        const dur = Date.now() - startTs;
+        console.log(`MongoDB Connected Successfully in ${dur}ms`);
         global.mongoConnected = true;
         if (mongoose.connection.readyState === 1) {
             console.log('[DB] state=connected uri=' + mongoUri.replace(/:[^@]*@/, ':****@'));
         }
     } catch (error) {
-        console.error('MongoDB Connection Failed:', error.message);
-        console.log('Starting server without database connection...');
-        console.log('Note: API endpoints will work in demo mode');
+        console.error('MongoDB Connection Failed (continuing in demo mode):', error.message);
         global.mongoConnected = false;
     }
 };
@@ -130,9 +132,6 @@ app.use(express.static(path.join(__dirname)));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Routes
-app.get('/', (req, res) => {
-    res.redirect('/login.html');
-});
 
 // Gemini secure proxy (mounted early so available regardless of DB state)
 app.use('/api/gemini', require('./backend/routes/geminiRoutes'));
