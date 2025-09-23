@@ -5,9 +5,12 @@
 // DYNAMIC API CONFIGURATION
 // ======================
 
-// NOTE: Update this to your real production API subdomain
-// Production API root (served from api subdomain). If you deploy API under a different subdomain/path, update below.
-const PROD_API_ROOT = 'https://api.dashboard.guardiandentalbilling.com/api';
+// NOTE: Production API root. TEMP: point this directly to Railway deployment until custom domain/CNAME is configured.
+// Example Railway URL pattern: https://your-service-name.up.railway.app
+// Append /api because all backend routes are mounted under /api in server.js
+const PROD_API_ROOT = (typeof window !== 'undefined' && window.location.hostname.endsWith('netlify.app'))
+    ? 'https://your-railway-service.up.railway.app/api' // TODO: replace with actual Railway service domain
+    : 'https://api.dashboard.guardiandentalbilling.com/api';
 const DEV_API_ROOT  = 'http://localhost:5000/api';
 
 // Utility: detect if running locally
