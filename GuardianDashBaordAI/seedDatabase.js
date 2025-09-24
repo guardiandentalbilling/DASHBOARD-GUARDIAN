@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 const Employee = require('./models/Employee');
+const User = require('./models/user');
+const bcrypt = require('bcryptjs');
 const dotenv = require('dotenv');
 
 dotenv.config();
@@ -99,6 +101,21 @@ const seedDatabase = async () => {
         createdEmployees.forEach((emp, index) => {
             console.log(`${index + 1}. ${emp.firstName} ${emp.lastName} - ${emp.role} (${emp.status})`);
         });
+
+        // --- USER SEEDING LOGIC ---
+        await User.deleteMany({});
+        console.log('Existing users cleared');
+
+        // Add your real admin user here
+        const adminPassword = await bcrypt.hash('shakeel12', 10); // Password for admin user
+        const adminUser = {
+            name: 'shakeel',
+            email: 'shakeel@guardiandb.com', // You can change this email if needed
+            password: adminPassword,
+            role: 'admin'
+        };
+        const createdUser = await User.create(adminUser);
+        console.log(`Admin user created: ${createdUser.email}`);
         
         process.exit(0);
         
