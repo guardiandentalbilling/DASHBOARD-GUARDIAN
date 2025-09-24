@@ -296,4 +296,21 @@ GEMINI_API_KEY= (optional)
 - [ ] Cron optional health monitor added (see scripts/health-check.sh)
 
 ---
+## 19. Continuous Integration (CI)
+GitHub Actions workflow added at `.github/workflows/ci.yml`:
+ - Installs dependencies (backend only)
+ - Runs Jest health tests (no real DB required)
+ - (Optional) Can be extended to deploy over SSH after tests pass
+
+### Enabling Auto Deploy (Optional)
+1. Uncomment the `deploy` job in `ci.yml`.
+2. Add repository secrets:
+    - `VPS_HOST` (e.g. 123.45.67.89)
+    - `VPS_USER` (e.g. deploy)
+    - `VPS_SSH_KEY` (private key contents for that user)
+3. Commit & push. Main branch updates will trigger build → deploy.
+
+Security tip: create a dedicated SSH key with restricted permissions.
+
+---
 Deployment complete. 🎉
