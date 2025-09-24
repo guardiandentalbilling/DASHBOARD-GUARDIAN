@@ -4,6 +4,11 @@
   "scripts": {
     "start": "cd GuardianDashBaordAI && npm start",
     "build": "cd GuardianDashBaordAI && npm install",
-    "postinstall": "cd GuardianDashBaordAI && npm install"
+    "postinstall": "cd GuardianDashBaordAI && npm install",
+    "test": "cd GuardianDashBaordAI && npm test",
+    "test:watch": "cd GuardianDashBaordAI && npm run test:watch"
+  },
+  "devDependencies": {
+    "mongodb-memory-server": "^10.2.1"
   }
 }

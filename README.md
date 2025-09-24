@@ -4,6 +4,7 @@ This directory contains a cleaned subset structured for version control. The bac
 
 ## Deployment
 
+
 This project is configured for Netlify (frontend) and Railway (backend) deployment.
 
 ### Backend (Railway) Health Check
@@ -18,3 +19,5 @@ After each deploy you can verify the service quickly:
 
 If Mongo is unreachable the API still boots in demo mode so the frontend won’t hang.
 See employee-dashboard/README.md for service details.
+
+
