@@ -156,10 +156,10 @@ const API_CONFIG = {
         
         // User Authentication
         AUTH: {
-            LOGIN: '/auth/login',
-            REGISTER: '/auth/register',
-            PROFILE: '/auth/profile',
-            LOGOUT: '/auth/logout'
+            LOGIN: '/users/login',
+            REGISTER: '/users/register', 
+            PROFILE: '/users/profile',
+            LOGOUT: '/users/logout'
         }
     }
 };
