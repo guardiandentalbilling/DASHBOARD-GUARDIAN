@@ -4,9 +4,9 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "node server.js",
+    "startCommand": "node GuardianDashBaordAI/server.js",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10,
-    "rootDir": "./GuardianDashBaordAI"
+    "rootDir": "./"
   }
 }
