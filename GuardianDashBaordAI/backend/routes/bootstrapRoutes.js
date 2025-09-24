@@ -3,13 +3,18 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/userModel');
 const router = express.Router();
 
+// Lightweight health/info endpoint so we can confirm whether the route is mounted
+router.get('/health', (req,res)=>{
+    res.json({ status:'ok', tokenSet: !!process.env.ADMIN_BOOTSTRAP_TOKEN });
+});
+
 // --- Secure one-off bootstrap password reset endpoint ---
 // Allows resetting/creating an admin user when credentials are lost.
 // MUST set env ADMIN_BOOTSTRAP_TOKEN to a strong secret; otherwise endpoint is disabled.
 // Invoke with POST /api/bootstrap/force-reset { token, username, password, email, role }
 router.post('/force-reset', async (req, res) => {
     if (!process.env.ADMIN_BOOTSTRAP_TOKEN) {
-        return res.status(404).json({ success: false, message: 'Endpoint not enabled. ADMIN_BOOTSTRAP_TOKEN is not set.' });
+        return res.status(404).json({ success: false, message: 'Endpoint not enabled. Set ADMIN_BOOTSTRAP_TOKEN then redeploy.' });
     }
 
     const { token, username = 'admin', password, email, role = 'admin' } = req.body || {};

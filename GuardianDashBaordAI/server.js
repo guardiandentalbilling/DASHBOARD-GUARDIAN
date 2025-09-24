@@ -127,6 +127,13 @@ app.use(express.static(path.join(__dirname)));
 // Serve uploaded chat images
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Always mount bootstrap route (internally guards itself for token sensitive ops)
+try {
+    app.use('/api/bootstrap', require('./backend/routes/bootstrapRoutes'));
+} catch(e){
+    console.warn('[BOOTSTRAP_ROUTE_MOUNT_FAIL]', e.message);
+}
+
 // Routes
 
 // Gemini secure proxy (mounted early so available regardless of DB state)
@@ -255,12 +262,6 @@ function mountApiRoutes() {
         }
     });
 
-}
-
-// Mount bootstrap routes (if enabled)
-if (process.env.ADMIN_BOOTSTRAP_TOKEN) {
-    app.use('/api/bootstrap', require('./backend/routes/bootstrapRoutes'));
-    logger.info('[BOOTSTRAP] Secure bootstrap endpoint enabled at /api/bootstrap/force-reset');
 }
 
 // Export app for testing
