@@ -41,8 +41,10 @@ app.use('/api/auth', limiter);
 
 app.get('/health', (req,res)=> res.json({ status:'ok', mongo: mongoose.connection.readyState === 1, time: new Date().toISOString(), version: '2.0' }));
 
-// Debug route to test API availability
+// Test endpoints at different paths to diagnose routing issue
+app.get('/test-route', (req,res)=> res.json({ message: 'Root test route works', timestamp: new Date().toISOString() }));
 app.get('/api/debug', (req,res)=> res.json({ message: 'API routes are working', timestamp: new Date().toISOString() }));
+app.get('/api/test', (req,res)=> res.json({ message: 'API test route works', timestamp: new Date().toISOString() }));
 
 // Routes
 console.log('Loading auth routes...');
