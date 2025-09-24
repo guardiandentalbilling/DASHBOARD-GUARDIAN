@@ -101,10 +101,35 @@ const loginUser = async (req, res) => {
                 // (Not adding complex heuristics now; can extend later.)
             }
         }
-        if (!user) return res.status(401).json({ message: 'Invalid credentials' });
+        if (!user) {
+            if (process.env.AUTH_DEBUG === 'true') {
+                console.log(`[AUTH_DEBUG] Login failed: No user found for identifier '${loginId}'.`);
+            }
+            return res.status(401).json({ message: 'Invalid credentials' });
+        }
+
+        if (process.env.AUTH_DEBUG === 'true') {
+            console.log(`[AUTH_DEBUG] User found for login attempt:`, {
+                id: user._id,
+                username: user.username,
+                email: user.email,
+                role: user.role,
+                passwordHashLength: user.password.length,
+                passwordHashStart: user.password.substring(0, 7)
+            });
+        }
 
         const isPasswordValid = await bcrypt.compare(password, user.password);
-        if (!isPasswordValid) return res.status(401).json({ message: 'Invalid credentials' });
+        if (!isPasswordValid) {
+            if (process.env.AUTH_DEBUG === 'true') {
+                console.log(`[AUTH_DEBUG] Password comparison FAILED for user '${user.username}'.`);
+            }
+            return res.status(401).json({ message: 'Invalid credentials' });
+        }
+
+        if (process.env.AUTH_DEBUG === 'true') {
+            console.log(`[AUTH_DEBUG] Password comparison SUCCEEDED for user '${user.username}'. Generating token.`);
+        }
 
         const token = jwt.sign({ id: user._id, email: user.email, role: user.role }, process.env.JWT_SECRET || 'YOUR_SECRET_KEY_123', { expiresIn: '30d' });
         return res.json({ _id: user._id, name: user.name, email: user.email, username: user.username, role: user.role, token, message: 'Login successful' });
