@@ -38,7 +38,10 @@ app.use(cors({
 const limiter = rateLimit({ windowMs: 15*60*1000, max: 100 });
 app.use('/api/auth', limiter);
 
-app.get('/health', (req,res)=> res.json({ status:'ok', time: new Date().toISOString(), version: '2.0' }));
+app.get('/health', (req,res)=> res.json({ status:'ok', mongo: mongoose.connection.readyState === 1, time: new Date().toISOString(), version: '2.0' }));
+
+// Debug route to test API availability
+app.get('/api/debug', (req,res)=> res.json({ message: 'API routes are working', timestamp: new Date().toISOString() }));
 
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
