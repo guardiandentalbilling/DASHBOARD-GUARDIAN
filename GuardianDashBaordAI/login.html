@@ -213,7 +213,7 @@
       if(forced) candidates.push(forced.replace(/\/$/,''));
       if(initial) candidates.push(initial.replace(/\/$/,''));
       if(origin && origin.startsWith('http')) candidates.push(origin.replace(/\/$/,''));
-      candidates.push('http://localhost:5000','http://127.0.0.1:5000');
+      candidates.push('https://dashboard-guardian-production.up.railway.app','http://localhost:5000','http://127.0.0.1:5000');
       const seen = new Set();
       for(const c of candidates){
         if(seen.has(c)) continue; seen.add(c);
@@ -302,7 +302,7 @@
           // cycle alternatives if not already
           const alt = await findWorkingBase(null);
           if(alt && alt !== base){
-            base = alt; apiUrl = base + '/api/users/login';
+            base = alt; apiUrl = base + '/api/auth/login';
             try { resp = await fetch(apiUrl, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ username: identifier, password }) }); }
             catch(secondErr){ throw secondErr; }
           } else throw netErr;
