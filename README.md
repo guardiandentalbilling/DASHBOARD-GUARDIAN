@@ -20,4 +20,15 @@ After each deploy you can verify the service quickly:
 If Mongo is unreachable the API still boots in demo mode so the frontend won’t hang.
 See employee-dashboard/README.md for service details.
 
+### Hostinger VPS
+For deploying everything onto a single Hostinger VPS (Node.js + PM2 + Nginx + SSL) see: [HOSTINGER_VPS_DEPLOYMENT.md](./HOSTINGER_VPS_DEPLOYMENT.md)
+
+Guide covers:
+1. SSH login & user hardening
+2. Installing Node & PM2
+3. Reverse proxy with Nginx and HTTPS (Certbot)
+4. Environment variables & `.env` setup
+5. Optional separate API domain (api.assests.online)
+6. Troubleshooting & security quick wins
+
 
