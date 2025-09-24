@@ -1,8 +1,12 @@
 const mongoose = require('mongoose');
 
 const EmployeeSchema = new mongoose.Schema({
-    // We will link this to the User model later for login
-    // user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    // Link to User model for authentication
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false },
+    // Optional username stored on the employee for display / login hints
+    username: { type: String, trim: true, lowercase: true, required: false },
+    // Role at the application/user level (employee/admin)
+    userRole: { type: String, required: false, default: 'employee' },
     
     // Personal Information
     firstName: { type: String, required: true },

@@ -1,4 +1,6 @@
 const Employee = require('../../models/Employee');
+const User = require('../models/userModel');
+const bcrypt = require('bcryptjs');
 
 // In-memory store for demo mode
 let demoEmployees = [
@@ -164,11 +166,71 @@ const createEmployee = async (req, res) => {
             task
         });
 
+        // If client supplied an existing userId (frontend created the user already), link it
+        let createdUser = null;
+        try {
+            if (req.body.userId) {
+                const existingUser = await User.findById(req.body.userId);
+                if (existingUser) {
+                    employee.user = existingUser._id;
+                    employee.username = existingUser.username || employee.username;
+                    employee.userRole = existingUser.role || employee.userRole;
+                    createdUser = existingUser; // treat as linked
+                }
+            } else {
+                // If password or explicit user creation requested, create a linked User
+                // If client provided a password (from admin UI) use it; otherwise generate a random temp password
+                let plainPassword = req.body.password;
+                if (!plainPassword) {
+                    // Generate a 10-char temporary password
+                    plainPassword = Math.random().toString(36).slice(-8) + (Math.floor(Math.random() * 900) + 100).toString();
+                }
+
+                // Determine username for the user: use provided username, else derive from name or email
+                let finalUsername = username || `${firstName}.${lastName}`.toLowerCase();
+                finalUsername = finalUsername.replace(/\s+/g, '.');
+                // Ensure uniqueness by appending number when collision occurs (simple loop)
+                let collision = 0;
+                let candidate = finalUsername;
+                while (await User.findOne({ username: candidate })) {
+                    collision += 1;
+                    candidate = `${finalUsername}${collision}`;
+                    if (collision > 50) break;
+                }
+                finalUsername = candidate;
+
+                const salt = await bcrypt.genSalt(10);
+                const hashed = await bcrypt.hash(plainPassword, salt);
+
+                createdUser = await User.create({
+                    name: `${firstName} ${lastName}`,
+                    email: email.toLowerCase(),
+                    username: finalUsername,
+                    password: hashed,
+                    role: userRole || 'employee'
+                });
+
+                // Link created user to employee
+                employee.user = createdUser._id;
+                // Also store username on employee for quick reference
+                employee.username = finalUsername;
+                employee.userRole = createdUser.role;
+            }
+        } catch (userErr) {
+            console.error('Failed to create/link user for employee:', userErr.message);
+            // Continue and create employee record, but inform caller about partial failure
+        }
+
         const savedEmployee = await employee.save();
-        res.status(201).json({ 
-            msg: 'Employee created successfully', 
-            employee: savedEmployee 
-        });
+
+        const resp = { msg: 'Employee created successfully', employee: savedEmployee };
+        if (createdUser) {
+            resp.login = { username: createdUser.username, password: req.body.password || 'TEMP_GENERATED' };
+            // If we generated a password, hide the plain text but indicate that admin should reset or note it
+            if (!req.body.password) resp.login.password = 'TEMP_GENERATED - admin must view logs or reset';
+        }
+
+        res.status(201).json(resp);
 
     } catch (error) {
         console.error('Error creating employee:', error.message);
@@ -304,6 +366,22 @@ const updateEmployee = async (req, res) => {
             { $set: updateFields },
             { new: true, runValidators: true }
         );
+
+        // If this employee is linked to a User, propagate certain changes
+        try {
+            if (employee.user) {
+                const userUpdates = {};
+                if (updateFields.email) userUpdates.email = updateFields.email.toLowerCase();
+                if (updateFields.username) userUpdates.username = updateFields.username.toLowerCase();
+                if (updateFields.userRole) userUpdates.role = updateFields.userRole;
+                if (Object.keys(userUpdates).length > 0) {
+                    await User.findByIdAndUpdate(employee.user, { $set: userUpdates }, { new: true, runValidators: true });
+                }
+            }
+        } catch (userUpdateErr) {
+            console.error('Failed to sync updates to linked User:', userUpdateErr.message);
+            // Do not block the employee update; let caller handle partial sync issues
+        }
 
         res.json({ 
             msg: 'Employee updated successfully', 

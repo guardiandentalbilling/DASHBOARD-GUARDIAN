@@ -293,16 +293,17 @@
           if(healthRes.ok) healthOk = true; else console.warn('[LOGIN] Health non-OK', healthRes.status);
         } catch(healthErr){ console.warn('[LOGIN] Health check failed (continuing):', healthErr.message); }
 
-  let resp; let data = {}; let apiUrl = base + '/api/users/login';
+  let resp; let data = {}; let apiUrl = base + '/api/auth/login';
         try {
-          resp = await fetch(apiUrl, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ identifier, password }) });
+            // New API expects { username, password } where username can be email or username
+            resp = await fetch(apiUrl, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ username: identifier, password }) });
         } catch(netErr){
           console.warn('[LOGIN] Primary base login network error, cycling alternatives');
           // cycle alternatives if not already
           const alt = await findWorkingBase(null);
           if(alt && alt !== base){
             base = alt; apiUrl = base + '/api/users/login';
-            try { resp = await fetch(apiUrl, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ identifier, password }) }); }
+            try { resp = await fetch(apiUrl, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ username: identifier, password }) }); }
             catch(secondErr){ throw secondErr; }
           } else throw netErr;
         }
@@ -310,19 +311,18 @@
 
         if(resp.ok) {
           if(!data.token){ console.warn('No token in response payload'); }
+          // Expected shape: { token, user: { id, role, name } }
+          const user = data.user || {}; 
           localStorage.setItem('authToken', data.token || 'missing-token');
-          localStorage.setItem('userData', JSON.stringify({ id: data._id, name: data.name, email: data.email, role: data.role || 'employee' }));
+          localStorage.setItem('userData', JSON.stringify({ id: user.id || user._id, name: user.name, email: user.email, role: user.role || 'employee' }));
           showAlert('success','Login successful. Redirecting...');
-          setTimeout(()=> { window.location.href = (data.role === 'admin') ? '/admin.html' : '/index.html'; }, 700);
+          setTimeout(()=> { window.location.href = (user.role === 'admin') ? '/admin.html' : '/index.html'; }, 700);
           return;
         }
 
         // Attempt demo fallback only if server unreachable OR explicit invalid credentials
         const demoCombos = [
-          { id:'demo-admin', identifier:'admin@test.com', password:'admin123', role:'admin', name:'Demo Admin' },
           { id:'demo-admin', identifier:'admin', password:'admin123', role:'admin', name:'Demo Admin' },
-          { id:'admin-shakeel', identifier:'shakeel', password:'shakeel123', role:'admin', name:'Shakeel Admin', email:'shakeel@guardiandental.com' },
-          { id:'demo-employee', identifier:'employee@test.com', password:'emp123', role:'employee', name:'Demo Employee' },
           { id:'demo-employee', identifier:'employee', password:'emp123', role:'employee', name:'Demo Employee' }
         ];
         const matched = demoCombos.find(c => c.identifier === identifier && c.password === password);
