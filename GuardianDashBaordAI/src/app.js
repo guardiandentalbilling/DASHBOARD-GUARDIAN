@@ -36,7 +36,11 @@ app.use(cors({
   credentials: true
 }));
 
-const limiter = rateLimit({ windowMs: 15*60*1000, max: 100 });
+const limiter = rateLimit({ 
+  windowMs: 15*60*1000, 
+  max: 100,
+  trustProxy: true  // Explicitly trust proxy for rate limiting
+});
 app.use('/api/auth', limiter);
 
 app.get('/health', (req,res)=> res.json({ status:'ok', mongo: mongoose.connection.readyState === 1, time: new Date().toISOString(), version: '2.0' }));
