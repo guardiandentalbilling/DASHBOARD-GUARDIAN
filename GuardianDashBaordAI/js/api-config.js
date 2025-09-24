@@ -5,13 +5,25 @@
 // DYNAMIC API CONFIGURATION
 // ======================
 
-// NOTE: Production API root. TEMP: point this directly to Railway deployment until custom domain/CNAME is configured.
-// Example Railway URL pattern: https://your-service-name.up.railway.app
-// Append /api because all backend routes are mounted under /api in server.js
-const PROD_API_ROOT = (typeof window !== 'undefined' && window.location.hostname.endsWith('netlify.app'))
-    ? 'https://dashboard-guardian-production.up.railway.app/api' // Updated to actual Railway service domain
-    : 'https://dashboard-guardian-production.up.railway.app/api';
+// Production API root strategy:
+// 1. If window.__API_BASE__ is defined (injected via script tag) use that.
+// 2. Else if running on same origin as backend (VPS with Nginx proxy) use relative '/api'.
+// 3. Else fallback to previously deployed Railway URL (can be removed once VPS live).
+const RAILWAY_FALLBACK = 'https://dashboard-guardian-production.up.railway.app/api';
 const DEV_API_ROOT  = 'http://localhost:5000/api';
+function resolveProdApiRoot(){
+    try {
+        if (typeof window !== 'undefined') {
+            if (window.__API_BASE__ && typeof window.__API_BASE__ === 'string') {
+                return window.__API_BASE__.replace(/\/$/, '');
+            }
+            // If site served from same domain as backend (VPS scenario), use relative path
+            return '/api';
+        }
+    } catch(e) {}
+    return RAILWAY_FALLBACK;
+}
+const PROD_API_ROOT = resolveProdApiRoot();
 
 // Utility: detect if running locally
 function isLocalHost() {
@@ -22,7 +34,8 @@ function isLocalHost() {
 function getApiBaseUrl() {
     const stored = (typeof localStorage !== 'undefined') ? localStorage.getItem('GLOBAL_API_BASE_URL') : null;
     if (stored && stored.trim().length > 0) return stored.trim();
-    return isLocalHost() ? DEV_API_ROOT : PROD_API_ROOT;
+    if (isLocalHost()) return DEV_API_ROOT;
+    return PROD_API_ROOT;
 }
 
 function getGeminiApiKey() {
