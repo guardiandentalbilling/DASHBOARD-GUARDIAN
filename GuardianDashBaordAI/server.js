@@ -69,6 +69,16 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
+// Focused login rate limiter (tighter)
+const loginLimiter = rateLimit({
+    windowMs: 5 * 60 * 1000, // 5 minutes
+    max: 10,
+    message: 'Too many login attempts, please retry in 5 minutes.',
+    standardHeaders: true,
+    legacyHeaders: false,
+    skipSuccessfulRequests: true // only count failures
+});
+
 // Compression middleware
 app.use(compression());
 
@@ -127,12 +137,13 @@ app.use(express.static(path.join(__dirname)));
 // Serve uploaded chat images
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Always mount bootstrap route (internally guards itself for token sensitive ops)
-try {
-    app.use('/api/bootstrap', require('./backend/routes/bootstrapRoutes'));
-} catch(e){
-    console.warn('[BOOTSTRAP_ROUTE_MOUNT_FAIL]', e.message);
-}
+// Bootstrap routes removed after admin reset hardening.
+// If emergency re-introduction needed: see BOOTSTRAP_CLEANUP.md
+// try {
+//     app.use('/api/bootstrap', require('./backend/routes/bootstrapRoutes'));
+// } catch(e){
+//     console.warn('[BOOTSTRAP_ROUTE_MOUNT_FAIL]', e.message);
+// }
 
 // Routes
 
@@ -204,12 +215,18 @@ function mountApiRoutes() {
 
     if (global.mongoConnected) {
         // Mount real API routes that use the DB
-        app.use('/api/users', require('./backend/routes/userRoutes'));
+        // Users routes (attach login limiter for security to POST /login)
+        const usersRouter = require('./backend/routes/userRoutes');
+        // Wrap router so we can selectively apply limiter
+        app.use('/api/users', (req,res,next)=>{
+            if(req.method === 'POST' && req.path === '/login') return loginLimiter(req,res,()=>usersRouter(req,res,next));
+            return usersRouter(req,res,next);
+        });
         // Temporary backward-compatible auth alias: /api/auth/login -> /api/users/login
         try {
             const { loginUser } = require('./backend/controllers/userController');
             const aliasRouter = express.Router();
-            aliasRouter.post('/login', loginUser);
+            aliasRouter.post('/login', loginLimiter, loginUser);
             // Optional alias for register/profile in future if needed
             app.use('/api/auth', aliasRouter);
         } catch (e) {

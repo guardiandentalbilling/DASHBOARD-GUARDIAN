@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Page Not Found • Guardian Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Inter', sans-serif; background: radial-gradient(circle at 30% 20%, #1A3464 0%, #0d1b2e 60%, #08111d 100%); }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center text-white px-6">
+  <div class="max-w-lg w-full text-center">
+    <div class="mb-8">
+      <img src="https://guardiandentalbilling.com/wp-content/uploads/2025/02/Logo-250-x-150-px-1.png" alt="Guardian Dental Billing" class="mx-auto h-28 w-auto drop-shadow-xl" />
+    </div>
+    <h1 class="text-5xl font-extrabold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-fuchsia-400 to-orange-300">404</h1>
+    <p class="text-lg font-semibold tracking-wide mb-3">Page Not Found</p>
+    <p class="text-sm text-indigo-100/80 leading-relaxed mb-8 max-w-md mx-auto">The page you are looking for may have been moved, removed, renamed, or might be temporarily unavailable. If you believe this is an error, please contact your administrator or return to the dashboard.</p>
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+      <a href="/index.html" class="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 font-semibold text-sm shadow-lg shadow-indigo-900/40 transition">Employee Dashboard</a>
+      <a href="/admin.html" class="px-6 py-3 rounded-xl bg-fuchsia-600 hover:bg-fuchsia-500 font-semibold text-sm shadow-lg shadow-fuchsia-900/40 transition">Admin Panel</a>
+      <a href="/login.html" class="px-6 py-3 rounded-xl bg-slate-600 hover:bg-slate-500 font-semibold text-sm shadow-lg shadow-slate-900/40 transition">Sign In</a>
+    </div>
+    <div class="mt-10 text-[11px] text-slate-400">© <span id="year"></span> Guardian Dental Billing LLC. All rights reserved.</div>
+  </div>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>

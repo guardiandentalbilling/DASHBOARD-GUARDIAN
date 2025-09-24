@@ -39,13 +39,22 @@ const registerUser = async (req, res) => {
 
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'YOUR_SECRET_KEY_123', { expiresIn: '30d' });
 
+        // Backward-compatible flat response plus nested structure
         return res.status(201).json({
             _id: user._id,
             name: user.name,
             email: user.email,
             username: user.username,
             role: user.role,
-            token
+            token,
+            user: {
+                id: user._id,
+                _id: user._id,
+                name: user.name,
+                email: user.email,
+                username: user.username,
+                role: user.role
+            }
         });
     } catch (err) {
         console.error('Register error:', err);
@@ -87,7 +96,7 @@ const loginUser = async (req, res) => {
             const user = demoUsers.find(u => (u.email === loginId || u.username === loginId) && u.password === password);
             if (!user) return res.status(401).json({ message: 'Invalid credentials (Demo Mode)' });
             const token = jwt.sign({ id: 'demo_' + Date.now(), email: user.email, role: user.role }, process.env.JWT_SECRET || 'YOUR_SECRET_KEY_123', { expiresIn: '30d' });
-            return res.json({ _id: 'demo_' + Date.now(), name: user.name, email: user.email, username: user.username, role: user.role, token, message: 'Login successful (Demo Mode)' });
+            return res.json({ _id: 'demo_' + Date.now(), name: user.name, email: user.email, username: user.username, role: user.role, token, message: 'Login successful (Demo Mode)', user: { id: 'demo_' + Date.now(), name: user.name, email: user.email, username: user.username, role: user.role } });
         }
 
         let user;
@@ -132,7 +141,7 @@ const loginUser = async (req, res) => {
         }
 
         const token = jwt.sign({ id: user._id, email: user.email, role: user.role }, process.env.JWT_SECRET || 'YOUR_SECRET_KEY_123', { expiresIn: '30d' });
-        return res.json({ _id: user._id, name: user.name, email: user.email, username: user.username, role: user.role, token, message: 'Login successful' });
+    return res.json({ _id: user._id, name: user.name, email: user.email, username: user.username, role: user.role, token, message: 'Login successful', user: { id: user._id, _id: user._id, name: user.name, email: user.email, username: user.username, role: user.role } });
     } catch (error) {
         console.error('Login error:', error);
         return res.status(500).json({ message: 'Server error during login' });

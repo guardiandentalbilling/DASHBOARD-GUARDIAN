@@ -113,3 +113,40 @@ Suggested action:
 
 ---
 For core feature documentation also see the sibling `employee-dashboard` directory README.
+
+### Auth Response Shape (Backward Compatible Upgrade)
+Authentication endpoints (`POST /api/users/login`, `POST /api/auth/login`, `POST /api/users/register`) now return BOTH:
+1. Legacy flat fields: `_id, name, email, username, role, token`
+2. A nested object: `user: { id, _id, name, email, username, role }`
+
+Reason: Eases migration to a consistent response contract (`{ user, token }`) without breaking existing front‑end code that expected flat values.
+
+Recommended new usage (frontend):
+```js
+const payload = await resp.json();
+const user = payload.user || {
+	id: payload._id,
+	name: payload.name,
+	email: payload.email,
+	username: payload.username,
+	role: payload.role
+};
+store(user, payload.token);
+```
+
+Flat fields will remain for at least one deprecation cycle. Plan to remove them once all consuming clients standardize.
+
+### Focused Login Rate Limiting
+A dedicated limiter protects login endpoints:
+- Window: 5 minutes
+- Max failed attempts: 10 (successful attempts are skipped via `skipSuccessfulRequests`)
+- Affected routes: `POST /api/users/login`, `POST /api/auth/login`
+
+Environment-wide limiter (default 15 min / global API) still applies in parallel. Tune via future env vars if necessary.
+
+If you observe false positives (legitimate users blocked), consider raising `max` or adding IP allowlisting logic based on a reverse proxy header.
+
+### Removed Bootstrap Reset Route
+The emergency `/api/bootstrap/*` routes have been commented out in `server.js` after successful administrator seeding. For re‑enable steps see `BOOTSTRAP_CLEANUP.md`.
+
+Security reminder: Never leave ad‑hoc credential reset endpoints active in production longer than required.

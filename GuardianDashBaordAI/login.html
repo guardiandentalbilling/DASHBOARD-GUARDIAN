@@ -209,11 +209,13 @@
       const origin = window.location.origin;
       const qs = new URLSearchParams(window.location.search);
       const forced = qs.get('api');
-      const candidates = [];
+  const candidates = [];
       if(forced) candidates.push(forced.replace(/\/$/,''));
       if(initial) candidates.push(initial.replace(/\/$/,''));
       if(origin && origin.startsWith('http')) candidates.push(origin.replace(/\/$/,''));
-      candidates.push('https://dashboard-guardian-production.up.railway.app','http://localhost:5000','http://127.0.0.1:5000');
+  // Prefer custom API domain if configured (will work once DNS + SSL are ready)
+  candidates.push('https://api.dashboard.guardiandentalbilling.com');
+  candidates.push('https://dashboard-guardian-production.up.railway.app','http://localhost:5000','http://127.0.0.1:5000');
       const seen = new Set();
       for(const c of candidates){
         if(seen.has(c)) continue; seen.add(c);
@@ -311,12 +313,44 @@
 
         if(resp.ok) {
           if(!data.token){ console.warn('No token in response payload'); }
-          // Expected shape: { token, user: { id, role, name } }
-          const user = data.user || {}; 
+          // Backends may return either flat shape {_id, role, token} or nested { user: {...}, token }
+          let role = 'employee';
+          let name = '';
+          let email = '';
+          let id = null;
+          if(data.user){
+             role = data.user.role || role;
+             name = data.user.name || name;
+             email = data.user.email || email;
+             id = data.user.id || data.user._id || id;
+          } else {
+             role = data.role || role;
+             name = data.name || name;
+             email = data.email || email;
+             id = data._id || id;
+          }
+          // Debug: log raw API payload once (sanitized)
+          try { console.info('[LOGIN] Raw API payload (sanitized)', { hasToken: !!data.token, role: data.role || (data.user && data.user.role), id }); } catch(_) {}
+          // Persist
           localStorage.setItem('authToken', data.token || 'missing-token');
-          localStorage.setItem('userData', JSON.stringify({ id: user.id || user._id, name: user.name, email: user.email, role: user.role || 'employee' }));
+          const stored = { id, name, email, role };
+          // Fallback: if backend returned username and no name, set name= username
+          if(!stored.name && data.username){ stored.name = data.username; }
+          localStorage.setItem('userData', JSON.stringify(stored));
+          // Self-heal: ensure role present (if backend omitted role accidentally, treat admin email heuristic & allow manual override via ?forceAdmin=1)
+          (function ensureRole(){
+            try {
+              const ud = JSON.parse(localStorage.getItem('userData')||'{}');
+              if(!ud.role || (ud.role !== 'admin' && (new URLSearchParams(location.search).get('forceAdmin')==='1'))){
+                if(new URLSearchParams(location.search).get('forceAdmin')==='1'){ ud.role='admin'; }
+                localStorage.setItem('userData', JSON.stringify(ud));
+                console.info('[LOGIN] Role normalization applied ->', ud.role);
+              }
+            } catch(e){ /* ignore */ }
+          })();
+          console.info('[LOGIN] Stored userData', stored);
           showAlert('success','Login successful. Redirecting...');
-          setTimeout(()=> { window.location.href = (user.role === 'admin') ? '/admin.html' : '/index.html'; }, 700);
+          setTimeout(()=> { window.location.href = (role === 'admin') ? '/admin.html' : '/index.html'; }, 700);
           return;
         }
 
