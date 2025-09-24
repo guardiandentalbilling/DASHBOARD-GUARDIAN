@@ -13,6 +13,10 @@ const requestLogger = require('./backend/middleware/requestLogger');
 const app = express();
 const PORT = config.port;
 
+// CRITICAL: Ensure Express honors X-Forwarded-* headers from Railway's proxy.
+// This MUST be set to '1' to trust the first hop.
+app.set('trust proxy', 1);
+
 // Derived config
 const PROD_ALLOWED_ORIGINS = config.security.allowedOrigins;
 const API_RATE_LIMIT_MAX = config.security.apiRateLimit;
@@ -199,6 +203,7 @@ function mountApiRoutes() {
             const { loginUser } = require('./backend/controllers/userController');
             const aliasRouter = express.Router();
             aliasRouter.post('/login', loginUser);
+            // Optional alias for register/profile in future if needed
             app.use('/api/auth', aliasRouter);
         } catch (e) {
             console.warn('[AUTH_ALIAS] Failed to mount /api/auth/login alias:', e.message);
@@ -250,6 +255,12 @@ function mountApiRoutes() {
         }
     });
 
+}
+
+// Mount bootstrap routes (if enabled)
+if (process.env.ADMIN_BOOTSTRAP_TOKEN) {
+    app.use('/api/bootstrap', require('./backend/routes/bootstrapRoutes'));
+    logger.info('[BOOTSTRAP] Secure bootstrap endpoint enabled at /api/bootstrap/force-reset');
 }
 
 // Export app for testing
