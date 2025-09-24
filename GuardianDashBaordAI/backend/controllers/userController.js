@@ -59,11 +59,21 @@ const registerUser = async (req, res) => {
 // @desc    Login user
 // @route   POST /api/users/login
 const loginUser = async (req, res) => {
-    const { email, password, identifier } = req.body; // identifier may be username or email
-    const loginId = (identifier || email || '').trim().toLowerCase();
+    // Backward compatibility: some clients send { username, password }
+    // Newer clients may send { identifier, password } OR { email, password }
+    const { email, password, identifier, username } = req.body;
+
+    // Normalize the login identifier preference order
+    const rawId = (identifier || email || username || '').toString().trim();
+    const loginId = rawId.toLowerCase();
 
     if (!loginId || !password) {
         return res.status(400).json({ message: 'Please provide username/email and password' });
+    }
+
+    // Lightweight debug (avoid leaking password). Can be removed later.
+    if (process.env.AUTH_DEBUG === 'true') {
+        console.log('[LOGIN_ATTEMPT]', { loginId, hasPassword: !!password, from: 'loginUserController' });
     }
 
     try {
@@ -84,9 +94,11 @@ const loginUser = async (req, res) => {
         if (loginId.includes('@')) {
             user = await User.findOne({ email: loginId });
         } else {
+            // Try username first
             user = await User.findOne({ username: loginId });
             if (!user) {
-                // Fallback: maybe they entered their email without @? skip
+                // Opportunistic fallback: if loginId looks like something@ without domain removed earlier
+                // (Not adding complex heuristics now; can extend later.)
             }
         }
         if (!user) return res.status(401).json({ message: 'Invalid credentials' });
