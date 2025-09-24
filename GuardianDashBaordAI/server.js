@@ -194,6 +194,15 @@ function mountApiRoutes() {
     if (global.mongoConnected) {
         // Mount real API routes that use the DB
         app.use('/api/users', require('./backend/routes/userRoutes'));
+        // Temporary backward-compatible auth alias: /api/auth/login -> /api/users/login
+        try {
+            const { loginUser } = require('./backend/controllers/userController');
+            const aliasRouter = express.Router();
+            aliasRouter.post('/login', loginUser);
+            app.use('/api/auth', aliasRouter);
+        } catch (e) {
+            console.warn('[AUTH_ALIAS] Failed to mount /api/auth/login alias:', e.message);
+        }
         app.use('/api/employees', require('./backend/routes/employeeRoutes'));
         app.use('/api/loan-requests', require('./backend/routes/loanRoutes'));
         app.use('/api/leave-requests', require('./backend/routes/leaveRoutes'));
