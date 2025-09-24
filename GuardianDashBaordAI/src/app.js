@@ -8,6 +8,9 @@ const { notFound, errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
 
+// Trust proxy for Railway deployment (fixes X-Forwarded-For warnings)
+app.set('trust proxy', true);
+
 app.use(helmet());
 app.use(express.json());
 app.use(cors({ origin: (origin, cb)=> {
