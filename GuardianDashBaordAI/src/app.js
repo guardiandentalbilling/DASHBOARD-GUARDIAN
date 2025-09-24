@@ -3,6 +3,7 @@ const helmet = require('helmet');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const mongoose = require('mongoose');
+const path = require('path');
 const config = require('./config/env');
 const { notFound, errorHandler } = require('./middleware/errorHandler');
 
@@ -52,6 +53,17 @@ app.use('/api/loans', require('./routes/loanRoutes'));
 app.use('/api/complaints', require('./routes/complaintRoutes'));
 app.use('/api/payroll', require('./routes/payrollRoutes'));
 app.use('/api/config', require('./routes/configRoutes'));
+
+// Serve static files only for non-API routes
+app.use(express.static(path.join(__dirname, '..')));
+
+// Catch-all for SPA routing (only for non-API routes)
+app.get('*', (req, res) => {
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({ error: 'API endpoint not found' });
+  }
+  res.sendFile(path.join(__dirname, '..', 'index.html'));
+});
 
 app.use(notFound);
 app.use(errorHandler);
