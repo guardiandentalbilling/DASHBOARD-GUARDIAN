@@ -107,6 +107,13 @@ pm2 start server.js --name guardian-dashboard
 pm2 logs guardian-dashboard --lines 50
 pm2 save
 ```
+
+Or start via the ecosystem file (cluster mode & env loading):
+```bash
+cd /var/www/guardian/DASHBOARD-GUARDIAN
+pm2 start ecosystem.config.js --env production
+pm2 save
+```
 Check health:
 ```bash
 curl http://127.0.0.1:5000/health
@@ -210,6 +217,15 @@ pm2 restart guardian-dashboard
 pm2 save
 ```
 
+Or use the deploy helper:
+```bash
+./scripts/deploy.sh
+```
+Windows (PowerShell remote session):
+```powershell
+./scripts/deploy.ps1 -AppName guardian-dashboard
+```
+
 ---
 ## 14. Optional: Separate Frontend & Backend
 If you keep frontend on Netlify (recommended):
@@ -276,6 +292,8 @@ GEMINI_API_KEY= (optional)
 - [ ] Login works (JWT issued)
 - [ ] Admin dashboard loads data
 - [ ] PM2 resurrects app after reboot (`sudo reboot` test)
+- [ ] deploy.sh reports Health OK
+- [ ] Cron optional health monitor added (see scripts/health-check.sh)
 
 ---
 Deployment complete. 🎉
