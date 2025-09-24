@@ -13,11 +13,27 @@ app.set('trust proxy', true);
 
 app.use(helmet());
 app.use(express.json());
-app.use(cors({ origin: (origin, cb)=> {
-  if(!origin) return cb(null,true);
-  if(config.cors.allowedOrigins.includes(origin)) return cb(null,true);
-  return cb(new Error('CORS blocked'), false);
-}}));
+app.use(cors({ 
+  origin: (origin, cb)=> {
+    // Allow requests with no origin (mobile apps, curl, etc)
+    if(!origin) return cb(null,true);
+    
+    // Check if origin is in allowed list
+    if(config.cors.allowedOrigins.includes(origin)) return cb(null,true);
+    
+    // Allow Railway and common hosting patterns
+    if(origin.includes('railway.app') || 
+       origin.includes('netlify.app') || 
+       origin.includes('vercel.app') ||
+       origin.includes('assests.online')) {
+      return cb(null,true);
+    }
+    
+    console.warn('[CORS] Blocked origin:', origin);
+    return cb(new Error('CORS blocked'), false);
+  },
+  credentials: true
+}));
 
 const limiter = rateLimit({ windowMs: 15*60*1000, max: 100 });
 app.use('/api/auth', limiter);
