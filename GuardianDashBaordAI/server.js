@@ -1,24 +1,14 @@
-#!/usr/bin/env nodeconst express = require('express');
-
+const express = require('express');
 const mongoose = require('mongoose');
-
-/**const cors = require('cors');
-
- * Railway Entry Point - Redirects to src/server.jsconst path = require('path');
-
- * This file ensures Railway uses the correct server architectureconst helmet = require('helmet');
-
- */const compression = require('compression');
-
+const cors = require('cors');
+const path = require('path');
+const helmet = require('helmet');
+const compression = require('compression');
 const rateLimit = require('express-rate-limit');
-
-console.log('🚂 Railway entry point - loading src/server.js...');const morgan = require('morgan');
-
+const morgan = require('morgan');
 const config = require('./backend/config');
-
-// Just require the actual serverconst logger = require('./backend/utils/logger');
-
-require('./src/server.js');const requestLogger = require('./backend/middleware/requestLogger');
+const logger = require('./backend/utils/logger');
+const requestLogger = require('./backend/middleware/requestLogger');
 
 const app = express();
 const PORT = config.port;
