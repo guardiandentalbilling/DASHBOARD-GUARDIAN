@@ -45,7 +45,9 @@ app.get('/health', (req,res)=> res.json({ status:'ok', mongo: mongoose.connectio
 app.get('/api/debug', (req,res)=> res.json({ message: 'API routes are working', timestamp: new Date().toISOString() }));
 
 // Routes
+console.log('Loading auth routes...');
 app.use('/api/auth', require('./routes/authRoutes'));
+console.log('Auth routes loaded successfully');
 app.use('/api/employees', require('./routes/employeeRoutes'));
 app.use('/api/attendance', require('./routes/attendanceRoutes'));
 app.use('/api/time-tracking', require('./routes/timeTrackingRoutes'));
